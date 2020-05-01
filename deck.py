@@ -17,7 +17,7 @@ class Deck(object):
     """This class represents a shuffled deck of card"""
 
     def __init__(self):
-        self.cards = LAMAP_CARDS  # create and shuffle cards
+        self.cards = LAMAP_CARDS  # create game cards
         self.graveyard = list()
         self.cards_dealt = 0
         self.logger = logging.getLogger(__name__)
