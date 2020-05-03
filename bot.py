@@ -18,7 +18,7 @@ from utils import send_async
 from start_bot import start_bot
 
 
-from config import TOKEN
+from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS
 
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -63,26 +63,60 @@ def join_game(update, context):
         send_async(bot, chat.id, text="La partie est fermée")
 
     except NoGameInChatError:
-        send_async(bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game",
+        send_async(bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game.",
                    reply_to_message_id=update.message.message_id)
 
     except AlreadyJoinedError:
-        send_async(bot, chat.id, text=f'{update.message.from_user.name}, vous avez déjà rejoint la partie qui va se débuter bientôt',
+        send_async(bot, chat.id, text=f'{update.message.from_user.name}, vous avez déjà rejoint la partie qui va se debuter bientôt.',
                    reply_to_message_id=update.message.message_id)
 
     else:
-        send_async(bot, chat.id, text=f'{update.message.from_user.name} à réjoint la partie',
+        send_async(bot, chat.id, text=f'{update.message.from_user.name} à réjoint la partie !',
                    reply_to_message_id=update.message.message_id)
 
 
+def start_lamap(context, update, args, job_queue):
+    """ Handler for the /start_lamap command"""
+    bot = context.bot
+
+    if update.message.chat.type != 'private':
+        chat = update.message.chat
+
+        try:
+            game = gm.chatid_games[chat.id][-1]
+        except (KeyError, IndexError):
+            send_async(
+                bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game.")
+            return
+
+        if game.started:
+            send_async(
+                bot, chat.id, text=f'{update.message.from_user.name}, la partie a déjà commencée.')
+
+        elif len(game.players) < MIN_PLAYERS:
+            send_async(
+                bot, chat.id, f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer. Utilisez /join pour rejoindre une partie en cours.')
+
+        else:
+            game.start()
+            for player in game.players:
+                player.draw_hand()
+
+    else:
+        help_handler(bot, update)
+
+
 def help_me(update, context):
-    update.message.reply_text("Use /new_game to start this bot.")
+    update.message.reply_text(
+        "Utilise /new_game pour lancer une partie de Lamap.")
 
 
 def main():
 
     # Get the dispatcher to register handlers
     dispatcher.add_handler(CommandHandler('new_game', new_game))
+    dispatcher.add_handler(CommandHandler(
+        'start_lamap', start_lamap, pass_args=True, pass_job_queue=True))
     dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CommandHandler('help', help_me))
 

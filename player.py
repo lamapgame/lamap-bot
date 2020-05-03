@@ -44,11 +44,9 @@ class Player(object):
     def draw_hand(self):
         """Draws a card from this deck"""
         try:
-            hand = list()
             for _ in range(5):
-                hand.append(self.game.deck.cards.pop())
-                self.cards_dealt += 5
-            return hand
+                self.cards.append(self.game.deck.cards.pop())
+            deck.cards_dealt += 5
         except IndexError:
             raise DeckEmptyError()
 
