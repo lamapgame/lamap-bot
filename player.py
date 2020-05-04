@@ -22,15 +22,16 @@ class Player(object):
         self.logger = logging.getLogger(__name__)
 
         # Check if this player is the first player in this game.
-        """ if game.current_player:
-						self.next = game.current_player
-						self.prev = game.current_player.prev
-						game.current_player.prev.next = self
-						game.current_player.prev = self
-				else:
-						self._next = self
-						self._prev = self
-						game.current_player = self """
+
+        if game.current_player:
+            self.next = game.current_player
+            self.prev = game.current_player.prev
+            game.current_player.prev.next = self
+            game.current_player.prev = self
+        else:
+            self._next = self
+            self._prev = self
+            game.current_player = self
 
         self.turn_started = datetime.now()
         self.waiting_time = WAITING_TIME
@@ -41,12 +42,33 @@ class Player(object):
     def __str__(self):
         return str(self.user)
 
+    @property
+    def next(self):
+        return self._next
+
+    @next.setter
+    def next(self, player):
+        self._next = player
+
+    @property
+    def prev(self):
+        return self._prev
+
+    @prev.setter
+    def prev(self, player):
+        self._prev = player
+
+    def play(self, card):
+        self.cards.remove(card)
+        self.game.play_card(card)
+
     def draw_hand(self):
         """Draws a card from this deck"""
+        game_deck = self.game.deck
         try:
             for _ in range(5):
-                self.cards.append(self.game.deck.cards.pop())
-            deck.cards_dealt += 5
+                self.cards.append(game_deck.cards.pop())
+            game_deck.cards_dealt += 5
         except IndexError:
             raise DeckEmptyError()
 

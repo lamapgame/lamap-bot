@@ -1,7 +1,10 @@
 {
 	"python.pythonPath": "f:\\Projects\\Side Projects\\lamap\\lamapbot\\venv\\Scripts\\python.exe",
-	"editor.fontFamily": "'Operator Mono',Consolas, 'Courier New', monospace",
+	"editor.fontFamily": "'Operator Mono SSm Lig', 'Courier New', monospace",
 	"editor.insertSpaces": false,
 	"editor.tabSize": 2,
-	"editor.minimap.size": "proportional"
+	"editor.fontSize": 16,
+	"editor.fontWeight": "400",
+	"editor.minimap.size": "proportional",
+	"editor.fontLigatures": true
 }
