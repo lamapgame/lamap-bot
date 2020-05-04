@@ -35,10 +35,12 @@ class GameManager(object):
 
     def join_game(self, user, chat):
         """Create a player from the Telegram user info and add to current game"""
-        self.logger.info("new player on game" + str(chat.id))
+        self.logger.info(
+            f"NEW PLAYER - {user.id} on game in the group: {chat.id}")
 
         try:
             game = self.chatid_games[chat.id][-1]
+
         except (KeyError, IndexError):
             raise NoGameInChatError()
 
@@ -95,8 +97,8 @@ class GameManager(object):
 
         # Clear game
         for player_in_game in game.players:
-            this_users_players = \
-                self.userid_players.get(player_in_game.user.id, list())
+            this_users_players = self.userid_players.get(
+                player_in_game.user.id, list())
 
             try:
                 this_users_players.remove(player_in_game)
@@ -139,7 +141,6 @@ class GameManager(object):
                     if p.user.id == user.id:
                         if p is g.current_player:
                             g.turn()
-
                         p.leave()
                         return
 

@@ -42,14 +42,12 @@ class Game(object):
 
     def play_card(self, card):
         """
-                                Plays a card and triggers its effects. 
-                                Should be called only from Player.play 
-                                or on game start to play the first card
-                                """
+        Plays a card and triggers its effects. 
+        Should be called only from Player.play 
+        or on game start to play the first card
+        """
         self.logger.info("playing card:" + repr(card))
         self.last_card = card
 
     def start(self):
-        self.deck.shuffleCards()
-
         self.started = True
