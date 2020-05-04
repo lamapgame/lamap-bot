@@ -6,6 +6,7 @@ import json
 # telegram api
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
+from telegram.ext.dispatcher import run_async
 
 # bot modules
 import helpers
@@ -14,7 +15,7 @@ from deck import Deck
 from vars import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
                     NotEnoughPlayersError, DeckEmptyError)
-from utils import send_async
+from utils import send_async, TIMEOUT
 from start_bot import start_bot
 
 
@@ -75,8 +76,8 @@ def join_game(update, context):
                    reply_to_message_id=update.message.message_id)
 
 
-def start_lamap(context, update, args, job_queue):
-    """ Handler for the /start_lamap command"""
+def start_lamap(update, context):
+    """Handler for the /start_lamap command"""
     bot = context.bot
 
     if update.message.chat.type != 'private':
@@ -84,6 +85,7 @@ def start_lamap(context, update, args, job_queue):
 
         try:
             game = gm.chatid_games[chat.id][-1]
+
         except (KeyError, IndexError):
             send_async(
                 bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game.")
@@ -93,17 +95,51 @@ def start_lamap(context, update, args, job_queue):
             send_async(
                 bot, chat.id, text=f'{update.message.from_user.name}, la partie a déjà commencée.')
 
-        elif len(game.players) < MIN_PLAYERS:
+        elif len(game.players) > MIN_PLAYERS:  # TODO put back >
             send_async(
-                bot, chat.id, f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer. Utilisez /join pour rejoindre une partie en cours.')
+                bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer. Utilisez /join pour rejoindre une partie en cours.')
 
         else:
             game.start()
             for player in game.players:
                 player.draw_hand()
+            choice = [[InlineKeyboardButton(
+                text=f"Tu dégage avec quoi?", switch_inline_query_current_chat='')]]
+
+            @run_async
+            def send_first():
+                ''' Send the first card and player '''
+                bot.send_message(chat.id, text=f"La partie vient d'être lancée, {game.starter.name}, Tu joues la première carte", reply_markup=InlineKeyboardMarkup(
+                    choice), timeout=TIMEOUT)
+
+            send_first()
 
     else:
         help_handler(bot, update)
+
+
+def close_game(update, context):
+    ''' Handler for the close command '''
+    chat = update.message.chat
+    bot = context.bot
+    user = update.message.from_user
+    games = gm.chatid_games.get(chat.id)
+
+    if not games:
+        send_async(bot, chat.id, f"Il n'y a aucune partie en cours dans ce chat")
+
+    game = games[-1]
+
+    if user.id in game.owner:
+        game.open = False
+        send_async(
+            bot, chat.id, f"La partie est fermée. Vous ne pouvez plus joindre.")
+        return
+
+    else:
+        send_async(
+            bot, chat.id, f"Seul le créateur de la partie {game.starter.name} ou l'admin peuvent effectuer cette action", reply_to_message_id=update.message.message_id)
+        return
 
 
 def help_me(update, context):
@@ -115,9 +151,10 @@ def main():
 
     # Get the dispatcher to register handlers
     dispatcher.add_handler(CommandHandler('new_game', new_game))
-    dispatcher.add_handler(CommandHandler(
-        'start_lamap', start_lamap, pass_args=True, pass_job_queue=True))
+    dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
     dispatcher.add_handler(CommandHandler('join', join_game))
+    dispatcher.add_handler(CommandHandler('close', close_game))
+
     dispatcher.add_handler(CommandHandler('help', help_me))
 
     # on noncommand message
