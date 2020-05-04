@@ -12,7 +12,6 @@ class Game(object):
     started = False
     player_won = None
     owner = ADMIN_LIST
-    players_list = list()
     max_players = MAX_PLAYERS
     open = OPEN_LOBBY
 
