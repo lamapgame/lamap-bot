@@ -1,0 +1,66 @@
+from telegram import InlineQueryResultArticle, InputTextMessageContent, \
+    InlineQueryResultCachedSticker as Sticker
+import card as c
+from uuid import uuid4
+
+
+def add_card(game, card, results, can_play):
+    """Add an option that represents a card"""
+
+    if can_play:
+        results.append(
+            Sticker(str(card), sticker_file_id=c.STICKERS[str(card)])
+        )
+    else:
+        ''' results.append(
+            Sticker(str(uuid4()), sticker_file_id=c.STICKERS_GREY[str(card)],
+                    input_message_content=game_info(game))
+        ) '''
+        results.append(
+            Sticker(str(uuid4()), sticker_file_id=c.STICKERS[str(card)],
+                    input_message_content=game_info(game))
+        )
+
+
+def add_other_cards(player, results, game):
+    """Add hand cards when choosing colors"""
+
+    results.append(
+        InlineQueryResultArticle(
+            "hand",
+            title=_("Card (tap for game state):",
+                    "Cards (tap for game state):",
+                    len(player.cards)),
+            description=', '.join([repr(card) for card in player.cards]),
+            input_message_content=game_info(game)
+        )
+    )
+
+
+def add_no_game(results):
+    """Add text result if user is not playing"""
+    results.append(
+        InlineQueryResultArticle(
+            "nogame",
+            title="Vous ne jouez pas",
+            input_message_content=InputTextMessageContent('Not playing right now. Use /new to start a game or /join to join the current game in this group'))
+    )
+
+
+def add_not_started(results):
+    """Add text result if the game has not started yet"""
+    results.append(
+        InlineQueryResultArticle(
+            "nogame",
+            title="Le jeu n'a pas encore commencer",
+            input_message_content=InputTextMessageContent(
+                'Start the game with / start')
+        )
+    )
+
+
+def game_info(game):
+    # players = player_list(game)
+    name = game.current_player.user.name
+    card = repr(game.last_card)
+    return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card}")

@@ -22,3 +22,15 @@ def send_async(bot, *args, **kwargs):
         bot.sendMessage(*args, **kwargs)
     except Exception as e:
         error(None, None, e)
+
+
+@run_async
+def answer_async(bot, *args, **kwargs):
+    ''' Answer an inline query asynchronously '''
+    if 'timeout' not in kwargs:
+        kwargs['timeout'] = TIMEOUT
+
+    try:
+        bot.answerInlineQuery(*args, **kwargs)
+    except Exception as e:
+        error(None, None, e)

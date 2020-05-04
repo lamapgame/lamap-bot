@@ -22,7 +22,6 @@ class Player(object):
         self.logger = logging.getLogger(__name__)
 
         # Check if this player is the first player in this game.
-
         if game.current_player:
             self.next = game.current_player
             self.prev = game.current_player.prev
@@ -71,6 +70,29 @@ class Player(object):
             game_deck.cards_dealt += 5
         except IndexError:
             raise DeckEmptyError()
+
+    def playable_cards(self):
+        """Returns a list of the cards this player can play right now"""
+
+        playable = list()
+        last = self.game.last_card
+
+        self.logger.debug("Last card was " + str(last))
+
+        cards = self.cards
+
+        # You may only play a +4 if you have no cards of the correct color
+        self.bluffing = False
+        for card in cards:
+            if self._card_playable(card):
+                self.logger.debug("Matching!")
+                playable.append(card)
+
+        return playable
+
+    def _card_playable(self, card):
+        ''' Check if a card can be played '''
+        return True
 
     def leave(self):
         self.logger.info(self.user + "left the game")

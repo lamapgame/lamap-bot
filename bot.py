@@ -5,7 +5,7 @@ import json
 
 # telegram api
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
+from telegram.ext import InlineQueryHandler, Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
 
 # bot modules
@@ -15,8 +15,9 @@ from deck import Deck
 from vars import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
                     NotEnoughPlayersError, DeckEmptyError)
-from utils import send_async, TIMEOUT
+from utils import send_async, answer_async, TIMEOUT
 from start_bot import start_bot
+from results import (add_no_game, add_not_started, add_other_cards, add_card)
 
 
 from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS
@@ -95,7 +96,7 @@ def start_lamap(update, context):
             send_async(
                 bot, chat.id, text=f'{update.message.from_user.name}, la partie a déjà commencée.')
 
-        elif len(game.players) > MIN_PLAYERS:  # TODO put back >
+        elif len(game.players) < MIN_PLAYERS:
             send_async(
                 bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer. Utilisez /join pour rejoindre une partie en cours.')
 
@@ -116,6 +117,45 @@ def start_lamap(update, context):
 
     else:
         help_handler(bot, update)
+
+
+def reply_to_query(update, context):
+    """
+    Handler for inline queries.
+    Builds the result list for inline queries and answers to the client.
+    """
+    results = list()
+    switch = None
+    bot = context.bot
+
+    try:
+        user = update.inline_query.from_user
+        user_id = user.id
+        players = gm.userid_players[user_id]
+        player = gm.userid_current[user_id]
+        game = player.game
+    except KeyError:
+        add_no_game(results)
+    else:
+        # the game has not yet started
+        if not game.started:
+            if user_is_creator(user, game):
+                logger.info(f"{user.id} created the game")
+            else:
+                add_not_started(results)
+
+        elif user_id == game.current_player.user.id:
+            # to help show the cards in the same order each time
+            playable = player.playable_cards()
+            for card in sorted(player.cards):
+                add_card(game, card, results, can_play=(card in playable))
+
+        elif user_id != game.current_player.user.id or not game.started:
+            for card in sorted(player.cards):
+                add_card(game, card, results, can_play=False)
+
+    answer_async(bot, update.inline_query.id, results,
+                 cache_time=0, switch_pm_parameter='select')
 
 
 def close_game(update, context):
@@ -150,6 +190,7 @@ def help_me(update, context):
 def main():
 
     # Get the dispatcher to register handlers
+    dispatcher.add_handler(InlineQueryHandler(reply_to_query))
     dispatcher.add_handler(CommandHandler('new_game', new_game))
     dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
     dispatcher.add_handler(CommandHandler('join', join_game))
