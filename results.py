@@ -43,7 +43,7 @@ def add_no_game(results):
         InlineQueryResultArticle(
             "nogame",
             title="Vous ne jouez pas",
-            input_message_content=InputTextMessageContent('Not playing right now. Use /new to start a game or /join to join the current game in this group'))
+            input_message_content=InputTextMessageContent("Vous n'êtes dans aucune partie actuellement, veuiller commencer une nouvelle avec /new ou rejoignez une en cours dans ce groupe avec /join."))
     )
 
 
