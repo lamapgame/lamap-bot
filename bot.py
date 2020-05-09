@@ -4,8 +4,8 @@ from pprint import pprint, pformat
 import json
 
 # telegram api
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import InlineQueryHandler, Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
+from telegram.ext import InlineQueryHandler, ChosenInlineResultHandler, Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
 from telegram.ext.dispatcher import run_async
 
 # bot modules
@@ -15,9 +15,10 @@ from deck import Deck
 from vars import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
                     NotEnoughPlayersError, DeckEmptyError)
-from utils import send_async, answer_async, TIMEOUT
+from utils import send_async, answer_async, delete_async, TIMEOUT
 from start_bot import start_bot
 from results import (add_no_game, add_not_started, add_other_cards, add_card)
+from actions import do_play_card
 
 
 from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS
@@ -28,26 +29,39 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
+def notify_me(update, context):
+    bot = context.bot
+    """Handler for /notify_me command, pm people for next game"""
+    chat_id = update.message.chat_id
+    if update.message.chat.type == 'private':
+        send_async(bot, chat_id, text=f"Envoyez cette commande dans un groupe avec le bot et vous serez notifié lorsqu'une nouvelle partie sera lancé.")
+    else:
+        try:
+            gm.remind_dict[chat_id].add(update.message.from_user.id)
+        except KeyError:
+            gm.remind_dict[chat_id] = {update.message.from_user.id}
+
+
 def new_game(update, context):
     """/new_game command handler"""
     chat_id = update.message.chat_id
     title = update.message.chat.title
+    bot = context.bot
     if update.message.chat.type == 'private':
         helpers.help_handler(update, context)
     else:
         if chat_id in gm.remind_dict:
             for user in gm.remind_dict[chat_id]:
-                context.bot.send_message(
-                    chat_id=chat_id, text=f"Une partie a été lancé dans le groupe {title}"
-                )
+                send_async(
+                    bot, user, text=f"Une nouvelle partie a été lancé dans le groupe {title}")
             del gm.remind_dict[chat_id]
-    game = gm.new_game(update.message.chat)
-    game.starter = update.message.from_user
-    game.owner.append(update.message.from_user.id)
+        game = gm.new_game(update.message.chat)
+        game.starter = update.message.from_user
+        game.owner.append(update.message.from_user.id)
 
-    # Reply to inform the start of game
-    send_async(context.bot, chat_id,
-               text=f"Partie créée par {game.starter.name}! Réjoignez avec /join et commencez le jeu avec /start_lamap", reply_to_message_id=update.message.message_id)
+        # Reply to inform the start of game
+        send_async(context.bot, chat_id,
+                   text=f"Partie créée par {game.starter.name}! Réjoignez avec /join et commencez le jeu avec /start_lamap", reply_to_message_id=update.message.message_id)
 
 
 def join_game(update, context):
@@ -73,8 +87,9 @@ def join_game(update, context):
                    reply_to_message_id=update.message.message_id)
 
     else:
-        send_async(bot, chat.id, text=f'{update.message.from_user.name} à réjoint la partie !',
-                   reply_to_message_id=update.message.message_id)
+        delete_async(bot, chat.id, message_id=update.message.message_id)
+        send_async(
+            bot, chat.id, text=f'{update.message.from_user.name} à réjoint la partie !')
 
 
 def start_lamap(update, context):
@@ -125,7 +140,6 @@ def reply_to_query(update, context):
     Builds the result list for inline queries and answers to the client.
     """
     results = list()
-    switch = None
     bot = context.bot
 
     try:
@@ -140,7 +154,7 @@ def reply_to_query(update, context):
         # the game has not yet started
         if not game.started:
             if user_is_creator(user, game):
-                logger.info(f"{user.id} created the game")
+                logger.info(f"{user.id} wants to start a game")
             else:
                 add_not_started(results)
 
@@ -154,8 +168,27 @@ def reply_to_query(update, context):
             for card in sorted(player.cards):
                 add_card(game, card, results, can_play=False)
 
-    answer_async(bot, update.inline_query.id, results,
-                 cache_time=0, switch_pm_parameter='select')
+    answer_async(bot, update.inline_query.id, results, cache_time=0,
+                 switch_pm_parameter='select')
+
+
+def process_result(update, context):
+    """ 
+    Handler for chosen inline results.
+    """
+
+    bot = context.bot
+
+    try:
+        user = update.chosen_inline_result.from_user
+        player = gm.userid_current[user.id]
+        game = player.game
+        result_id = update.chosen_inline_result.result_id
+        chat = game.chat
+    except (KeyError, AttributeError):
+        return
+
+    do_play_card(bot, player, result_id)
 
 
 def close_game(update, context):
@@ -184,19 +217,21 @@ def close_game(update, context):
 
 def help_me(update, context):
     update.message.reply_text(
-        "Utilise /new_game pour lancer une partie de Lamap.")
+        "Utilise /new_game pour lancer une partie de Lamap."
+    )
 
 
 def main():
 
     # Get the dispatcher to register handlers
     dispatcher.add_handler(InlineQueryHandler(reply_to_query))
+    dispatcher.add_handler(ChosenInlineResultHandler(process_result))
     dispatcher.add_handler(CommandHandler('new_game', new_game))
     dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
     dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CommandHandler('close', close_game))
-
     dispatcher.add_handler(CommandHandler('help', help_me))
+    dispatcher.add_handler(CommandHandler('notify_me', notify_me))
 
     # on noncommand message
     # dispatcher.add_handler(MessageHandler(Filters.all, sticker))
