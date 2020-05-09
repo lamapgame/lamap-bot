@@ -66,13 +66,12 @@ STICKERS = {
 class Card(object):
     """This class represents a card"""
 
-    def __init__(self, card):
-        cardEnt = card.partition("_")
-        self.suit = cardEnt[0]
-        self.value = int(cardEnt[2])
+    def __init__(self, suit, value):
+        self.suit = suit
+        self.value = value
 
     def __str__(self):
-        return f'{suit}_{value}'
+        return f'{self.suit}_{self.value}'
 
     def __repr__(self):
         return '%s%s' % (CARD_ICONS[self.suit], self.value.capitalize())
@@ -85,5 +84,7 @@ class Card(object):
         """Needed for sorting the cards"""
         return str(self) < str(other)
 
-    def from_str(self, string):
-        return Card(None, None, string)
+
+def from_str(string):
+    suit, value = string.split('_')
+    return Card(suit, value)

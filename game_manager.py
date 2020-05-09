@@ -35,8 +35,6 @@ class GameManager(object):
 
     def join_game(self, user, chat):
         """Create a player from the Telegram user info and add to current game"""
-        self.logger.info(
-            f"NEW PLAYER - {user.id} on game in the group: {chat.id}")
 
         try:
             game = self.chatid_games[chat.id][-1]
@@ -79,6 +77,8 @@ class GameManager(object):
 
         players.append(player)
         self.userid_current[user.id] = player
+        self.logger.info(
+            f"NEW PLAYER - {user.id} on game in the group: {chat.id}")
 
     def end_game(self, chat, user):
         """

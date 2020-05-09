@@ -19,6 +19,7 @@ class Player(object):
         self.cards = list()
         self.game = game
         self.user = user
+        self.controls_game = False
         self.logger = logging.getLogger(__name__)
 
         # Check if this player is the first player in this game.
@@ -81,7 +82,7 @@ class Player(object):
 
         cards = self.cards
 
-        # You may only play a +4 if you have no cards of the correct color
+        # You may only play a +4 if you have no cards of the correct suit
         self.bluffing = False
         for card in cards:
             if self._card_playable(card):
