@@ -39,14 +39,21 @@ class Game(object):
             itplayer = itplayer.next
         return players
 
+    def turn(self):
+        """ Change a turn and change the player """
+        self.logger.info(f"Next player {self.current_player.next.user.name}")
+        self.current_player = self.current_player.next
+        self.current_player.turn_started = datetime.now()
+
     def play_card(self, card):
         """
         Plays a card and triggers its effects. 
         Should be called only from Player.play 
         or on game start to play the first card
         """
-        self.logger.info("playing card:" + repr(card))
         self.last_card = card
+        self.logger.info("playing card:" + repr(card))
+        self.turn()
 
     def start(self):
         self.started = True

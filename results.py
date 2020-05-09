@@ -23,7 +23,7 @@ def add_card(game, card, results, can_play):
 
 
 def add_other_cards(player, results, game):
-    """Add hand cards when choosing colors"""
+    """Add hand cards when choosing suit"""
 
     results.append(
         InlineQueryResultArticle(
@@ -43,7 +43,7 @@ def add_no_game(results):
         InlineQueryResultArticle(
             "nogame",
             title="Vous ne jouez pas",
-            input_message_content=InputTextMessageContent("Vous n'êtes dans aucune partie actuellement, veuiller commencer une nouvelle avec /new ou rejoignez une en cours dans ce groupe avec /join."))
+            input_message_content=InputTextMessageContent("Vous n'êtes dans aucune partie actuellement, veuiller commencer une nouvelle avec /new_game ou rejoignez une en cours dans ce groupe avec /join."))
     )
 
 
@@ -63,4 +63,5 @@ def game_info(game):
     # players = player_list(game)
     name = game.current_player.user.name
     card = repr(game.last_card)
+
     return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card}")
