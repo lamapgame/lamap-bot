@@ -5,7 +5,7 @@ import logging
 import card as c
 from datetime import datetime
 
-from telegram import Message, Chat
+from telegram import Message, Chat, InlineKeyboardButton, InlineKeyboardMarkup
 
 from config import WAITING_TIME
 from errors import DeckEmptyError, NotEnoughPlayersError
@@ -32,12 +32,15 @@ def do_play_card(bot, player, result_id):
     chat = game.chat
     user = player.user
 
-    # todo: check the possibility of having this feature
-    # next_player_message(bot, chat.id, game)
+    # todo: give mid-play infos
+    choice = [[InlineKeyboardButton(
+        text=f"Afficher mes cartes", switch_inline_query_current_chat='')]]
+
+    send_async(bot, chat.id, text=f"○ {game.current_player.next.user.name} prends contrôle du jeu.\n● {game.current_player.next.user.name} à toi de jouer",
+               reply_markup=InlineKeyboardMarkup(choice))
 
     if game.last_card is None:
         player.controls_game = True
-        game.current_player.controls_game = True
 
     if len(player.cards) == 1:
         send_async(bot, chat.id, text="Dernière carte!")
