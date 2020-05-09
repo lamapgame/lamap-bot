@@ -12,7 +12,7 @@ from logzero import logger
 
 def main():
     """ Main entry point of the app """
-    logger.info("hello world")
+    logger.debug("hello world")
 
 
 if __name__ == "__main__":

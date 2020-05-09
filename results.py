@@ -37,6 +37,11 @@ def add_other_cards(player, results, game):
     )
 
 
+def player_list(game):
+    """ Generate a list of players """
+    return [player.user.name + "(" + str(len(player.cards)) + "carte(s))" for player in game.players]
+
+
 def add_no_game(results):
     """Add text result if user is not playing"""
     results.append(
@@ -59,9 +64,15 @@ def add_not_started(results):
     )
 
 
+def who_controls(game):
+    """ Determines who controls the game """
+    return None
+
+
 def game_info(game):
-    # players = player_list(game)
+    players = player_list(game)
     name = game.current_player.user.name
     card = repr(game.last_card)
 
-    return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card}")
+    # return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card}" + "\n\nJoueurs:\n" + "\n".join(players))
+    return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card} \nContrôle 🤴🏾:")

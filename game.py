@@ -41,7 +41,7 @@ class Game(object):
 
     def turn(self):
         """ Change a turn and change the player """
-        self.logger.info(f"Next player {self.current_player.next.user.name}")
+        self.logger.debug(f"Next player {self.current_player.next.user.name}")
         self.current_player = self.current_player.next
         self.current_player.turn_started = datetime.now()
 
@@ -52,7 +52,7 @@ class Game(object):
         or on game start to play the first card
         """
         self.last_card = card
-        self.logger.info("playing card:" + repr(card))
+        self.logger.debug("playing card:" + repr(card))
         self.turn()
 
     def start(self):

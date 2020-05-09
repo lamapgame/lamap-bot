@@ -16,6 +16,7 @@ class GameManager(object):
         self.remind_dict = dict()
 
         self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
 
     def new_game(self, chat):
         """Create new game in chat"""
@@ -77,7 +78,7 @@ class GameManager(object):
 
         players.append(player)
         self.userid_current[user.id] = player
-        self.logger.info(
+        self.logger.debug(
             f"NEW PLAYER - {user.id} on game in the group: {chat.id}")
 
     def end_game(self, chat, user):
@@ -85,7 +86,7 @@ class GameManager(object):
         End a game
         """
 
-        self.logger.info("Game in chat " + str(chat.id) + " ended")
+        self.logger.debug("Game in chat " + str(chat.id) + " ended")
 
         # Find the correct game instance to end
         player = self.player_for_user_in_chat(user, chat)
