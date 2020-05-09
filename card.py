@@ -1,3 +1,5 @@
+from errors import DifferentSuitError
+
 # Colors
 HEART = 'h'  # coeurs
 CLUB = 'c'  # arachide
@@ -26,7 +28,7 @@ TEN = '10'
 VALUES = (THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN)
 
 STICKERS = {
-    'h_3': 'CAACAgQAAxkBAAOtXqbjpA1sAStT8uCtGhcSEJtxXJwAAs4AA2FKVA39aBG2r0XL_hkE',
+    'h_3': 'CAACAgQAAxkBAAOzXqbjq88jyiRYK0HCxnuHVAtKL40AAtEAA2FKVA1dSx3Iy3IK3xkE',
     'h_4': 'CAACAgQAAxkBAAO5XqbjrcNTX8H3UH19_wNC31XGLh8AAtQAA2FKVA0OOiS308BPOhkE',
     'h_5': 'CAACAgQAAxkBAAPBXqbjtC13p5rH_2IwiSvuInaV_nsAAtgAA2FKVA2Lgtx6_jM1NhkE',
     'h_6': 'CAACAgQAAxkBAAPJXqbju1Kz8-UX-ytsVYPmgynIMZ4AAtwAA2FKVA3C5Pfy9dX4-xkE',
@@ -86,5 +88,18 @@ class Card(object):
 
 
 def from_str(string):
-    suit, value = string.split('_')
+    try:
+        suit, value = string.split('_')
+    except ValueError:
+        pass
     return Card(suit, value)
+
+
+def takes_control(previous, current):
+    if previous.suit is current.suit:
+        if previous.value < current.value:
+            return False
+        else:
+            return True
+    else:
+        raise DifferentSuitError()

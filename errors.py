@@ -16,3 +16,7 @@ class NotEnoughPlayersError(Exception):
 
 class DeckEmptyError(Exception):
     pass
+
+
+class DifferentSuitError(Exception):
+    pass
