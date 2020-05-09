@@ -24,8 +24,8 @@ from actions import do_play_card
 from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS
 
 
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -154,7 +154,7 @@ def reply_to_query(update, context):
         # the game has not yet started
         if not game.started:
             if user_is_creator(user, game):
-                logger.info(f"{user.id} wants to start a game")
+                logger.debug(f"{user.id} wants to start a game")
             else:
                 add_not_started(results)
 
