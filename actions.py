@@ -41,6 +41,8 @@ def do_play_card(bot, player, result_id):
 
     if game.last_card is None:
         player.controls_game = True
+        game.control_player = player
+        game.control_card = card
 
     if len(player.cards) == 1:
         send_async(bot, chat.id, text="Dernière carte!")

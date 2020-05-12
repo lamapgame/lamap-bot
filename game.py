@@ -11,6 +11,7 @@ class Game(object):
     starter = None
     started = False
     player_won = None
+
     owner = ADMIN_LIST
     max_players = MAX_PLAYERS
     open = OPEN_LOBBY
@@ -20,6 +21,8 @@ class Game(object):
     def __init__(self, chat):
         self.chat = chat
         self.last_card = None
+        self.control_card = None
+        self.control_player = None
         owner = ADMIN_LIST
 
         self.deck = Deck()

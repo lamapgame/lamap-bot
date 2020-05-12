@@ -73,6 +73,7 @@ def game_info(game):
     players = player_list(game)
     name = game.current_player.user.name
     card = repr(game.last_card)
+    controller = {"card": game.control_card, "player": game.control_player}
 
-    # return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card}" + "\n\nJoueurs:\n" + "\n".join(players))
-    return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card} \nContrôle 🤴🏾:")
+    return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card}" + "\n\nJoueurs:\n" + "\n".join(players))
+    """ return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card} \nContrôle 🤴🏾: {controller.player.name} - {controller.card}") """

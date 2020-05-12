@@ -7,7 +7,7 @@ from utils import send_async
 
 def help_handler(update, context):
     """Handler for the /help command"""
-    help_text = "> Suivez les étapes suivantes:\n\n1. Ajoutez ce bot a un groupe\n2. Une fois dans le groupe, commençez une nouvelle partie avec /new\_game ou alors ajoutez-vous a une partie avec /join\n3. Ensuite lorsqu'au moins 2 joueurs ont rejoint la partie, commencez avec /start\_lamap\n4. Taggez le bot avec `@lamapbot` ensuite tappez `espace`. Vous verrez vos cartes et vous pourriez jouer. vous pouvez aussi cliquer sur 'via @lamapbot' pour voir vos cartes\n\n\n> Commandes d'administrateur (ou de lanceur de partie):\n/kick - Choissisez un jouer a retirer de la partie\n/close - Arrêter de prendre de nouveaux joueurs\n\n- [Lamap Updates](https://telegram.me/lamapbotupdates)\n- [Lamap Beta](https://telegram.me/lamapbeta)\n- [Lamap Devs](https://telegram.me/lamapdevs)"
+    help_text = "Cette commande ne peut être lancé que dans un groupe \n\n`Suivez les étapes suivantes`:\n\n1. Ajoutez ce bot a un groupe\n2. Une fois dans le groupe, commençez une nouvelle partie avec /new\_game ou alors ajoutez-vous a une partie avec /join\n3. Ensuite lorsqu'au moins 2 joueurs ont rejoint la partie, commencez avec /start\_lamap\n\n`Commandes d'administrateur (ou de lanceur de partie)`:\n/kick - Choissisez un jouer a retirer de la partie\n/kill_game - Arrêter la partie\n\n\n- [Lamap Updates](https://telegram.me/lamapbotupdates)\n- [Lamap Beta](https://telegram.me/lamapbeta)\n- [Lamap Devs](https://telegram.me/lamapdevs)"
 
     send_async(context.bot, update.message.chat_id, text=help_text,
                parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
