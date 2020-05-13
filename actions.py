@@ -9,8 +9,8 @@ from telegram import Message, Chat, InlineKeyboardButton, InlineKeyboardMarkup
 
 from config import WAITING_TIME
 from errors import DeckEmptyError, NotEnoughPlayersError
-from vars import gm
-from utils import send_async, game_is_running, next_player_message
+from global_variables import gm
+from utils import send_async, game_is_running
 
 logger = logging.getLogger(__name__)
 
@@ -31,13 +31,15 @@ def do_play_card(bot, player, result_id):
     game = player.game
     chat = game.chat
     user = player.user
+    controller = repr(game.control_card)
 
     # todo: give mid-play infos
     choice = [[InlineKeyboardButton(
         text=f"Afficher mes cartes", switch_inline_query_current_chat='')]]
 
-    send_async(bot, chat.id, text=f"○ {game.current_player.next.user.name} prends contrôle du jeu.\n● {game.current_player.next.user.name} à toi de jouer",
-               reply_markup=InlineKeyboardMarkup(choice))
+    if game.control_player is not None:
+        send_async(bot, chat.id, text=f"○ {game.control_player.user.name} a contrôle ({controller}).\n● {game.current_player.user.name} à toi de jouer",
+                   reply_markup=InlineKeyboardMarkup(choice))
 
     if len(player.cards) == 1:
         send_async(bot, chat.id, text="Dernière carte!")
