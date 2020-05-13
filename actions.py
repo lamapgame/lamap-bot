@@ -39,11 +39,6 @@ def do_play_card(bot, player, result_id):
     send_async(bot, chat.id, text=f"○ {game.current_player.next.user.name} prends contrôle du jeu.\n● {game.current_player.next.user.name} à toi de jouer",
                reply_markup=InlineKeyboardMarkup(choice))
 
-    if game.last_card is None:
-        player.controls_game = True
-        game.control_player = player
-        game.control_card = card
-
     if len(player.cards) == 1:
         send_async(bot, chat.id, text="Dernière carte!")
 
