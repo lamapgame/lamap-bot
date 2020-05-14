@@ -19,7 +19,6 @@ class Player(object):
         self.cards = list()
         self.game = game
         self.user = user
-        self.controls_game = False
         self.logger = logging.getLogger(__name__)
 
         # Check if this player is the first player in this game.

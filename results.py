@@ -48,7 +48,7 @@ def add_no_game(results):
         InlineQueryResultArticle(
             "nogame",
             title="Vous ne jouez pas",
-            input_message_content=InputTextMessageContent("Vous n'êtes dans aucune partie actuellement, veuiller commencer une nouvelle avec /new_game ou rejoignez une en cours dans ce groupe avec /join."))
+            input_message_content=InputTextMessageContent("Vous n'êtes dans aucune partie actuellement, veuillez commencer une nouvelle avec /new_game ou rejoignez une en cours dans ce groupe avec /join."))
     )
 
 
@@ -64,16 +64,16 @@ def add_not_started(results):
     )
 
 
-def who_controls(game):
-    """ Determines who controls the game """
-    return None
-
-
 def game_info(game):
     players = player_list(game)
     name = game.current_player.user.name
-    card = repr(game.last_card)
-    controller = {"card": game.control_card, "player": game.control_player}
+    card = repr(game.last_card) or "Aucune"
+    controlling_card = repr(game.control_card)
+    controlling_player = "Aucun contrôlleur"
 
-    return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card}" + "\n\nJoueurs:\n" + "\n".join(players))
-    """ return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card} \nContrôle 🤴🏾: {controller.player.name} - {controller.card}") """
+    if game.control_player is not None:
+        controlling_player = game.control_player.user.name
+
+    return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card} \nContrôle 🤴🏾: {controlling_card} - {controlling_player}")
+
+    """ return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card}" + "\n\nJoueurs:\n" + "\n".join(players)) """

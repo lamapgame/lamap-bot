@@ -10,21 +10,19 @@ class Game(object):
     current_player = None
     starter = None
     started = False
+    control_card = None
+    control_player = None
     player_won = None
-
     owner = ADMIN_LIST
     max_players = MAX_PLAYERS
     open = OPEN_LOBBY
 
-    #mode = "DEFAULT_GAMEMODE"
+    # mode = "DEFAULT_GAMEMODE"
 
     def __init__(self, chat):
         self.chat = chat
         self.last_card = None
-        self.control_card = None
-        self.control_player = None
         owner = ADMIN_LIST
-
         self.deck = Deck()
         self.logger = logging.getLogger(__name__)
 
@@ -50,13 +48,35 @@ class Game(object):
 
     def play_card(self, card):
         """
-        Plays a card and triggers its effects. 
-        Should be called only from Player.play 
+        Plays a card and triggers its effects.
+        Should be called only from Player.play
         or on game start to play the first card
         """
+        if self.last_card is None:
+            self.control_player = self.current_player
+            self.control_card = card
+        else:
+            if takes_control(self.control_card, card):
+                self.control_player = self.current_player
+                self.control_card = card
+
         self.last_card = card
+
         self.logger.debug("playing card:" + repr(card))
         self.turn()
 
     def start(self):
         self.started = True
+
+
+def takes_control(previous, current):
+    """ Determine if a card takes control """
+    pv = int(previous.value)
+    cv = int(current.value)
+    if previous.suit is current.suit:
+        if cv > pv:
+            return True
+        else:
+            return False
+    else:
+        return False
