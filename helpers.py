@@ -1,7 +1,7 @@
 from telegram import ParseMode
 from telegram.ext import CommandHandler
 
-from vars import dispatcher
+from global_variables import dispatcher
 from utils import send_async
 
 

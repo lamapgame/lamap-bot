@@ -1,7 +1,7 @@
 import logging
 
 from telegram.ext.dispatcher import run_async
-from vars import gm
+from global_variables import gm
 
 logger = logging.getLogger(__name__)
 
@@ -45,19 +45,6 @@ def answer_async(bot, *args, **kwargs):
         bot.answerInlineQuery(*args, **kwargs)
     except Exception as e:
         error(None, None, e)
-
-
-def next_player_message(bot, *args, **kwargs):
-    choice = [[InlineKeyboardButton(
-        text=f"Tu joue quoi ?", switch_inline_query_current_chat='')]]
-
-    @run_async
-    def send_info():
-        """ Send who plays next """
-        bot.send_message(chat.id, text=f"{game.current_player.next.user.name}, à toi", reply_markup=InlineKeyboardMarkup(
-            choice), timeout=TIMEOUT)
-
-    send_info()
 
 
 def game_is_running(game):
