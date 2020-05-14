@@ -88,18 +88,5 @@ class Card(object):
 
 
 def from_str(string):
-    try:
-        suit, value = string.split('_')
-    except ValueError:
-        pass
+    suit, value = string.split('_')
     return Card(suit, value)
-
-
-def takes_control(previous, current):
-    if previous.suit is current.suit:
-        if previous.value < current.value:
-            return False
-        else:
-            return True
-    else:
-        raise DifferentSuitError()
