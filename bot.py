@@ -12,12 +12,13 @@ from telegram.ext.dispatcher import run_async
 import helpers
 import logger
 from deck import Deck
-from vars import gm, updater, dispatcher
+from global_variables import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
                     NotEnoughPlayersError, DeckEmptyError)
 from utils import send_async, answer_async, delete_async, TIMEOUT
 from start_bot import start_bot
-from results import (add_no_game, add_not_started, add_other_cards, add_card)
+from results import (add_no_game, add_not_started,
+                     add_other_cards, add_card, game_info)
 from actions import do_play_card
 
 
@@ -61,7 +62,7 @@ def new_game(update, context):
 
         # Reply to inform the start of game
         send_async(context.bot, chat_id,
-                   text=f"Partie créée par {game.starter.name}! Réjoignez avec /join et commencez le jeu avec /start_lamap", reply_to_message_id=update.message.message_id)
+                   text=f"Partie créée par {game.starter.first_name}! Réjoignez avec /join et commencez le jeu avec /start_lamap")
 
 
 def join_game(update, context):
