@@ -26,6 +26,7 @@ class Countdown(object):
 
 def do_play_card(bot, player, result_id):
     """Plays the selected card and sends an update to the group if needed"""
+
     card = c.from_str(result_id)
     player.play(card)
     game = player.game
@@ -38,7 +39,7 @@ def do_play_card(bot, player, result_id):
         text=f"Afficher mes cartes", switch_inline_query_current_chat='')]]
 
     if game.control_player is not None:
-        send_async(bot, chat.id, text=f"○ {game.control_player.user.name} a contrôle ({controller}).\n● {game.current_player.user.name} à toi de jouer",
+        send_async(bot, chat.id, text=f"○ {game.control_player.user.first_name} contrôle ({controller})\n● {game.current_player.user.name} à toi de jouer.\n\nTour: {game.play_round}",
                    reply_markup=InlineKeyboardMarkup(choice))
 
     if len(player.cards) == 1:

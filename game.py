@@ -13,6 +13,8 @@ class Game(object):
     control_card = None
     control_player = None
     player_won = None
+    first_player = None
+    play_round = 0  # game has 5 rounds: each player plays 5 times
     owner = ADMIN_LIST
     max_players = MAX_PLAYERS
     open = OPEN_LOBBY
@@ -40,11 +42,18 @@ class Game(object):
             itplayer = itplayer.next
         return players
 
-    def turn(self):
+    def turn(self, card):
         """ Change a turn and change the player """
-        self.logger.debug(f"Next player {self.current_player.next.user.name}")
-        self.current_player = self.current_player.next
-        self.current_player.turn_started = datetime.now()
+        # self.logger.debug(f"Next player {self.current_player.next.user.name}")
+        if self.current_player.user.id == self.first_player.user.id:
+            self.play_round += 1
+            if self.play_round > 1:
+                self.current_player = self.control_player
+                self.control_card = None
+
+        else:
+            self.current_player = self.current_player.next
+            self.current_player.turn_started = datetime.now()
 
     def play_card(self, card):
         """
@@ -52,18 +61,20 @@ class Game(object):
         Should be called only from Player.play
         or on game start to play the first card
         """
-        if self.last_card is None:
+        if self.current_player.user.id == self.first_player.user.id and self.play_round > 1:
+            self.control_card = None
+
+        if self.control_card is None:
             self.control_player = self.current_player
             self.control_card = card
+
         else:
             if takes_control(self.control_card, card):
                 self.control_player = self.current_player
                 self.control_card = card
 
-        self.last_card = card
-
-        self.logger.debug("playing card:" + repr(card))
-        self.turn()
+        # self.logger.info("playing card:" + repr(card))
+        self.turn(card)
 
     def start(self):
         self.started = True

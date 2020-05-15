@@ -68,11 +68,12 @@ def game_info(game):
     players = player_list(game)
     name = game.current_player.user.name
     card = repr(game.last_card) or "Aucune"
-    controlling_card = repr(game.control_card)
-    controlling_player = "Aucun contrôlleur"
+    controlling_card = ""
+    controlling_player = "Aucun"
 
     if game.control_player is not None:
         controlling_player = game.control_player.user.name
+        controlling_card = repr(game.control_card)
 
     return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card} \nContrôle 🤴🏾: {controlling_card} - {controlling_player}")
 

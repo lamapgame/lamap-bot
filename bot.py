@@ -2,6 +2,7 @@
 import logging
 from pprint import pprint, pformat
 import json
+import random
 
 # telegram api
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
@@ -118,16 +119,21 @@ def start_lamap(update, context):
 
         else:
             game.start()
+            # random.shuffle(game.players) # to make a random user start
             for player in game.players:
                 player.draw_hand()
             choice = [[InlineKeyboardButton(
                 text=f"Tu dégage avec quoi?", switch_inline_query_current_chat='')]]
 
+            delete_async(bot, chat.id, message_id=update.message.message_id)
+
             @run_async
             def send_first():
                 ''' Send the first card and player '''
-                bot.send_message(chat.id, text=f"La partie vient d'être lancée, {game.starter.name}, Tu joues la première carte", reply_markup=InlineKeyboardMarkup(
+                bot.send_message(chat.id, text=f"La partie vient d'être lancée, {game.current_player.user.name}, Tu joues la première carte", reply_markup=InlineKeyboardMarkup(
                     choice), timeout=TIMEOUT)
+
+            game.first_player = game.current_player
 
             send_first()
 

@@ -141,7 +141,7 @@ class GameManager(object):
                 for p in g.players:
                     if p.user.id == user.id:
                         if p is g.current_player:
-                            g.turn()
+                            g.turn(None)
                         p.leave()
                         return
 
@@ -153,7 +153,7 @@ class GameManager(object):
             raise NotEnoughPlayersError()
 
         if player is game.current_player:
-            game.turn()
+            game.turn(None)
 
         player.leave()
         players.remove(player)

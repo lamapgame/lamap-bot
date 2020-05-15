@@ -10,8 +10,7 @@ from config import WAITING_TIME
 class Player(object):
     """
     This class represents a player.
-    It is basically a doubly-linked ring list with the option to reverse the
-    direction. On initialization, it will connect itself to a game and its
+    It is basically a simple list. On initialization, it will connect itself to a game and its
     other players by placing itself behind the current player.
     """
 
