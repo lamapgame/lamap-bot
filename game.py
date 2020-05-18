@@ -44,8 +44,11 @@ class Game(object):
 
     def turn(self, card):
         """ Change a turn and change the player """
+        # todo: create round based turn system
         # self.logger.debug(f"Next player {self.current_player.next.user.name}")
+        # if the current player is the one that started the game, then change the turn.
         if self.current_player.user.id == self.first_player.user.id:
+
             self.play_round += 1
             if self.play_round > 1:
                 self.current_player = self.control_player
