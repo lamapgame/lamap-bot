@@ -47,12 +47,10 @@ class Game(object):
         # todo: create round based turn system
         # self.logger.debug(f"Next player {self.current_player.next.user.name}")
         # if the current player is the one that started the game, then change the turn.
-        if self.current_player.user.id == self.first_player.user.id:
-
+        if self.current_player.next.user.id == self.first_player.user.id:
             self.play_round += 1
-            if self.play_round > 1:
-                self.current_player = self.control_player
-                self.control_card = None
+            self.current_player.next = self.control_player
+            self.current_player.turn_started = datetime.now()
 
         else:
             self.current_player = self.current_player.next
@@ -64,9 +62,6 @@ class Game(object):
         Should be called only from Player.play
         or on game start to play the first card
         """
-        if self.current_player.user.id == self.first_player.user.id and self.play_round > 1:
-            self.control_card = None
-
         if self.control_card is None:
             self.control_player = self.current_player
             self.control_card = card
