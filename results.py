@@ -67,14 +67,17 @@ def add_not_started(results):
 def game_info(game):
     players = player_list(game)
     name = game.current_player.user.name
-    card = repr(game.last_card) or "Aucune"
+    card = repr(game.last_card)
     controlling_card = ""
     controlling_player = "Aucun"
+
+    if card is None:
+        card = "Aucune"
 
     if game.control_player is not None:
         controlling_player = game.control_player.user.name
         controlling_card = repr(game.control_card)
 
-    return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card} \nContrôle 🤴🏾: {controlling_card} - {controlling_player}")
+    return InputTextMessageContent(f"Joueur actuel: {name}\nContrôle 🤴🏾: {controlling_card} - {controlling_player}")
 
-    """ return InputTextMessageContent(f"Joueur actuel: {name} \nDernière carte: {card}" + "\n\nJoueurs:\n" + "\n".join(players)) """
+    """ return InputTextMessageContent(f"Joueur actuel: {name} + "\n\nJoueurs:\n" + "\n".join(players)) """

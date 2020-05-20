@@ -141,7 +141,7 @@ class GameManager(object):
                 for p in g.players:
                     if p.user.id == user.id:
                         if p is g.current_player:
-                            g.turn(None)
+                            g.turn()
                         p.leave()
                         return
 

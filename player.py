@@ -74,11 +74,11 @@ class Player(object):
         """Returns a list of the cards this player can play right now"""
         playable = list()
         last = self.game.last_card
-        self.logger.debug("Last card was " + str(last))
+        c_card = self.game.control_card
         cards = self.cards
 
         for card in cards:
-            if self._card_playable(c.from_str(card), last):
+            if self._card_playable(c.from_str(card), c_card):
                 playable.append(card)
 
         # if there's no single card matching the last card,
@@ -90,15 +90,13 @@ class Player(object):
 
         return playable
 
-    def _card_playable(self, card, last):
+    def _card_playable(self, card, c_card):
         ''' Check if a card can be played '''
         is_playable = True
-        self.logger.debug(last)
-
-        # if there's no last card, then check them
-        if last is not None:
+        # if there's a control card, then if he should play that
+        if c_card is not None:
             # if they do not have the same suit, they cannot be playable
-            if card.suit is not last.suit:
+            if card.suit is not c_card.suit:
                 self.logger.debug("No match")
                 is_playable = False
 
