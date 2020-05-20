@@ -222,6 +222,10 @@ def close_game(update, context):
         return
 
 
+def quit_game(update, context):
+    print("quitting")
+
+
 def help_me(update, context):
     update.message.reply_text(
         "Utilise /new_game pour lancer une partie de Lamap."
@@ -237,6 +241,7 @@ def main():
     dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
     dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CommandHandler('close', close_game))
+    dispatcher.add_handler(CommandHandler('quit', quit_game))
     dispatcher.add_handler(CommandHandler('help', help_me))
     dispatcher.add_handler(CommandHandler('notify_me', notify_me))
 
