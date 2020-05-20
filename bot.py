@@ -15,19 +15,19 @@ import logger
 from deck import Deck
 from global_variables import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
-                    NotEnoughPlayersError, DeckEmptyError)
-from utils import send_async, answer_async, delete_async, TIMEOUT
+                    NotEnoughPlayersError, DeckEmptyError, GameAlreadyStartedError)
+from utils import send_async, send_animation_async, answer_async, delete_async, TIMEOUT
 from start_bot import start_bot
 from results import (add_no_game, add_not_started,
                      add_other_cards, add_card, game_info)
 from actions import do_play_card
 
 
-from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS
+from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS, LOG_FILE
 
 
 logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    filename=LOG_FILE, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 
@@ -62,8 +62,8 @@ def new_game(update, context):
         game.owner.append(update.message.from_user.id)
 
         # Reply to inform the start of game
-        send_async(context.bot, chat_id,
-                   text=f"Partie créée par {game.starter.first_name}! Réjoignez avec /join et commencez le jeu avec /start_lamap")
+        send_animation_async(
+            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"Partie créée par {game.starter.first_name}! Réjoignez avec /join et commencez le jeu avec /start_lamap")
 
 
 def join_game(update, context):
@@ -142,7 +142,7 @@ def start_lamap(update, context):
             send_first()
 
     else:
-        help_handler(bot, update)
+        helpers.help_handler(update, context)
 
 
 def reply_to_query(update, context):
@@ -176,8 +176,8 @@ def reply_to_query(update, context):
                 add_card(game, card, results, can_play=(card in playable))
 
         elif user_id != game.current_player.user.id or not game.started:
-            for card in sorted(player.cards):
-                add_card(game, card, results, can_play=False)
+            ''' for card in sorted(player.cards):
+                add_card(game, card, results, can_play=False) '''
 
     answer_async(bot, update.inline_query.id, results, cache_time=0,
                  switch_pm_parameter='select')
