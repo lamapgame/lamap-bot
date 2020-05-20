@@ -6,6 +6,10 @@ class AlreadyJoinedError(Exception):
     pass
 
 
+class GameAlreadyStartedError(Exception):
+    pass
+
+
 class LobbyClosedError(Exception):
     pass
 

@@ -80,6 +80,10 @@ def join_game(update, context):
     except LobbyClosedError:
         send_async(bot, chat.id, text="La partie est fermée")
 
+    except GameAlreadyStartedError:
+        send_async(
+            bot, chat.id, tex="Impossible de rejoindre une partie en cours, utilisez /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.")
+
     except NoGameInChatError:
         send_async(bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game.",
                    reply_to_message_id=update.message.message_id)

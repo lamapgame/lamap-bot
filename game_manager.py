@@ -4,7 +4,7 @@ game manager
 import logging
 from game import Game
 from player import Player
-from errors import AlreadyJoinedError, LobbyClosedError, NoGameInChatError, NotEnoughPlayersError
+from errors import AlreadyJoinedError, LobbyClosedError, NoGameInChatError, NotEnoughPlayersError, GameAlreadyStartedError
 
 
 class GameManager(object):
@@ -46,6 +46,9 @@ class GameManager(object):
         if not game.open:
             raise LobbyClosedError()
 
+        if game.started:
+            raise GameAlreadyStartedError()
+
         if user.id not in self.userid_players:
             self.userid_players[user.id] = list()
 
@@ -73,8 +76,6 @@ class GameManager(object):
             players = self.userid_players[user.id]
 
         player = Player(game, user)
-        if game.started:
-            player.draw_first_hand()
 
         players.append(player)
         self.userid_current[user.id] = player
