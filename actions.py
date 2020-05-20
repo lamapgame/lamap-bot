@@ -39,18 +39,26 @@ def do_play_card(bot, player, result_id):
         text=f"Afficher mes cartes", switch_inline_query_current_chat='')]]
 
     if game.control_player is not None:
-        send_async(bot, chat.id, text=f"○ {game.control_player.user.first_name} contrôle ({controller})\n● {game.current_player.user.name} à toi de jouer.\n\nTour: {game.play_round}",
-                   reply_markup=InlineKeyboardMarkup(choice))
+        if game.play_round % len(game.players) == 0 and game.play_round < (len(game.players) * 5):
+            game.control_card = None
+            game.current_player = game.control_player
 
-    if len(player.cards) == 1:
-        send_async(bot, chat.id, text="Dernière carte!")
+        if game.play_round != (len(game.players) * 5):
+            send_async(bot, chat.id, text=f"○ {game.control_player.user.first_name} contrôle ({controller})\n● {game.current_player.user.name} à toi de jouer.",
+                       reply_markup=InlineKeyboardMarkup(choice))
 
-    if len(player.cards) == 0:
-        send_async(bot, chat.id, text=f"{user.first_name} a Gagné!")
+            game.game_round += 1
 
-        try:
-            gm.leave_game(user, chat)
-        except NotEnoughPlayersError:
+    if game.play_round == (len(game.players) * 5):
+        # KORA
+        if (game.control_card.value == 3):
+            send_async(
+                bot, chat.id, text=f"{game.control_player.user.first_name} a gagné par KORA!")
+
+        # Normal win
+        else:
             send_async(bot, chat.id, text="Fin de partie!")
+            send_async(
+                bot, chat.id, text=f"{game.control_player.user.first_name} a gagné!")
 
-            gm.end_game(chat, user)
+        gm.end_game(chat, user)

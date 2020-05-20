@@ -15,6 +15,7 @@ class Game(object):
     player_won = None
     first_player = None
     play_round = 0  # game has 5 rounds: each player plays 5 times
+    game_round = 1
     owner = ADMIN_LIST
     max_players = MAX_PLAYERS
     open = OPEN_LOBBY
@@ -42,19 +43,12 @@ class Game(object):
             itplayer = itplayer.next
         return players
 
-    def turn(self, card):
+    def turn(self):
         """ Change a turn and change the player """
         # todo: create round based turn system
-        # self.logger.debug(f"Next player {self.current_player.next.user.name}")
-        # if the current player is the one that started the game, then change the turn.
-        if self.current_player.next.user.id == self.first_player.user.id:
-            self.play_round += 1
-            self.current_player.next = self.control_player
-            self.current_player.turn_started = datetime.now()
-
-        else:
-            self.current_player = self.current_player.next
-            self.current_player.turn_started = datetime.now()
+        self.current_player = self.current_player.next
+        self.current_player.turn_started = datetime.now()
+        self.play_round += 1
 
     def play_card(self, card):
         """
@@ -66,13 +60,12 @@ class Game(object):
             self.control_player = self.current_player
             self.control_card = card
 
-        else:
-            if takes_control(self.control_card, card):
-                self.control_player = self.current_player
-                self.control_card = card
+        elif takes_control(self.control_card, card):
+            self.control_player = self.current_player
+            self.control_card = card
 
-        # self.logger.info("playing card:" + repr(card))
-        self.turn(card)
+        self.last_card = card
+        self.turn()
 
     def start(self):
         self.started = True
