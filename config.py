@@ -13,3 +13,5 @@ DEFAULT_GAMEMODE = config.get("DEFAULT_GAMEMODE", "fast")
 WAITING_TIME = config.get("WAITING_TIME", 90)
 MIN_PLAYERS = config.get("min_players", 2)
 MAX_PLAYERS = config.get("min_players", 4)
+
+LOG_FILE = "./lamapbot.log"
