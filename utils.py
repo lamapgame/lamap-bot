@@ -25,6 +25,17 @@ def send_async(bot, *args, **kwargs):
 
 
 @run_async
+def send_animation_async(bot, *args, **kwargs):
+    """Send an animation asynchronously"""
+    if 'timeout' not in kwargs:
+        kwargs['timeout'] = TIMEOUT
+    try:
+        bot.send_animation(*args, **kwargs)
+    except Exception as e:
+        error(None, None, e)
+
+
+@run_async
 def delete_async(bot, *args, **kwargs):
     """ Delete message from group """
     if 'timeout' not in kwargs:

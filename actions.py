@@ -10,7 +10,7 @@ from telegram import Message, Chat, InlineKeyboardButton, InlineKeyboardMarkup
 from config import WAITING_TIME
 from errors import DeckEmptyError, NotEnoughPlayersError
 from global_variables import gm
-from utils import send_async, game_is_running
+from utils import send_async, game_is_running, send_animation_async
 
 logger = logging.getLogger(__name__)
 
@@ -51,14 +51,13 @@ def do_play_card(bot, player, result_id):
 
     if game.play_round == (len(game.players) * 5):
         # KORA
-        if (game.control_card.value == 3):
-            send_async(
-                bot, chat.id, text=f"{game.control_player.user.first_name} a gagné par KORA!")
+        if game.control_card.value == 3:
+            send_animation_async(
+                bot, chat.id, animation="https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} gagne par KORA!")
 
         # Normal win
         else:
-            send_async(bot, chat.id, text="Fin de partie!")
-            send_async(
-                bot, chat.id, text=f"{game.control_player.user.first_name} a gagné!")
+            send_animation_async(
+                bot, chat.id, animation="https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} a gagné!")
 
         gm.end_game(chat, user)
