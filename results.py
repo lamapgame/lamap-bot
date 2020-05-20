@@ -64,6 +64,18 @@ def add_not_started(results):
     )
 
 
+def quick_win(cards):
+    ''' Check if a player wins due to 3*7 or 3*3 '''
+    norm_cards = []
+    for card in cards:
+        obj_card = c.from_str(card)
+        norm_cards.append(int(obj_card.value))
+
+    threes = norm_cards.count(3)
+    sevens = norm_cards.count(7)
+    return True if threes >= 3 or sevens >= 3 else False
+
+
 def game_info(game):
     players = player_list(game)
     name = game.current_player.user.name

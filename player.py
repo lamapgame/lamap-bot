@@ -5,6 +5,7 @@ import card as c
 import deck
 from errors import DeckEmptyError
 from config import WAITING_TIME
+from results import quick_win
 
 
 class Player(object):
@@ -67,6 +68,11 @@ class Player(object):
             for _ in range(5):
                 self.cards.append(game_deck.cards.pop())
             game_deck.cards_dealt += 5
+
+            # Todo implement quick win (3x7 or 3x3)
+            if quick_win(self.cards):
+                print("terminé", player)
+
         except IndexError:
             raise DeckEmptyError()
 
