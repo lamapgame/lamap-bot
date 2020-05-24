@@ -34,7 +34,6 @@ def do_play_card(bot, player, result_id):
     user = player.user
     controller = repr(game.control_card)
 
-    # todo: give mid-play infos
     choice = [[InlineKeyboardButton(
         text=f"Afficher mes cartes", switch_inline_query_current_chat='')]]
 
