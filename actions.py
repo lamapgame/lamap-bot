@@ -51,7 +51,7 @@ def do_play_card(bot, player, result_id):
 
     if game.play_round == (len(game.players) * 5):
         # KORA
-        if game.control_card.value == 3:
+        if game.control_card.value == '3':
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} gagne par KORA!")
 
