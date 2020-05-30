@@ -61,44 +61,52 @@ def new_game(update, context):
         game.starter = update.message.from_user
         game.owner.append(update.message.from_user.id)
 
+        join_btn = [[InlineKeyboardButton(
+            "Rejoindre", callback_data="join_game")]]
+
         # Reply to inform the start of game
         send_animation_async(
-            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"Partie créée par {game.starter.first_name}! Réjoignez avec /join et commencez le jeu avec /start_lamap")
+            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"Partie créée par {game.starter.first_name}! Rejoignez la partie avec le bouton ci dessous et commencez le jeu avec /start_lamap", reply_markup=InlineKeyboardMarkup(join_btn))
 
 
 def join_game(update, context):
     """Handler for the /join command"""
-    chat = update.message.chat
     bot = context.bot
+    if update.message is not None:
+        chat = update.message.chat
+        user = update.message.from_user
+    else:
+        chat = update.effective_message.chat
+        user = update.effective_user
 
-    if update.message.chat.type == 'private':
+    if chat.type == 'private':
         helpers.help_handler(update, context)
         return
     try:
-        gm.join_game(update.message.from_user, chat)
+        gm.join_game(user, chat)
 
     except LobbyClosedError:
         send_async(bot, chat.id, text="La partie est fermée")
 
     except GameAlreadyStartedError:
-        delete_async(bot, chat.id, message_id=update.message.message_id)
+        # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, tex="Impossible de rejoindre une partie en cours, utilisez /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.")
+            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilisez /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.")
 
     except NoGameInChatError:
-        delete_async(bot, chat.id, message_id=update.message.message_id)
-        send_async(bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game.",
-                   reply_to_message_id=update.message.message_id)
+        # delete_async(bot, chat.id, message_id=update.message.message_id)
+        send_async(
+            bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game.")
 
     except AlreadyJoinedError:
-        delete_async(bot, chat.id, message_id=update.message.message_id)
-        send_async(bot, chat.id, text=f'{update.message.from_user.name}, vous avez déjà rejoint la partie qui va se debuter bientôt.',
-                   reply_to_message_id=update.message.message_id)
+        # delete_async(bot, chat.id, message_id=update.message.message_id)
+        send_async(
+            bot, chat.id, text=f'{user.name}, vous avez déjà rejoint la partie qui va se debuter bientôt.')
 
     else:
-        delete_async(bot, chat.id, message_id=update.message.message_id)
+        # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, text=f'{update.message.from_user.name} à réjoint la partie !')
+            bot, chat.id, text=f'{user.name} à réjoint la partie !')
 
 
 def start_lamap(update, context):
@@ -239,6 +247,14 @@ def help_me(update, context):
     )
 
 
+def cbhandler(update, context):
+    query = update.callback_query
+    if (query.data == 'join_game'):
+        join_game(update, context)
+
+    query.answer()
+
+
 def main():
 
     # Get the dispatcher to register handlers
@@ -251,6 +267,7 @@ def main():
     dispatcher.add_handler(CommandHandler('quit', quit_game))
     dispatcher.add_handler(CommandHandler('help', help_me))
     dispatcher.add_handler(CommandHandler('notify_me', notify_me))
+    dispatcher.add_handler(CallbackQueryHandler(cbhandler))
 
     # on noncommand message
     # dispatcher.add_handler(MessageHandler(Filters.all, sticker))
