@@ -241,6 +241,7 @@ def quit_game(update, context):
     """Handler for the /leave command"""
     chat = update.message.chat
     user = update.message.from_user
+    bot = context.bot
 
     player = gm.player_for_user_in_chat(user, chat)
 
