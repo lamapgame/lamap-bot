@@ -1,3 +1,4 @@
+from config import TOKEN
 import os
 PORT = int(os.environ.get('PORT', 5000))
 HEROKU = 'https://afternoon-meadow-46045.herokuapp.com/'
