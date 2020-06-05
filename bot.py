@@ -16,7 +16,7 @@ from deck import Deck
 from global_variables import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
                     NotEnoughPlayersError, DeckEmptyError, GameAlreadyStartedError)
-from utils import send_async, send_animation_async, answer_async, delete_async, TIMEOUT
+from utils import send_async, send_animation_async, answer_async, delete_async, user_is_creator_or_admin, user_is_creator, TIMEOUT
 from start_bot import start_bot
 from results import (add_no_game, add_not_started,
                      add_other_cards, add_card, game_info)
