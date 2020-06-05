@@ -98,5 +98,5 @@ ENV/
 # mypy
 .mypy_cache/
 
-config.json
+# config.json
 var_holder.json
