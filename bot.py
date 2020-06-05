@@ -273,6 +273,38 @@ def quit_game(update, context):
                        reply_to_message_id=update.message.message_id)
 
 
+def kill_game(update, context):
+    """Handler for the /kill game"""
+    chat = update.message.chat
+    user = update.message.from_user
+    games = gm.chatid_games.get(chat.id)
+    bot = context.bot
+
+    if update.message.chat.type == 'private':
+        help_handler(bot, update)
+        return
+
+    if not games:
+        send_async(bot, chat.id, text="Aucune partie lancé ici.")
+        return
+
+    game = games[-1]
+
+    if user_is_creator_or_admin(user, game, bot, chat):
+
+        try:
+            gm.end_game(chat, user)
+            send_async(bot, chat.id, text="J'ai tué le way!")
+
+        except NoGameInChatError:
+            send_async(bot, chat.id,
+                       text="Aucune partie en cours", reply_to_message_id=update.message.message_id)
+
+    else:
+        send_async(
+            bot, chat.id, text=f"Seul le créateur de la partie ({game.starter.first_name}) et un admin peuvent tuer le way.", reply_to_message_id=update.message.message_id)
+
+
 def help_me(update, context):
     update.message.reply_text(
         "Utilise /new_game pour lancer une partie de Lamap."
@@ -298,6 +330,7 @@ def main():
     dispatcher.add_handler(CommandHandler('close', close_game))
     dispatcher.add_handler(CommandHandler('quit', quit_game))
     dispatcher.add_handler(CommandHandler('help', help_me))
+    dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('notify_me', notify_me))
     dispatcher.add_handler(CallbackQueryHandler(cbhandler))
 
