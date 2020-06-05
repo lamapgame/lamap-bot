@@ -238,7 +238,38 @@ def close_game(update, context):
 
 
 def quit_game(update, context):
-    print("quitting")
+    """Handler for the /leave command"""
+    chat = update.message.chat
+    user = update.message.from_user
+
+    player = gm.player_for_user_in_chat(user, chat)
+
+    if player is None:
+        send_async(bot, chat.id, text=f"Tu n'est dans aucune partie dans ce groupe",
+                   reply_to_message_id=update.message.message_id)
+        return
+
+    game = player.game
+    user = update.message.from_user
+
+    try:
+        gm.leave_game(user, chat)
+
+    except NoGameInChatError:
+        send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe",
+                   reply_to_message_id=update.message.message_id)
+
+    except NotEnoughPlayersError:
+        gm.end_game(chat, user)
+        send_async(bot, chat.id, text=f"Plus assez de joueurs! Fin de partie!")
+
+    else:
+        if game.started:
+            send_async(bot, chat.id,
+                       text=f"Okay. Prochain joueur: {game.current_player.user.name}", reply_to_message_id=update.message.message_id)
+        else:
+            send_async(bot, chat.id, text=f"{user.name} a fui.",
+                       reply_to_message_id=update.message.message_id)
 
 
 def help_me(update, context):
