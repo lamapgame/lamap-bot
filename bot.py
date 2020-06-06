@@ -140,8 +140,6 @@ def start_lamap(update, context):
             choice = [[InlineKeyboardButton(
                 text=f"Tu dégage avec quoi?", switch_inline_query_current_chat='')]]
 
-            delete_async(bot, chat.id, message_id=update.message.message_id)
-
             @run_async
             def send_first():
                 ''' Send the first card and player '''
