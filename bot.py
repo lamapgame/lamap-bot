@@ -61,12 +61,15 @@ def new_game(update, context):
         game.starter = update.message.from_user
         game.owner.append(update.message.from_user.id)
 
-        join_btn = [[InlineKeyboardButton(
-            "Rejoindre", callback_data="join_game")]]
+        join_btn = [
+            [InlineKeyboardButton("Rejoindre", callback_data="join_game")],
+            [InlineKeyboardButton("Lancer la partie",
+                                  callback_data="start_game")]
+        ]
 
         # Reply to inform the start of game
         send_animation_async(
-            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"Partie créée par {game.starter.first_name}! Rejoignez la partie avec le bouton ci dessous et commencez le jeu avec /start_lamap", reply_markup=InlineKeyboardMarkup(join_btn))
+            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"Partie créée par {game.starter.first_name}! Rejoignez la partie avec le bouton ci-dessous ensuite commencez la partie", reply_markup=InlineKeyboardMarkup(join_btn))
 
 
 def join_game(update, context):
@@ -113,9 +116,14 @@ def start_lamap(update, context):
     """Handler for the /start_lamap command"""
     bot = context.bot
 
-    if update.message.chat.type != 'private':
+    if update.message is not None:
         chat = update.message.chat
+        user = update.message.from_user
+    else:
+        chat = update.effective_message.chat
+        user = update.effective_user
 
+    if chat.type != 'private':
         try:
             game = gm.chatid_games[chat.id][-1]
 
@@ -126,7 +134,7 @@ def start_lamap(update, context):
 
         if game.started:
             send_async(
-                bot, chat.id, text=f'{update.message.from_user.name}, la partie a déjà commencée.')
+                bot, chat.id, text=f'{user.name}, la partie a déjà commencée.')
 
         elif len(game.players) < MIN_PLAYERS:
             send_async(
@@ -313,6 +321,8 @@ def cbhandler(update, context):
     query = update.callback_query
     if (query.data == 'join_game'):
         join_game(update, context)
+    elif query.data == 'start_game':
+        start_lamap(update, context)
 
     query.answer()
 
@@ -326,7 +336,7 @@ def main():
     dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
     dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CommandHandler('close', close_game))
-    dispatcher.add_handler(CommandHandler('quit', quit_game))
+    dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     dispatcher.add_handler(CommandHandler('help', help_me))
     dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('notify_me', notify_me))
