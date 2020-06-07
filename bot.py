@@ -244,7 +244,7 @@ def quit_game(update, context):
     player = gm.player_for_user_in_chat(user, chat)
 
     if player is None:
-        send_async(bot, chat.id, text=f"Tu n'est dans aucune partie dans ce groupe",
+        send_async(bot, chat.id, text=f"Tu n'es dans aucune partie dans ce groupe",
                    reply_to_message_id=update.message.message_id)
         return
 
