@@ -16,7 +16,7 @@ from deck import Deck
 from global_variables import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
                     NotEnoughPlayersError, DeckEmptyError, GameAlreadyStartedError)
-from utils import send_async, send_animation_async, answer_async, delete_async, TIMEOUT
+from utils import send_async, send_animation_async, answer_async, delete_async, user_is_creator_or_admin, user_is_creator, TIMEOUT
 from start_bot import start_bot
 from results import (add_no_game, add_not_started,
                      add_other_cards, add_card, game_info)
@@ -55,59 +55,75 @@ def new_game(update, context):
         if chat_id in gm.remind_dict:
             for user in gm.remind_dict[chat_id]:
                 send_async(
-                    bot, user, text=f"Une nouvelle partie a été lancé dans le groupe {title}")
+                    bot, user, text=f"Ca veut déjà lancer dans le groupe {title}")
             del gm.remind_dict[chat_id]
         game = gm.new_game(update.message.chat)
         game.starter = update.message.from_user
         game.owner.append(update.message.from_user.id)
 
+        join_btn = [
+            [InlineKeyboardButton("Rejoindre", callback_data="join_game")],
+            [InlineKeyboardButton("Lancer la partie",
+                                  callback_data="start_game")]
+        ]
+
         # Reply to inform the start of game
         send_animation_async(
-            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"Partie créée par {game.starter.first_name}! Réjoignez avec /join et commencez le jeu avec /start_lamap")
+            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint la partie avec le bouton ci-dessous ensuite commencez la partie", reply_markup=InlineKeyboardMarkup(join_btn))
 
 
 def join_game(update, context):
     """Handler for the /join command"""
-    chat = update.message.chat
     bot = context.bot
+    if update.message is not None:
+        chat = update.message.chat
+        user = update.message.from_user
+    else:
+        chat = update.effective_message.chat
+        user = update.effective_user
 
-    if update.message.chat.type == 'private':
+    if chat.type == 'private':
         helpers.help_handler(update, context)
         return
     try:
-        gm.join_game(update.message.from_user, chat)
+        gm.join_game(user, chat)
 
     except LobbyClosedError:
         send_async(bot, chat.id, text="La partie est fermée")
 
     except GameAlreadyStartedError:
-        delete_async(bot, chat.id, message_id=update.message.message_id)
+        # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, tex="Impossible de rejoindre une partie en cours, utilisez /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.")
+            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.")
 
     except NoGameInChatError:
-        delete_async(bot, chat.id, message_id=update.message.message_id)
-        send_async(bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game.",
-                   reply_to_message_id=update.message.message_id)
+        # delete_async(bot, chat.id, message_id=update.message.message_id)
+        send_async(
+            bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game.")
 
     except AlreadyJoinedError:
-        delete_async(bot, chat.id, message_id=update.message.message_id)
-        send_async(bot, chat.id, text=f'{update.message.from_user.name}, vous avez déjà rejoint la partie qui va se debuter bientôt.',
-                   reply_to_message_id=update.message.message_id)
+        # delete_async(bot, chat.id, message_id=update.message.message_id)
+        send_async(
+            bot, chat.id, text=f'{user.name}, tu as déjà rejoint la partie qui va se debuter bientôt.')
 
     else:
-        delete_async(bot, chat.id, message_id=update.message.message_id)
+        # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, text=f'{update.message.from_user.name} à réjoint la partie !')
+            bot, chat.id, text=f'{user.name} à réjoint la partie !')
 
 
 def start_lamap(update, context):
     """Handler for the /start_lamap command"""
     bot = context.bot
 
-    if update.message.chat.type != 'private':
+    if update.message is not None:
         chat = update.message.chat
+        user = update.message.from_user
+    else:
+        chat = update.effective_message.chat
+        user = update.effective_user
 
+    if chat.type != 'private':
         try:
             game = gm.chatid_games[chat.id][-1]
 
@@ -118,11 +134,11 @@ def start_lamap(update, context):
 
         if game.started:
             send_async(
-                bot, chat.id, text=f'{update.message.from_user.name}, la partie a déjà commencée.')
+                bot, chat.id, text=f'{user.name}, la partie a déjà commencée.')
 
         elif len(game.players) < MIN_PLAYERS:
             send_async(
-                bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer. Utilisez /join pour rejoindre une partie en cours.')
+                bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer.')
 
         else:
             game.start()
@@ -131,8 +147,6 @@ def start_lamap(update, context):
                 player.draw_hand()
             choice = [[InlineKeyboardButton(
                 text=f"Tu dégage avec quoi?", switch_inline_query_current_chat='')]]
-
-            delete_async(bot, chat.id, message_id=update.message.message_id)
 
             @run_async
             def send_first():
@@ -213,14 +227,15 @@ def close_game(update, context):
     games = gm.chatid_games.get(chat.id)
 
     if not games:
-        send_async(bot, chat.id, f"Il n'y a aucune partie en cours dans ce chat")
+        send_async(
+            bot, chat.id, f"Il n'y a aucune partie en cours dans ce groupe")
 
     game = games[-1]
 
     if user.id in game.owner:
         game.open = False
         send_async(
-            bot, chat.id, f"La partie est fermée. Vous ne pouvez plus joindre.")
+            bot, chat.id, f"On a fermé le terre. Tu ne peux plus joindre.")
         return
 
     else:
@@ -230,13 +245,92 @@ def close_game(update, context):
 
 
 def quit_game(update, context):
-    print("quitting")
+    """Handler for the /leave command"""
+    chat = update.message.chat
+    user = update.message.from_user
+    bot = context.bot
+
+    player = gm.player_for_user_in_chat(user, chat)
+
+    if player is None:
+        send_async(bot, chat.id, text=f"Tu te banque alors que tu n'es dans aucune partie dans ce groupe",
+                   reply_to_message_id=update.message.message_id)
+        return
+
+    game = player.game
+    user = update.message.from_user
+
+    try:
+        if game.control_player.user.id != user.id:
+            gm.leave_game(user, chat)
+        else:
+            send_async(bot, chat.id, text=f"Molah, Tu pars où alors que tu as le contrôle ?",
+                       reply_to_message_id=update.message.message_id)
+            return
+
+    except NoGameInChatError:
+        send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe",
+                   reply_to_message_id=update.message.message_id)
+
+    except NotEnoughPlayersError:
+        gm.end_game(chat, user)
+        send_async(bot, chat.id, text=f"Plus assez de joueurs! Fin de partie!")
+
+    else:
+        if game.started:
+            send_async(bot, chat.id,
+                       text=f"Okay. Prochain joueur: {game.current_player.user.name}", reply_to_message_id=update.message.message_id)
+        else:
+            send_async(bot, chat.id, text=f"{user.name} a fui.",
+                       reply_to_message_id=update.message.message_id)
+
+
+def kill_game(update, context):
+    """Handler for the /kill game"""
+    chat = update.message.chat
+    user = update.message.from_user
+    games = gm.chatid_games.get(chat.id)
+    bot = context.bot
+
+    if update.message.chat.type == 'private':
+        help_handler(bot, update)
+        return
+
+    if not games:
+        send_async(bot, chat.id, text="Aucune partie lancé ici.")
+        return
+
+    game = games[-1]
+
+    if user_is_creator_or_admin(user, game, bot, chat):
+
+        try:
+            gm.end_game(chat, user)
+            send_async(bot, chat.id, text="J'ai tué le way!")
+
+        except NoGameInChatError:
+            send_async(bot, chat.id,
+                       text="Aucune partie en cours", reply_to_message_id=update.message.message_id)
+
+    else:
+        send_async(
+            bot, chat.id, text=f"Seul le créateur de la partie ({game.starter.first_name}) et un admin peuvent tuer le way.", reply_to_message_id=update.message.message_id)
 
 
 def help_me(update, context):
     update.message.reply_text(
         "Utilise /new_game pour lancer une partie de Lamap."
     )
+
+
+def cbhandler(update, context):
+    query = update.callback_query
+    if (query.data == 'join_game'):
+        join_game(update, context)
+    elif query.data == 'start_game':
+        start_lamap(update, context)
+
+    query.answer()
 
 
 def main():
@@ -248,9 +342,11 @@ def main():
     dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
     dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CommandHandler('close', close_game))
-    dispatcher.add_handler(CommandHandler('quit', quit_game))
+    dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     dispatcher.add_handler(CommandHandler('help', help_me))
+    dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('notify_me', notify_me))
+    dispatcher.add_handler(CallbackQueryHandler(cbhandler))
 
     # on noncommand message
     # dispatcher.add_handler(MessageHandler(Filters.all, sticker))

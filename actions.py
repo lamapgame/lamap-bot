@@ -34,7 +34,6 @@ def do_play_card(bot, player, result_id):
     user = player.user
     controller = repr(game.control_card)
 
-    # todo: give mid-play infos
     choice = [[InlineKeyboardButton(
         text=f"Afficher mes cartes", switch_inline_query_current_chat='')]]
 
@@ -53,7 +52,7 @@ def do_play_card(bot, player, result_id):
         # KORA
         if game.control_card.value == '3':
             send_animation_async(
-                bot, chat.id, animation="https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} gagne par KORA!")
+                bot, chat.id, animation="https://media.giphy.com/media/WrgtbRE1zywNy/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} gagne par KORA!")
 
         # Normal win
         else:

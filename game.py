@@ -45,7 +45,6 @@ class Game(object):
 
     def turn(self):
         """ Change a turn and change the player """
-        # todo: create round based turn system
         self.current_player = self.current_player.next
         self.current_player.turn_started = datetime.now()
         self.play_round += 1
@@ -68,6 +67,7 @@ class Game(object):
         self.turn()
 
     def start(self):
+        self.deck._fill_cards_()
         self.started = True
 
 

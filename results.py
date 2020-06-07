@@ -48,7 +48,7 @@ def add_no_game(results):
         InlineQueryResultArticle(
             "nogame",
             title="Vous ne jouez pas",
-            input_message_content=InputTextMessageContent("Vous n'êtes dans aucune partie actuellement, veuillez commencer une nouvelle avec /new_game ou rejoignez une en cours dans ce groupe avec /join."))
+            input_message_content=InputTextMessageContent("Vous n'êtes dans aucune partie actuellement, veuillez commencer une nouvelle avec /new_game ou rejoignez une en cours."))
     )
 
 
@@ -57,9 +57,9 @@ def add_not_started(results):
     results.append(
         InlineQueryResultArticle(
             "nogame",
-            title="Le jeu n'a pas encore commencer",
+            title="Le jeu n'a pas encore commencé",
             input_message_content=InputTextMessageContent(
-                'Start the game with / start')
+                'Commencez la partie')
         )
     )
 

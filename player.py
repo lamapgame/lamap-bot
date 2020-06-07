@@ -70,8 +70,8 @@ class Player(object):
             game_deck.cards_dealt += 5
 
             # Todo implement quick win (3x7 or 3x3)
-            if quick_win(self.cards):
-                print("terminé", player)
+            ''' if quick_win(self.cards):
+                print("terminé", player) '''
 
         except IndexError:
             raise DeckEmptyError()
