@@ -28,6 +28,14 @@ VSCode debuggers works well in this case, you may use it. To further ease debugg
 	"type": "python",
 	"request": "launch",
 	"program": "./bot.py",
-	"console": "internalConsole"
+	"console": "internalConsole",
+	"args": ["dev"]
 }
 ```
+
+## Running the bot
+
+The bot uses environment variables as token and reads two files, `.env.local` when in local dev and `.env.prod` when in prod. This helps the bot know what TOKEN to use and if it should poll or connect to the webhook.
+
+1. Run `python bot.py prod` in prod.
+2. `python bot.py dev` in local (with your own TOKEN in your .env.local file).
