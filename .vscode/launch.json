@@ -16,7 +16,8 @@
 			"type": "python",
 			"request": "launch",
 			"program": "./bot.py",
-			"console": "internalConsole"
+			"console": "internalConsole",
+			"args": ["dev"]
 		}
 	]
 }
