@@ -15,11 +15,11 @@
          alt="Bot Chat">
   </a>
   <a href="https://t.me/lamapdevs">
-    <img src="https://img.shields.io/badge/Telegram-Devs%20Chat-orange?style=for-the-badge&logo=telegram"
+    <img src="https://img.shields.io/badge/Telegram-Support%20Chat-orange?style=for-the-badge&logo=telegram"
          alt="Devs Chat">
   </a>
   <a href="https://t.me/lamapupdates">
-      <img src="https://img.shields.io/badge/Telegram-Update%20Group-%230088cc?style=for-the-badge&logo=telegram" alt="Updates Group">
+      <img src="https://img.shields.io/badge/Telegram-Update%20Channel-%230088cc?style=for-the-badge&logo=telegram" alt="Updates Group">
   </a>
 
 </p>
@@ -51,11 +51,11 @@ To contribute, follow the instructions in our [CONTRIBUTING.md](./CONTRIBUTING.m
 
 ## Credits
 
-This software uses the following open source packages:
+This software uses the following tech:
 
-- [Python Telegram Bot](https://python-telegram-bot.org/)
-- [Telegram Messenger](https://telegram.org/)
-- [Redis DB](https://redis.io/)
+- [Python Telegram Bot](https://python-telegram-bot.org/): Python framework to help build Telegram bots
+- [Telegram Messenger](https://telegram.org/): Base chat platform on which the bot functions
+- [Redis DB](https://redis.io/): Data persistence and management
 
 ## Related
 
@@ -76,6 +76,6 @@ This software uses the following open source packages:
 
 ---
 
-> [dylantientcheu.dev](https://www.dylantientcheu.dev) &nbsp;&middot;&nbsp;
+> Website [dylantientcheu.dev](https://www.dylantientcheu.dev) &nbsp;&middot;&nbsp;
 > GitHub [@blurdylan](https://github.com/blurdylan) &nbsp;&middot;&nbsp;
 > Twitter [@dylantientcheu](https://twitter.com/dylantientcheu)

@@ -12,14 +12,22 @@ LAMAP_CARDS = [
     'd_9', 'd_10', 's_3', 's_4', 's_5', 's_6', 's_7', 's_8', 's_9'
 ]  # shuffle cards directly
 
-shuffle(LAMAP_CARDS)
-
 
 class Deck(object):
     """This class represents a shuffled deck of card"""
 
     def __init__(self):
-        self.cards = LAMAP_CARDS  # create game cards
+        self.cards = list()  # create game cards
         self.graveyard = list()
         self.cards_dealt = 0
         self.logger = logging.getLogger(__name__)
+
+    def _fill_cards_(self):
+        self.logger.debug("Filling deck...")
+        self.cards = LAMAP_CARDS.copy()
+        self.shuffle()
+
+    def shuffle(self):
+        """shuffles the deck"""
+        self.logger.debug("Shuffling deck...")
+        shuffle(self.cards)
