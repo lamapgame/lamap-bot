@@ -24,12 +24,12 @@ VSCode debuggers works well in this case, you may use it. To further ease debugg
 
 ```json
 {
-	"name": "Python: Launch bot",
-	"type": "python",
-	"request": "launch",
-	"program": "./bot.py",
-	"console": "internalConsole",
-	"args": ["dev"]
+ "name": "Python: Launch bot",
+ "type": "python",
+ "request": "launch",
+ "program": "./bot.py",
+ "console": "internalConsole",
+ "args": ["dev"]
 }
 ```
 
