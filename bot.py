@@ -260,7 +260,12 @@ def quit_game(update, context):
     user = update.message.from_user
 
     try:
-        gm.leave_game(user, chat)
+        if game.control_player.user.id != user.id:
+            gm.leave_game(user, chat)
+        else:
+            send_async(bot, chat.id, text=f"Vous ne pouvez pas vous banquer en ayant le contrôle",
+                       reply_to_message_id=update.message.message_id)
+            return
 
     except NoGameInChatError:
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe",
