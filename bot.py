@@ -55,7 +55,7 @@ def new_game(update, context):
         if chat_id in gm.remind_dict:
             for user in gm.remind_dict[chat_id]:
                 send_async(
-                    bot, user, text=f"Une nouvelle partie a été lancé dans le groupe {title}")
+                    bot, user, text=f"Ca veut déjà lancer dans le groupe {title}")
             del gm.remind_dict[chat_id]
         game = gm.new_game(update.message.chat)
         game.starter = update.message.from_user
@@ -69,7 +69,7 @@ def new_game(update, context):
 
         # Reply to inform the start of game
         send_animation_async(
-            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"Partie créée par {game.starter.first_name}! Rejoignez la partie avec le bouton ci-dessous ensuite commencez la partie", reply_markup=InlineKeyboardMarkup(join_btn))
+            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint la partie avec le bouton ci-dessous ensuite commencez la partie", reply_markup=InlineKeyboardMarkup(join_btn))
 
 
 def join_game(update, context):
@@ -94,7 +94,7 @@ def join_game(update, context):
     except GameAlreadyStartedError:
         # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilisez /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.")
+            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.")
 
     except NoGameInChatError:
         # delete_async(bot, chat.id, message_id=update.message.message_id)
@@ -104,7 +104,7 @@ def join_game(update, context):
     except AlreadyJoinedError:
         # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, text=f'{user.name}, vous avez déjà rejoint la partie qui va se debuter bientôt.')
+            bot, chat.id, text=f'{user.name}, tu as déjà rejoint la partie qui va se debuter bientôt.')
 
     else:
         # delete_async(bot, chat.id, message_id=update.message.message_id)
@@ -138,7 +138,7 @@ def start_lamap(update, context):
 
         elif len(game.players) < MIN_PLAYERS:
             send_async(
-                bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer. Utilisez /join pour rejoindre une partie en cours.')
+                bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer.')
 
         else:
             game.start()
@@ -227,14 +227,15 @@ def close_game(update, context):
     games = gm.chatid_games.get(chat.id)
 
     if not games:
-        send_async(bot, chat.id, f"Il n'y a aucune partie en cours dans ce chat")
+        send_async(
+            bot, chat.id, f"Il n'y a aucune partie en cours dans ce groupe")
 
     game = games[-1]
 
     if user.id in game.owner:
         game.open = False
         send_async(
-            bot, chat.id, f"La partie est fermée. Vous ne pouvez plus joindre.")
+            bot, chat.id, f"On a fermé le terre. Tu ne peux plus joindre.")
         return
 
     else:
@@ -252,7 +253,7 @@ def quit_game(update, context):
     player = gm.player_for_user_in_chat(user, chat)
 
     if player is None:
-        send_async(bot, chat.id, text=f"Tu n'es dans aucune partie dans ce groupe",
+        send_async(bot, chat.id, text=f"Tu te banque alors que tu n'es dans aucune partie dans ce groupe",
                    reply_to_message_id=update.message.message_id)
         return
 
@@ -263,7 +264,7 @@ def quit_game(update, context):
         if game.control_player.user.id != user.id:
             gm.leave_game(user, chat)
         else:
-            send_async(bot, chat.id, text=f"Vous ne pouvez pas vous banquer en ayant le contrôle",
+            send_async(bot, chat.id, text=f"Molah, Tu pars où alors que tu as le contrôle ?",
                        reply_to_message_id=update.message.message_id)
             return
 
