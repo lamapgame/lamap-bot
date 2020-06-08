@@ -19,7 +19,9 @@ class Player(object):
         self.cards = list()
         self.game = game
         self.user = user
+
         self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.DEBUG)
 
         # Check if this player is the first player in this game.
         if game.current_player:
@@ -90,7 +92,6 @@ class Player(object):
         # if there's no single card matching the last card,
         # then make all of them playable
         if not playable:
-            self.logger.debug("No matching card!")
             for card in cards:
                 playable.append(card)
 
@@ -103,10 +104,16 @@ class Player(object):
         if c_card is not None:
             # if they do not have the same suit, they cannot be playable
             if card.suit is not c_card.suit:
-                self.logger.debug("No match")
                 is_playable = False
 
         return is_playable
 
     def leave(self):
-        self.logger.debug(self.user.id + "left the game")
+        self.logger.debug(f'{self.user.id} left the game')
+        if self.next is self:
+            return
+
+        self.next.prev = self.prev
+        self.prev.next = self.next
+        self.next = None
+        self.prev = None
