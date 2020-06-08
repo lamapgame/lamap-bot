@@ -109,4 +109,4 @@ class Player(object):
         return is_playable
 
     def leave(self):
-        self.logger.debug(self.user + "left the game")
+        self.logger.debug(self.user.id + "left the game")
