@@ -253,7 +253,7 @@ def quit_game(update, context):
     player = gm.player_for_user_in_chat(user, chat)
 
     if player is None:
-        send_async(bot, chat.id, text=f"Tu te banque alors que tu n'es dans aucune partie dans ce groupe",
+        send_async(bot, chat.id, text=f"Tu te banque alors que ça n'a pas commencé?",
                    reply_to_message_id=update.message.message_id)
         return
 
@@ -261,12 +261,21 @@ def quit_game(update, context):
     user = update.message.from_user
 
     try:
-        if game.control_player.user.id != user.id:
+        if game.control_player != None:
+            if game.control_player.user.id != user.id:
+                gm.leave_game(user, chat)
+            else:
+                send_async(bot, chat.id, text=f"Molah, Tu pars où alors que tu as le contrôle ?",
+                           reply_to_message_id=update.message.message_id)
+                return
+        elif game.current_player.user.id == user.id:
+            send_async(bot, chat.id, text=f"{user.name} a fui en voyant ses cartes.",
+                       reply_to_message_id=update.message.message_id)
             gm.leave_game(user, chat)
         else:
-            send_async(bot, chat.id, text=f"Molah, Tu pars où alors que tu as le contrôle ?",
+            send_async(bot, chat.id, text=f"{user.name} a fui sans voir ses cartes.",
                        reply_to_message_id=update.message.message_id)
-            return
+            gm.leave_game(user, chat)
 
     except NoGameInChatError:
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe",
@@ -279,10 +288,22 @@ def quit_game(update, context):
     else:
         if game.started:
             send_async(bot, chat.id,
-                       text=f"Okay. Prochain joueur: {game.current_player.user.name}", reply_to_message_id=update.message.message_id)
+                       text=f"{user.name} comme tu pars là, ne vient plus. Prochain joueur: {game.current_player.user.name}", reply_to_message_id=update.message.message_id)
+            try:
+                gm.leave_game(user, chat)
+            except NotEnoughPlayersError:
+                gm.end_game(chat, user)
+                send_async(
+                    bot, chat.id, text=f"Plus assez de joueurs! Fin de partie!")
         else:
             send_async(bot, chat.id, text=f"{user.name} a fui.",
                        reply_to_message_id=update.message.message_id)
+            try:
+                gm.leave_game(user, chat)
+            except NotEnoughPlayersError:
+                gm.end_game(chat, user)
+                send_async(
+                    bot, chat.id, text=f"Plus assez de joueurs! Fin de partie!")
 
 
 def kill_game(update, context):

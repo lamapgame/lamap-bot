@@ -144,6 +144,7 @@ class GameManager(object):
                         if p is g.current_player:
                             g.turn()
                         p.leave()
+
                         return
 
             raise NoGameInChatError()
@@ -154,7 +155,7 @@ class GameManager(object):
             raise NotEnoughPlayersError()
 
         if player is game.current_player:
-            game.turn(None)
+            game.turn()
 
         player.leave()
         players.remove(player)
