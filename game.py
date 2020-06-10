@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from config import ADMIN_LIST, OPEN_LOBBY, MAX_PLAYERS
+from config import ADMIN_LIST, OPEN_LOBBY, MAX_PLAYERS, WAITING_TIME
 from deck import Deck
 import card as c
 
@@ -17,6 +17,7 @@ class Game(object):
     play_round = 0  # game has 5 rounds: each player plays 5 times
     game_round = 1
     owner = ADMIN_LIST
+    waiting_time = WAITING_TIME
     max_players = MAX_PLAYERS
     open = OPEN_LOBBY
 
