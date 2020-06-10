@@ -15,12 +15,14 @@ import logger
 from deck import Deck
 from global_variables import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
-                    NotEnoughPlayersError, DeckEmptyError, GameAlreadyStartedError)
+                    NotEnoughPlayersError, DeckEmptyError, GameAlreadyStartedError, MaxPlayersReached)
 from utils import send_async, send_animation_async, answer_async, delete_async, user_is_creator_or_admin, user_is_creator, TIMEOUT
 from start_bot import start_bot
 from results import (add_no_game, add_not_started,
                      add_other_cards, add_card, game_info)
 from actions import do_play_card
+
+from settings import set_waiting_time
 
 
 from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS, LOG_FILE
@@ -64,12 +66,17 @@ def new_game(update, context):
         join_btn = [
             [InlineKeyboardButton("Rejoindre", callback_data="join_game")],
             [InlineKeyboardButton("Lancer la partie",
-                                  callback_data="start_game")]
+                                  callback_data="start_game")],
+            [InlineKeyboardButton("15s", callback_data="pt_15s"),
+             InlineKeyboardButton("30s", callback_data="pt_30s"),
+             InlineKeyboardButton("60s", callback_data="pt_60s"),
+             InlineKeyboardButton("90s", callback_data="pt_90s")
+             ]
         ]
 
         # Reply to inform the start of game
         send_animation_async(
-            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint la partie avec le bouton ci-dessous ensuite commencez la partie", reply_markup=InlineKeyboardMarkup(join_btn))
+            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint la partie avec le bouton ci-dessous.", reply_markup=InlineKeyboardMarkup(join_btn))
 
 
 def join_game(update, context):
@@ -90,6 +97,9 @@ def join_game(update, context):
 
     except LobbyClosedError:
         send_async(bot, chat.id, text="La partie est fermée")
+
+    except MaxPlayersReached:
+        send_async(bot, chat.id, text="La salle est pleine, tu ne peux pas joindre. Utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.")
 
     except GameAlreadyStartedError:
         # delete_async(bot, chat.id, message_id=update.message.message_id)
@@ -201,7 +211,7 @@ def reply_to_query(update, context):
 
 
 def process_result(update, context):
-    """ 
+    """
     Handler for chosen inline results.
     """
 
@@ -283,7 +293,12 @@ def quit_game(update, context):
 
     except NotEnoughPlayersError:
         gm.end_game(chat, user)
-        send_async(bot, chat.id, text=f"Plus assez de joueurs! Fin de partie!")
+        if game.control_player is None:
+            send_async(
+                bot, chat.id, text=f"Comment vous partez tous?! Fin de partie!")
+        else:
+            send_animation_async(
+                bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {game.control_player.user.first_name} a gagné")
 
     else:
         if game.started:
@@ -291,19 +306,30 @@ def quit_game(update, context):
                        text=f"{user.name} comme tu pars là, ne vient plus. Prochain joueur: {game.current_player.user.name}", reply_to_message_id=update.message.message_id)
             try:
                 gm.leave_game(user, chat)
+
             except NotEnoughPlayersError:
+                if game.control_player is None:
+                    send_async(
+                        bot, chat.id, text=f"Comment vous partez tous?! Fin de partie!")
+                else:
+                    send_animation_async(
+                        bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {game.control_player.user.first_name} a gagné")
+
                 gm.end_game(chat, user)
-                send_async(
-                    bot, chat.id, text=f"Plus assez de joueurs! Fin de partie!")
         else:
             send_async(bot, chat.id, text=f"{user.name} a fui.",
                        reply_to_message_id=update.message.message_id)
             try:
                 gm.leave_game(user, chat)
             except NotEnoughPlayersError:
+                if game.control_player is None:
+                    send_async(
+                        bot, chat.id, text=f"Comment vous partez tous?! Fin de partie!")
+                else:
+                    send_animation_async(
+                        bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {game.control_player.user.first_name} a gagné")
+
                 gm.end_game(chat, user)
-                send_async(
-                    bot, chat.id, text=f"Plus assez de joueurs! Fin de partie!")
 
 
 def kill_game(update, context):
@@ -345,11 +371,37 @@ def help_me(update, context):
 
 
 def cbhandler(update, context):
+    bot = context.bot
+    chat = update.effective_message.chat
     query = update.callback_query
+
+    game = gm.chatid_games[chat.id][-1]
+
     if (query.data == 'join_game'):
         join_game(update, context)
     elif query.data == 'start_game':
         start_lamap(update, context)
+
+    # game time queries
+    elif query.data == 'pt_15s':
+        # start_lamap(update, context)
+        set_waiting_time(game, 15)
+        send_async(bot, chat.id, text=f"⏳ 15 secondes par coup, ça va vite!")
+    elif query.data == 'pt_30s':
+        # start_lamap(update, context)
+        set_waiting_time(game, 30)
+        send_async(
+            bot, chat.id, text=f"⏳ 30 secondes par coup.")
+    elif query.data == 'pt_60s':
+        # start_lamap(update, context)
+        set_waiting_time(game, 60)
+        send_async(
+            bot, chat.id, text=f"⏳ 60 secondes par coup.")
+    elif query.data == 'pt_90s':
+        # start_lamap(update, context)
+        set_waiting_time(game, 90)
+        send_async(
+            bot, chat.id, text=f"⏳ 90 secondes par coup, vous jouez en dormant ?")
 
     query.answer()
 
@@ -360,13 +412,14 @@ def main():
     dispatcher.add_handler(InlineQueryHandler(reply_to_query))
     dispatcher.add_handler(ChosenInlineResultHandler(process_result))
     dispatcher.add_handler(CommandHandler('new_game', new_game))
-    dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
-    dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CommandHandler('close', close_game))
     dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     dispatcher.add_handler(CommandHandler('help', help_me))
     dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('notify_me', notify_me))
+    # muted commands
+    dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
+    dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CallbackQueryHandler(cbhandler))
 
     # on noncommand message
