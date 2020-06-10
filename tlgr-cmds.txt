@@ -1,9 +1,6 @@
 new_game - Lancer une nouvelle partie de Lamap.
-join - Joindre une partie de Lamap déjà lancé.
-start_lamap - Commencer la partie et partager les cartes.
 se_banquer - Quitter la partie en cours (se banquer) si elle est lancé.
 notify_me - Me notifier lorsqu'une nouvelle partie débutera dans ce groupe.
-help - Obtenir de l'aide sur comment utiliser le bot.
 rules - Apprendre les règles du jeu.
 donate - Faire un don au dévéloppeurs du bot.
 tuer_le_way - Arrêter une partie (Only ADMIN)
