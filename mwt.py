@@ -30,11 +30,11 @@ class MWT(object):
             key = (args, tuple(kw))
             try:
                 v = self.cache[key]
-                print("cache")
+                print("cache mwt")
                 if (time.time() - v[1]) > self.timeout:
                     raise KeyError
             except KeyError:
-                print("new")
+                print("new mwt")
                 v = self.cache[key] = f(*args, **kwargs), time.time()
             return v[0]
         func.func_name = f.__name__
