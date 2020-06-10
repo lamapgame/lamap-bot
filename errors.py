@@ -2,6 +2,10 @@ class NoGameInChatError(Exception):
     pass
 
 
+class MaxPlayersReached(Exception):
+    pass
+
+
 class AlreadyJoinedError(Exception):
     pass
 
