@@ -21,6 +21,8 @@ class Game(object):
     max_players = MAX_PLAYERS
     open = OPEN_LOBBY
 
+    start_gm_msgs = list()
+
     # mode = "DEFAULT_GAMEMODE"
 
     def __init__(self, chat):

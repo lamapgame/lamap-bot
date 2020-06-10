@@ -21,9 +21,14 @@ def send_async(bot, *args, **kwargs):
     if 'timeout' not in kwargs:
         kwargs['timeout'] = TIMEOUT
     try:
-        bot.sendMessage(*args, **kwargs)
+        msg_sent = bot.sendMessage(*args, **kwargs)
     except Exception as e:
         error(None, None, e)
+    return msg_sent
+
+
+def send_msg(bot, *args, **kwargs):
+    """ Send direct message """
 
 
 @run_async
