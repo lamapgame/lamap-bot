@@ -11,8 +11,9 @@ from telegram.ext.dispatcher import run_async
 
 # bot modules
 import helpers
-import logger
-from deck import Deck
+import logger as loggero
+
+
 from global_variables import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
                     NotEnoughPlayersError, DeckEmptyError, GameAlreadyStartedError, MaxPlayersReached)
@@ -28,8 +29,8 @@ from settings import set_waiting_time
 from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS, LOG_FILE
 
 
-logging.basicConfig(
-    filename=LOG_FILE, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -66,17 +67,27 @@ def new_game(update, context):
         join_btn = [
             [InlineKeyboardButton("Rejoindre", callback_data="join_game")],
             [InlineKeyboardButton("Lancer la partie",
-                                  callback_data="start_game")],
-            [InlineKeyboardButton("15s", callback_data="pt_15s"),
-             InlineKeyboardButton("30s", callback_data="pt_30s"),
-             InlineKeyboardButton("60s", callback_data="pt_60s"),
-             InlineKeyboardButton("90s", callback_data="pt_90s")
-             ]
+                                  callback_data="start_game")]
         ]
 
         # Reply to inform the start of game
         send_animation_async(
             context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint la partie avec le bouton ci-dessous.", reply_markup=InlineKeyboardMarkup(join_btn))
+
+        # start the game after 60 secs
+        context.job_queue.run_once(start_the_game, 3, context=update)
+
+
+def start_the_game(context):
+    chat = context.job.context.effective_message.chat
+    user = context.job.context.effective_user
+    game = gm.chatid_games[chat.id][-1]
+    if len(game.players) >= MIN_PLAYERS and not game.started:
+        start_lamap(context.job.context, context)
+    elif not game.started:
+        gm.end_game(chat, user)
+        send_async(context.bot, chat.id,
+                   text=f'Les gars ne sont pas chaud, je tue le way.')
 
 
 def join_game(update, context):
@@ -114,7 +125,7 @@ def join_game(update, context):
     except AlreadyJoinedError:
         # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, text=f'{user.name}, tu as déjà rejoint la partie qui va se debuter bientôt.')
+            bot, chat.id, text=f'{user.name}, calme toi, j\'ai déjà coupé tes cartes.')
 
     else:
         # delete_async(bot, chat.id, message_id=update.message.message_id)
@@ -149,6 +160,7 @@ def start_lamap(update, context):
         elif len(game.players) < MIN_PLAYERS:
             send_async(
                 bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer.')
+            gm.end_game(chat, user)
 
         else:
             game.start()
@@ -250,7 +262,7 @@ def close_game(update, context):
 
     else:
         send_async(
-            bot, chat.id, f"Seul le créateur de la partie {game.starter.name} ou l'admin peuvent effectuer cette action", reply_to_message_id=update.message.message_id)
+            bot, chat.id, f"Tu es qui pour lock le terre? Seul le créateur de la partie {game.starter.name} ou l'admin peuvent lock le terre", reply_to_message_id=update.message.message_id)
         return
 
 
@@ -299,6 +311,8 @@ def quit_game(update, context):
         else:
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {game.control_player.user.first_name} a gagné")
+            logger.debug(
+                f"WIN GAME FOFEIT ({game.control_player.user.id}) in {chat.id}")
 
     else:
         if game.started:
@@ -354,6 +368,8 @@ def kill_game(update, context):
         try:
             gm.end_game(chat, user)
             send_async(bot, chat.id, text="J'ai tué le way!")
+            logger.debug("KILLED GAME in chat " +
+                         str(chat.id) + "by user" + str(user.id))
 
         except NoGameInChatError:
             send_async(bot, chat.id,
@@ -361,7 +377,7 @@ def kill_game(update, context):
 
     else:
         send_async(
-            bot, chat.id, text=f"Seul le créateur de la partie ({game.starter.first_name}) et un admin peuvent tuer le way.", reply_to_message_id=update.message.message_id)
+            bot, chat.id, text=f"Tu es qui pour tuer le way? Seul le créateur de la partie ({game.starter.first_name}) et un admin peuvent tuer le way.", reply_to_message_id=update.message.message_id)
 
 
 def help_me(update, context):
@@ -374,34 +390,15 @@ def cbhandler(update, context):
     bot = context.bot
     chat = update.effective_message.chat
     query = update.callback_query
+    user = update.effective_user
 
     game = gm.chatid_games[chat.id][-1]
 
     if (query.data == 'join_game'):
         join_game(update, context)
     elif query.data == 'start_game':
-        start_lamap(update, context)
-
-    # game time queries
-    elif query.data == 'pt_15s':
-        # start_lamap(update, context)
-        set_waiting_time(game, 15)
-        send_async(bot, chat.id, text=f"⏳ 15 secondes par coup, ça va vite!")
-    elif query.data == 'pt_30s':
-        # start_lamap(update, context)
-        set_waiting_time(game, 30)
-        send_async(
-            bot, chat.id, text=f"⏳ 30 secondes par coup.")
-    elif query.data == 'pt_60s':
-        # start_lamap(update, context)
-        set_waiting_time(game, 60)
-        send_async(
-            bot, chat.id, text=f"⏳ 60 secondes par coup.")
-    elif query.data == 'pt_90s':
-        # start_lamap(update, context)
-        set_waiting_time(game, 90)
-        send_async(
-            bot, chat.id, text=f"⏳ 90 secondes par coup, vous jouez en dormant ?")
+        if user.id in game.owner:
+            start_lamap(update, context)
 
     query.answer()
 
@@ -425,7 +422,7 @@ def main():
     # on noncommand message
     # dispatcher.add_handler(MessageHandler(Filters.all, sticker))
 
-    dispatcher.add_error_handler(logger.error)
+    dispatcher.add_error_handler(loggero.error)
 
     helpers.register()
 

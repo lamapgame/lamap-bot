@@ -12,6 +12,8 @@ from errors import DeckEmptyError, NotEnoughPlayersError
 from global_variables import gm
 from utils import send_async, game_is_running, send_animation_async
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -53,10 +55,14 @@ def do_play_card(bot, player, result_id):
         if game.control_card.value == '3':
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/WrgtbRE1zywNy/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} gagne par KORA!")
+            logger.debug(
+                f"WIN GAME *KORA* ({game.control_player.user.id}) in {chat.id}")
 
         # Normal win
         else:
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} a gagné!")
+            logger.debug(
+                f"WIN GAME ({game.control_player.user.id}) in {chat.id}")
 
         gm.end_game(chat, user)
