@@ -213,8 +213,8 @@ def reply_to_query(update, context):
                 add_card(game, card, results, can_play=(card in playable))
 
         elif user_id != game.current_player.user.id or not game.started:
-            ''' for card in sorted(player.cards):
-                add_card(game, card, results, can_play=False) '''
+            for card in sorted(player.cards):
+                add_card(game, card, results, can_play=False)
 
     answer_async(bot, update.inline_query.id, results, cache_time=0,
                  switch_pm_parameter='select')
