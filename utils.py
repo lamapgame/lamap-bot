@@ -22,6 +22,8 @@ def send_async(bot, *args, **kwargs):
         kwargs['timeout'] = TIMEOUT
     try:
         msg_sent = bot.sendMessage(*args, **kwargs)
+        if 'to_delete' in kwargs:
+            gm.start_gm_msgs.append(msg_sent.message_id)
     except Exception as e:
         error(None, None, e)
     return msg_sent
@@ -37,7 +39,9 @@ def send_animation_async(bot, *args, **kwargs):
     if 'timeout' not in kwargs:
         kwargs['timeout'] = TIMEOUT
     try:
-        bot.send_animation(*args, **kwargs)
+        msg_sent = bot.send_animation(*args, **kwargs)
+        if 'to_delete' in kwargs:
+            gm.start_gm_msgs.append(msg_sent.message_id)
     except Exception as e:
         error(None, None, e)
 
@@ -51,6 +55,12 @@ def delete_async(bot, *args, **kwargs):
         bot.delete_message(*args, **kwargs)
     except Exception as e:
         error(None, None, e)
+
+
+def delete_start_msgs(bot, chat_id, **kwargs):
+    """ Delete message from group """
+    for msg in gm.start_gm_msgs:
+        delete_async(bot, chat_id, message_id=msg)
 
 
 @run_async

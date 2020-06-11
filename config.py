@@ -20,7 +20,7 @@ DEFAULT_GAMEMODE = config.get("DEFAULT_GAMEMODE", "classic")
 WAITING_TIME = config.get("WAITING_TIME", 120)
 MIN_PLAYERS = config.get("MIN_PLAYERS", 2)
 MAX_PLAYERS = config.get("MAX_PLAYERS", 4)
-LOG_FILE = "./lamapbot.log"
+TIME_TO_START = config.get("TIME_TO_START", 60)
 
 if sys.argv[1] == "prod":
     load_dotenv(prod_env_path)
