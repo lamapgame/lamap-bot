@@ -35,28 +35,44 @@ def do_play_card(bot, player, result_id):
     chat = game.chat
     user = player.user
     controller = repr(game.control_card)
+    info = dict()
 
     choice = [[InlineKeyboardButton(
         text=f"Afficher mes cartes", switch_inline_query_current_chat='')]]
 
     if game.control_player is not None:
         if game.play_round % len(game.players) == 0 and game.play_round < (len(game.players) * 5):
+            # update game_info
+            info.update({'round': game.game_round, 'control_card': game.control_card,
+                         'control_player': game.control_player})
+            game.game_info.append(info)
+
+            # reset control card and controller -> current user
             game.control_card = None
             game.current_player = game.control_player
 
+        # 5 play_round = 1 game round
         if game.play_round != (len(game.players) * 5):
             send_async(bot, chat.id, text=f"○ {game.control_player.user.first_name} contrôle ({controller})\n● {game.current_player.user.name} à toi de jouer.",
                        reply_markup=InlineKeyboardMarkup(choice))
-
+            # add this information to the game info list
             game.game_round += 1
 
     if game.play_round == (len(game.players) * 5):
+        print(game.game_info)
         # KORA
         if game.control_card.value == '3':
-            send_animation_async(
-                bot, chat.id, animation="https://media.giphy.com/media/WrgtbRE1zywNy/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} gagne par KORA!")
-            logger.debug(
-                f"WIN GAME *KORA* ({game.control_player.user.id}) in {chat.id}")
+            # DOUBLE KORA - if the 4th round was controlled with 3 by the same player
+            if game.game_info[3].get('control_card').value == '3' and game.game_info[3].get('control_player').user.id == game.control_player.user.id:
+                send_animation_async(
+                    bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} gagne par DOUBLE KORA (33) !")
+                logger.debug(
+                    f"WIN GAME *DOUBLE-KORA* ({game.control_player.user.id}) in {chat.id}")
+            else:
+                send_animation_async(
+                    bot, chat.id, animation="https://media.giphy.com/media/WrgtbRE1zywNy/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} gagne par KORA!")
+                logger.debug(
+                    f"WIN GAME *KORA* ({game.control_player.user.id}) in {chat.id}")
 
         # Normal win
         else:
@@ -66,3 +82,7 @@ def do_play_card(bot, player, result_id):
                 f"WIN GAME ({game.control_player.user.id}) in {chat.id}")
 
         gm.end_game(chat, user)
+
+
+def save_info(user, card, play_round, game_round):
+    """ Save the information for the current round """

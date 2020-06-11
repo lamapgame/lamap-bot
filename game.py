@@ -16,11 +16,11 @@ class Game(object):
     first_player = None
     play_round = 0  # game has 5 rounds: each player plays 5 times
     game_round = 1
+    game_info = list()
     owner = ADMIN_LIST
     waiting_time = WAITING_TIME
     max_players = MAX_PLAYERS
     open = OPEN_LOBBY
-
 
     # mode = "DEFAULT_GAMEMODE"
 
