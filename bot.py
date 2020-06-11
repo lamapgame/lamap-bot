@@ -17,7 +17,7 @@ import logger as loggero
 from global_variables import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
                     NotEnoughPlayersError, DeckEmptyError, GameAlreadyStartedError, MaxPlayersReached)
-from utils import send_async, send_animation_async, answer_async, delete_async, user_is_creator_or_admin, user_is_creator, TIMEOUT
+from utils import send_async, send_animation_async, answer_async, delete_async, delete_start_msgs, user_is_creator_or_admin, user_is_creator, TIMEOUT
 from start_bot import start_bot
 from results import (add_no_game, add_not_started,
                      add_other_cards, add_card, game_info)
@@ -26,7 +26,7 @@ from actions import do_play_card
 from settings import set_waiting_time
 
 
-from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS, LOG_FILE
+from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS, TIME_TO_START
 
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -72,10 +72,11 @@ def new_game(update, context):
 
         # Reply to inform the start of game
         send_animation_async(
-            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint la partie avec le bouton ci-dessous.", reply_markup=InlineKeyboardMarkup(join_btn))
+            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint la partie avec le bouton ci-dessous.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
 
-        # start the game after 60 secs
-        context.job_queue.run_once(start_the_game, 3, context=update)
+        # start the game after TIME_TO_START secs
+        context.job_queue.run_once(
+            start_the_game, TIME_TO_START, context=update)
 
 
 def start_the_game(context):
@@ -85,9 +86,9 @@ def start_the_game(context):
     if len(game.players) >= MIN_PLAYERS and not game.started:
         start_lamap(context.job.context, context)
     elif not game.started:
-        gm.end_game(chat, user)
         send_async(context.bot, chat.id,
                    text=f'Les gars ne sont pas chaud, je tue le way.')
+        delete_start_msgs(context.bot, chat.id)
 
 
 def join_game(update, context):
@@ -107,30 +108,26 @@ def join_game(update, context):
         gm.join_game(user, chat)
 
     except LobbyClosedError:
-        send_async(bot, chat.id, text="La partie est fermée")
+        send_async(bot, chat.id, text="La partie est fermée", to_delete=True)
 
     except MaxPlayersReached:
-        send_async(bot, chat.id, text="La salle est pleine, tu ne peux pas joindre. Utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.")
+        send_async(bot, chat.id, text="La salle est pleine, tu ne peux pas joindre. Utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
 
     except GameAlreadyStartedError:
-        # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.")
+            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
 
     except NoGameInChatError:
-        # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game.")
+            bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /new_game.", to_delete=True)
 
     except AlreadyJoinedError:
-        # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, text=f'{user.name}, calme toi, j\'ai déjà coupé tes cartes.')
+            bot, chat.id, text=f"{user.name}, calme toi, j'ai déjà coupé tes cartes.", to_delete=True)
 
     else:
-        # delete_async(bot, chat.id, message_id=update.message.message_id)
         send_async(
-            bot, chat.id, text=f'{user.name} à réjoint la partie !')
+            bot, chat.id, text=f'{user.name} à réjoint la partie !', to_delete=True)
 
 
 def start_lamap(update, context):
@@ -164,6 +161,7 @@ def start_lamap(update, context):
 
         else:
             game.start()
+            delete_start_msgs(bot, chat.id)
             # random.shuffle(game.players) # to make a random user start
             for player in game.players:
                 player.draw_hand()

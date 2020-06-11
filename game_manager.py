@@ -14,7 +14,7 @@ class GameManager(object):
         self.userid_players = dict()
         self.userid_current = dict()
         self.remind_dict = dict()
-
+        self.start_gm_msgs = list()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
@@ -31,7 +31,9 @@ class GameManager(object):
             if not g.players:
                 self.chatid_games[chat_id].remove(g)
 
+        self.start_gm_msgs.clear()
         self.chatid_games[chat_id].append(game)
+
         return game
 
     def join_game(self, user, chat):
