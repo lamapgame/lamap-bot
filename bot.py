@@ -386,6 +386,75 @@ def kill_game(update, context):
             bot, chat.id, text=f"Tu es qui pour tuer le way? Seul le créateur de la partie ({game.starter.first_name}) et un admin peuvent tuer le way.", reply_to_message_id=update.message.message_id)
 
 
+def kick_player(update, context):
+    """Handler for the /chasser command"""
+    bot = context.bot
+
+    if update.message.chat.type == 'private':
+        return
+
+    chat = update.message.chat
+    user = update.message.from_user
+
+    try:
+        game = gm.chatid_games[chat.id][-1]
+
+    except (KeyError, IndexError):
+        send_async(bot, chat.id,
+                   text=f"Calme toi, il n'y a pas feu. On chasse seulement pendant qu'on joue",
+                   reply_to_message_id=update.message.message_id, to_delete=True)
+        return
+
+    if not game.started:
+        send_async(bot, chat.id,
+                   text="La partie n'a pas encore débuté.",
+                   reply_to_message_id=update.message.message_id)
+        return
+
+    if user_is_creator_or_admin(user, game, bot, chat):
+
+        if update.message.reply_to_message:
+            kicked = update.message.reply_to_message.from_user
+            if game.control_player.user.id == kicked.id:
+                send_async(bot, chat.id, text=f"Non toi aussi {user.name}, il a toujours contrôle. \n\nUtilise /tuer_le_way pour arrêter la partie",
+                           reply_to_message_id=update.message.message_id)
+                return
+
+            try:
+                gm.leave_game(kicked, chat)
+
+            except NoGameInChatError:
+                send_async(bot, chat.id, text=f"Tu veux chasser {kicked.name} alors qu'il ne joue pas?",
+                           reply_to_message_id=update.message.message_id)
+                return
+
+            except NotEnoughPlayersError:
+                gm.end_game(chat, user)
+                send_async(bot, chat.id,
+                           text=f"{user.name} a chassé {kicked.name}!")
+                send_async(
+                    bot, chat.id, text=f"Plus assez de joueurs, Fin de partie!")
+                return
+
+            send_async(
+                bot, chat.id, text=f"C'est pas la salle d'attente ici, {user.name} a chassé {kicked.name}!")
+
+        else:
+            send_async(bot, chat.id,
+                       text=f"Reessaye en repondant à un de ses messages.",
+                       reply_to_message_id=update.message.message_id)
+            return
+
+        send_async(bot, chat.id,
+                   text=f"C'est free... Prochain joueur: {game.current_player.user.name}",
+                   reply_to_message_id=update.message.message_id)
+
+    else:
+        send_async(bot, chat.id,
+                   text=f"Tu chasse en tant que qui ?",
+                   reply_to_message_id=update.message.message_id)
+
+
 def help_me(update, context):
     update.message.reply_text(
         "Utilise /new_game pour lancer une partie de Lamap."
@@ -430,6 +499,7 @@ def main():
     # muted commands
     dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
     dispatcher.add_handler(CommandHandler('join', join_game))
+    dispatcher.add_handler(CommandHandler('chasser', kick_player))
 
     # callback queries handler
     dispatcher.add_handler(CallbackQueryHandler(cbhandler))
