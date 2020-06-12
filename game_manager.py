@@ -4,7 +4,7 @@ game manager
 import logging
 from game import Game
 from player import Player
-from errors import AlreadyJoinedError, LobbyClosedError, NoGameInChatError, NotEnoughPlayersError, GameAlreadyStartedError
+from errors import AlreadyJoinedError, LobbyClosedError, NoGameInChatError, NotEnoughPlayersError, GameAlreadyStartedError, MaxPlayersReached
 
 
 class GameManager(object):
@@ -14,14 +14,14 @@ class GameManager(object):
         self.userid_players = dict()
         self.userid_current = dict()
         self.remind_dict = dict()
-
+        self.start_gm_msgs = list()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
     def new_game(self, chat):
         """Create new game in chat"""
         chat_id = chat.id
-        self.logger.debug(f"Creating new game in chat {chat_id}")
+        self.logger.debug(f"NEW GAME in chat {chat_id}")
         game = Game(chat)
         if chat_id not in self.chatid_games:
             self.chatid_games[chat_id] = list()
@@ -31,7 +31,9 @@ class GameManager(object):
             if not g.players:
                 self.chatid_games[chat_id].remove(g)
 
+        self.start_gm_msgs.clear()
         self.chatid_games[chat_id].append(game)
+
         return game
 
     def join_game(self, user, chat):
@@ -54,7 +56,8 @@ class GameManager(object):
 
         players = self.userid_players[user.id]
 
-        if len(players) == game.max_players:
+        # Don't add a player if the max is reached
+        if len(game.players) == game.max_players:
             raise MaxPlayersReached()
 
         # Don't re-add a player and remove the player from previous games in
@@ -78,16 +81,22 @@ class GameManager(object):
         player = Player(game, user)
 
         players.append(player)
+
         self.userid_current[user.id] = player
         self.logger.debug(
             f"NEW PLAYER - {user.id} on game in the group: {chat.id}")
+
+        # start game when the max no of players joined
+        if len(game.players) == game.max_players:
+            self.logger.debug(
+                f"MAX PLAYERS ({game.max_players}) in {chat.id}")
 
     def end_game(self, chat, user):
         """
         End a game
         """
 
-        self.logger.debug("Game in chat " + str(chat.id) + " ended")
+        self.logger.debug("END GAME in chat " + str(chat.id))
 
         # Find the correct game instance to end
         player = self.player_for_user_in_chat(user, chat)
@@ -144,6 +153,7 @@ class GameManager(object):
                         if p is g.current_player:
                             g.turn()
                         p.leave()
+
                         return
 
             raise NoGameInChatError()
@@ -154,7 +164,7 @@ class GameManager(object):
             raise NotEnoughPlayersError()
 
         if player is game.current_player:
-            game.turn(None)
+            game.turn()
 
         player.leave()
         players.remove(player)

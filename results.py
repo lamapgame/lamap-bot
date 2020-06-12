@@ -22,19 +22,33 @@ def add_card(game, card, results, can_play):
         )
 
 
-def add_other_cards(player, results, game):
-    """Add hand cards when choosing suit"""
-
+def add_special_card(game, special, results, can_play):
+    """ Add special quick win options """
     results.append(
-        InlineQueryResultArticle(
-            "hand",
-            title=_("Card (tap for game state):",
-                    "Cards (tap for game state):",
-                    len(player.cards)),
-            description=', '.join([repr(card) for card in player.cards]),
-            input_message_content=game_info(game)
-        )
+        Sticker(str(special), sticker_file_id=c.STICKERS[str(special)])
     )
+
+
+def check_quick_win(cards):
+    my_cards = [c.from_str(acard) for acard in cards]
+    suits = [s.suit for s in my_cards]
+    values = [int(i.value) for i in my_cards]
+    total_value = sum(values)
+
+    # check x_21
+    if total_value <= 21:
+        return 'x_21'
+    # check x_333
+    elif values.count(3) >= 3:
+        return 'x_333'
+    # check x_777
+    elif values.count(7) >= 3:
+        return 'x_777'
+    # check x_0
+    elif len(set(suits)) == 1:
+        return 'x_0'
+
+    return None
 
 
 def player_list(game):
@@ -48,7 +62,7 @@ def add_no_game(results):
         InlineQueryResultArticle(
             "nogame",
             title="Vous ne jouez pas",
-            input_message_content=InputTextMessageContent("Vous n'êtes dans aucune partie actuellement, veuillez commencer une nouvelle avec /new_game ou rejoignez une en cours dans ce groupe avec /join."))
+            input_message_content=InputTextMessageContent("Vous n'êtes dans aucune partie actuellement, veuillez commencer une nouvelle avec /new_game ou rejoignez une en cours."))
     )
 
 
@@ -57,23 +71,11 @@ def add_not_started(results):
     results.append(
         InlineQueryResultArticle(
             "nogame",
-            title="Le jeu n'a pas encore commencer",
+            title="Le jeu n'a pas encore commencé",
             input_message_content=InputTextMessageContent(
-                'Start the game with / start')
+                'Commencez la partie')
         )
     )
-
-
-def quick_win(cards):
-    ''' Check if a player wins due to 3*7 or 3*3 '''
-    norm_cards = []
-    for card in cards:
-        obj_card = c.from_str(card)
-        norm_cards.append(int(obj_card.value))
-
-    threes = norm_cards.count(3)
-    sevens = norm_cards.count(7)
-    return True if threes >= 3 or sevens >= 3 else False
 
 
 def game_info(game):
