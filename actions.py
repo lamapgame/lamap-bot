@@ -84,7 +84,6 @@ def do_play_card(bot, player, result_id):
             game.game_round += 1
 
     if game.play_round == (len(game.players) * 5):
-        print(game.game_info)
         # KORA
         if game.control_card.value == '3':
             # DOUBLE KORA - if the 4th round was controlled with 3 by the same player
