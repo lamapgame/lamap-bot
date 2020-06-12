@@ -171,13 +171,14 @@ def start_lamap(update, context):
             choice = [[InlineKeyboardButton(
                 text=f"Tu dégage avec quoi?", switch_inline_query_current_chat='')]]
 
+            game.first_player = random.choice(game.players)
+            game.current_player = game.first_player
+
             @run_async
             def send_first():
                 ''' Send the first card and player '''
-                bot.send_message(chat.id, text=f"La partie vient d'être lancée, {game.current_player.user.name}, Tu joues la première carte", reply_markup=InlineKeyboardMarkup(
+                bot.send_message(chat.id, text=f"La partie vient d'être lancée, {game.first_player.user.name}, Tu joues la première carte", reply_markup=InlineKeyboardMarkup(
                     choice), timeout=TIMEOUT)
-
-            game.first_player = game.current_player
 
             send_first()
 
@@ -213,7 +214,7 @@ def reply_to_query(update, context):
             # to help show the cards in the same order each time
             playable = player.playable_cards()
             qw_check = check_quick_win(player.cards)
-            if qw_check is not None:
+            if qw_check is not None and len(player.cards) == 5:
                 add_special_card(game, qw_check, results, can_play=True)
             for card in sorted(player.cards):
                 add_card(game, card, results, can_play=(card in playable))
