@@ -72,7 +72,7 @@ def new_game(update, context):
 
         # Reply to inform the start of game
         send_animation_async(
-            context.bot, chat_id, animation="https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized-large.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint la partie avec le bouton ci-dessous.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
+            context.bot, chat_id, animation="https://media.giphy.com/media/37q7weFc48rocjJGW7/giphy.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint avec le bouton ci-dessous.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
 
         # start the game after TIME_TO_START secs
         context.job_queue.run_once(
