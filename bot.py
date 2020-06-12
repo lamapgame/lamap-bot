@@ -20,7 +20,7 @@ from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
 from utils import send_async, send_animation_async, answer_async, delete_async, delete_start_msgs, user_is_creator_or_admin, user_is_creator, TIMEOUT
 from start_bot import start_bot
 from results import (add_no_game, add_not_started,
-                     add_other_cards, add_card, game_info)
+                     add_special_card, add_card, game_info, check_quick_win)
 from actions import do_play_card
 
 from settings import set_waiting_time
@@ -82,7 +82,10 @@ def new_game(update, context):
 def start_the_game(context):
     chat = context.job.context.effective_message.chat
     user = context.job.context.effective_user
-    game = gm.chatid_games[chat.id][-1]
+    try:
+        game = gm.chatid_games[chat.id][-1]
+    except (KeyError, IndexError):
+        return
     if len(game.players) >= MIN_PLAYERS and not game.started:
         start_lamap(context.job.context, context)
     elif not game.started:
@@ -156,7 +159,7 @@ def start_lamap(update, context):
 
         elif len(game.players) < MIN_PLAYERS:
             send_async(
-                bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer.')
+                bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer.', to_delete=True)
             gm.end_game(chat, user)
 
         else:
@@ -209,6 +212,9 @@ def reply_to_query(update, context):
         elif user_id == game.current_player.user.id:
             # to help show the cards in the same order each time
             playable = player.playable_cards()
+            qw_check = check_quick_win(player.cards)
+            if qw_check is not None:
+                add_special_card(game, qw_check, results, can_play=True)
             for card in sorted(player.cards):
                 add_card(game, card, results, can_play=(card in playable))
 
@@ -233,7 +239,8 @@ def process_result(update, context):
         game = player.game
         result_id = update.chosen_inline_result.result_id
         chat = game.chat
-    except (KeyError, AttributeError):
+    except (KeyError, AttributeError, ValueError):
+        # handle errors that occurs when players play wrong cards
         return
 
     do_play_card(bot, player, result_id)
@@ -395,10 +402,16 @@ def cbhandler(update, context):
     if (query.data == 'join_game'):
         join_game(update, context)
     elif query.data == 'start_game':
-        if user.id in game.owner:
+        if user_is_creator_or_admin(user, game, bot, chat):
             start_lamap(update, context)
 
     query.answer()
+
+
+def mes(update, context):
+    if update.message.chat.type == 'private':
+        context.bot.send_message(
+            chat_id=update.effective_chat.id, text="Ok free")
 
 
 def main():
@@ -412,13 +425,16 @@ def main():
     dispatcher.add_handler(CommandHandler('help', help_me))
     dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('notify_me', notify_me))
+
     # muted commands
     dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
     dispatcher.add_handler(CommandHandler('join', join_game))
+
+    # callback queries handler
     dispatcher.add_handler(CallbackQueryHandler(cbhandler))
 
-    # on noncommand message
-    # dispatcher.add_handler(MessageHandler(Filters.all, sticker))
+    # all handler (use ONLY for debugging!)
+    # dispatcher.add_handler(MessageHandler(Filters.all, mes))
 
     dispatcher.add_error_handler(loggero.error)
 

@@ -40,6 +40,31 @@ def do_play_card(bot, player, result_id):
     choice = [[InlineKeyboardButton(
         text=f"Afficher mes cartes", switch_inline_query_current_chat='')]]
 
+    if card in c.SPECIALS:
+        if card == 'x_21':
+            send_animation_async(
+                bot, chat.id, animation="https://media.giphy.com/media/26uf9MHun4UNCYvle/giphy.gif", caption=f"Fin du game! {user.first_name} gagne avec le Tia (21)!")
+            logger.debug(
+                f"WIN GAME *X21* ({game.control_player.user.id}) in {chat.id}")
+        if card == 'x_333':
+            send_animation_async(
+                bot, chat.id, animation="https://media.giphy.com/media/l0K3XTDR4lxtFVL9K/giphy.gif", caption=f"Fin du game! {user.first_name} gagne avec les trois 3!")
+            logger.debug(
+                f"WIN GAME *X333* ({user.id}) in {chat.id}")
+        if card == 'x_777':
+            send_animation_async(
+                bot, chat.id, animation="https://media.giphy.com/media/l2Sqd3jnE4QEyOPM4/giphy.gif", caption=f"Fin du game! {user.first_name} gagne avec les trois 7!")
+            logger.debug(
+                f"WIN GAME *X777* ({user.id}) in {chat.id}")
+        if card == 'x_0':
+            send_animation_async(
+                bot, chat.id, animation="https://media.giphy.com/media/MU3C5bTFIoREYIEaRq/giphy.gif", caption=f"Qui a partagé les cartes ci? Fin du game! {user.first_name} gagne avec la famille!")
+            logger.debug(
+                f"WIN GAME *FAM* ({user.id}) in {chat.id}")
+
+        gm.end_game(chat, user)
+        return
+
     if game.control_player is not None:
         if game.play_round % len(game.players) == 0 and game.play_round < (len(game.players) * 5):
             # update game_info
@@ -82,6 +107,7 @@ def do_play_card(bot, player, result_id):
                 f"WIN GAME ({game.control_player.user.id}) in {chat.id}")
 
         gm.end_game(chat, user)
+        return
 
 
 def save_info(user, card, play_round, game_round):
