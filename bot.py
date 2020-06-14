@@ -114,7 +114,7 @@ def join_game(update, context):
         send_async(bot, chat.id, text="La partie est fermée", to_delete=True)
 
     except MaxPlayersReached:
-        send_async(bot, chat.id, text="La salle est pleine, tu ne peux pas joindre. Utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
+        send_async(bot, chat.id, text="Le terre est plein, tu ne peux pas joindre. Utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
 
     except GameAlreadyStartedError:
         send_async(
@@ -165,7 +165,6 @@ def start_lamap(update, context):
         else:
             game.start()
             delete_start_msgs(bot, chat.id)
-            # random.shuffle(game.players) # to make a random user start
             for player in game.players:
                 player.draw_hand()
             choice = [[InlineKeyboardButton(
