@@ -1,9 +1,6 @@
 from random import shuffle
 import logging
 
-import card as c
-from card import Card
-from errors import DeckEmptyError
 
 # LaMap's 31 playing cards
 LAMAP_CARDS = [
@@ -29,7 +26,8 @@ class Deck(object):
         self.cards_dealt = 0
         self.logger = logging.getLogger(__name__)
 
-    def _fill_cards_(self):
+    def fill_cards(self):
+        """ fill 31 game cards and shuffle them """
         self.cards = LAMAP_CARDS.copy()
         self.shuffle()
 
@@ -38,3 +36,6 @@ class Deck(object):
         self.logger.debug("Shuffling deck...")
         # ? remove shuffle when testing cards
         shuffle(self.cards)
+
+    def rosco(self):
+        """ Roscoes """
