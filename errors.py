@@ -14,6 +14,10 @@ class GameAlreadyStartedError(Exception):
     pass
 
 
+class AlreadyGameInChat(Exception):
+    pass
+
+
 class LobbyClosedError(Exception):
     pass
 
