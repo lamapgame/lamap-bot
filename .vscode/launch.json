@@ -9,13 +9,14 @@
 			"type": "python",
 			"request": "launch",
 			"program": "${file}",
-			"console": "integratedTerminal"
+			"console": "integratedTerminal",
+			"args": ["dev"]
 		},
 		{
 			"name": "Python: Launch bot",
 			"type": "python",
 			"request": "launch",
-			"program": "./bot.py",
+			"program": "${workspaceFolder}/bot.py",
 			"console": "internalConsole",
 			"args": ["dev"]
 		}
