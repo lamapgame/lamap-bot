@@ -16,7 +16,7 @@ import logger as loggero
 
 from global_variables import gm, updater, dispatcher
 from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
-                    NotEnoughPlayersError, DeckEmptyError, GameAlreadyStartedError, MaxPlayersReached)
+                    NotEnoughPlayersError, DeckEmptyError, GameAlreadyStartedError, MaxPlayersReached, AlreadyGameInChat)
 from utils import send_async, send_animation_async, answer_async, delete_async, delete_start_msgs, user_is_creator_or_admin, user_is_creator, TIMEOUT
 from start_bot import start_bot
 from results import (add_no_game, add_not_started,
@@ -60,21 +60,27 @@ def new_game(update, context):
                 send_async(
                     bot, user, text=f"Ca veut déjà lancer dans le groupe {title}")
             del gm.remind_dict[chat_id]
-        game = gm.new_game(update.message.chat)
-        game.starter = update.message.from_user
-        game.owner.append(update.message.from_user.id)
 
-        join_btn = [
-            [InlineKeyboardButton("Rejoindre", callback_data="join_game")]
-        ]
+        try:
+            game = gm.new_game(update.message.chat)
+            game.starter = update.message.from_user
+            game.owner.append(update.message.from_user.id)
 
-        # Reply to inform the start of game
-        send_animation_async(
-            context.bot, chat_id, animation="https://media.giphy.com/media/37q7weFc48rocjJGW7/giphy.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint avec le bouton ci-dessous.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
+            join_btn = [
+                [InlineKeyboardButton("Rejoindre", callback_data="join_game")]
+            ]
 
-        # start the game after TIME_TO_START secs
-        context.job_queue.run_once(
-            start_the_game, TIME_TO_START, context=update)
+            # Reply to inform the start of game
+            send_animation_async(
+                context.bot, chat_id, animation="https://media.giphy.com/media/37q7weFc48rocjJGW7/giphy.gif", caption=f"{game.starter.first_name} a ouvert le terre! Rejoint avec le bouton ci-dessous.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
+
+            # start the game after TIME_TO_START secs
+            context.job_queue.run_once(
+                start_the_game, TIME_TO_START, context=update)
+
+        except AlreadyGameInChat:
+            send_async(context.bot, chat_id,
+                       text=f'On a déjà lancé ici', to_delete=True, reply_to_message_id=gm.start_gm_msgs[chat_id][0])
 
 
 def start_the_game(context):
