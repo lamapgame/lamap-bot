@@ -65,9 +65,7 @@ def new_game(update, context):
         game.owner.append(update.message.from_user.id)
 
         join_btn = [
-            [InlineKeyboardButton("Rejoindre", callback_data="join_game")],
-            [InlineKeyboardButton("Lancer la partie",
-                                  callback_data="start_game")]
+            [InlineKeyboardButton("Rejoindre", callback_data="join_game")]
         ]
 
         # Reply to inform the start of game
@@ -400,7 +398,7 @@ def kick_player(update, context):
 
     except (KeyError, IndexError):
         send_async(bot, chat.id,
-                   text=f"Calme toi, il n'y a pas feu. On chasse seulement pendant qu'on joue",
+                   text=f"On ne joue pas encore boss.",
                    reply_to_message_id=update.message.message_id, to_delete=True)
         return
 
@@ -415,7 +413,7 @@ def kick_player(update, context):
         if update.message.reply_to_message:
             kicked = update.message.reply_to_message.from_user
             if game.control_player.user.id == kicked.id:
-                send_async(bot, chat.id, text=f"Non toi aussi {user.name}, il a toujours contrôle. \n\nUtilise /tuer_le_way pour arrêter la partie",
+                send_async(bot, chat.id, text=f"Calme toi {user.name}, il a le contrôle.",
                            reply_to_message_id=update.message.message_id)
                 return
 
@@ -430,7 +428,7 @@ def kick_player(update, context):
             except NotEnoughPlayersError:
                 gm.end_game(chat, user)
                 send_async(bot, chat.id,
-                           text=f"{user.name} a chassé {kicked.name}!")
+                           text=f"Woko!! {user.name} a chassé {kicked.name}!")
                 send_async(
                     bot, chat.id, text=f"Plus assez de joueurs, Fin de partie!")
                 return
@@ -440,7 +438,7 @@ def kick_player(update, context):
 
         else:
             send_async(bot, chat.id,
-                       text=f"Reessaye en repondant à un de ses messages.",
+                       text=f"Réessaies en repondant à un de ses messages.",
                        reply_to_message_id=update.message.message_id)
             return
 
@@ -494,9 +492,9 @@ def main():
     dispatcher.add_handler(CommandHandler('help', help_me))
     dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('notify_me', notify_me))
+    dispatcher.add_handler(CommandHandler('start_game', start_lamap))
 
     # muted commands
-    dispatcher.add_handler(CommandHandler('start_lamap', start_lamap))
     dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CommandHandler('chasser', kick_player))
 

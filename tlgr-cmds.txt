@@ -1,4 +1,5 @@
 new_game - Lancer une nouvelle partie de Lamap.
+start_game - Commencer la partie.
 se_banquer - Quitter la partie en cours (se banquer) si elle est lancé.
 notify_me - Me notifier lorsqu'une nouvelle partie débutera dans ce groupe.
 rules - Apprendre les règles du jeu.
