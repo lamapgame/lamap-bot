@@ -10,7 +10,7 @@ from telegram import Message, Chat, InlineKeyboardButton, InlineKeyboardMarkup
 from config import WAITING_TIME
 from errors import DeckEmptyError, NotEnoughPlayersError
 from global_variables import gm
-from utils import send_async, game_is_running, send_animation_async
+from utils import send_async, game_is_running, send_animation_async, mention_user
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
@@ -43,22 +43,22 @@ def do_play_card(bot, player, result_id):
     if card in c.SPECIALS:
         if card == 'x_21':
             send_animation_async(
-                bot, chat.id, animation="https://media.giphy.com/media/26uf9MHun4UNCYvle/giphy.gif", caption=f"Fin du game! {user.first_name} gagne avec le Tia (21)!")
+                bot, chat.id, animation="https://media.giphy.com/media/26uf9MHun4UNCYvle/giphy.gif", caption=f"Fin du game! {mention_user(user.first_name, user.link)} gagne avec le Tia (21)!")
             logger.debug(
                 f"WIN GAME *X21* ({game.control_player.user.id}) in {chat.id}")
         if card == 'x_333':
             send_animation_async(
-                bot, chat.id, animation="https://media.giphy.com/media/l0K3XTDR4lxtFVL9K/giphy.gif", caption=f"Fin du game! {user.first_name} gagne avec les trois 3!")
+                bot, chat.id, animation="https://media.giphy.com/media/l0K3XTDR4lxtFVL9K/giphy.gif", caption=f"Fin du game! {mention_user(user.first_name, user.link)} gagne avec les trois 3!")
             logger.debug(
                 f"WIN GAME *X333* ({user.id}) in {chat.id}")
         if card == 'x_777':
             send_animation_async(
-                bot, chat.id, animation="https://media.giphy.com/media/l2Sqd3jnE4QEyOPM4/giphy.gif", caption=f"Fin du game! {user.first_name} gagne avec les trois 7!")
+                bot, chat.id, animation="https://media.giphy.com/media/l2Sqd3jnE4QEyOPM4/giphy.gif", caption=f"Fin du game! {mention_user(user.first_name, user.link)} gagne avec les trois 7!")
             logger.debug(
                 f"WIN GAME *X777* ({user.id}) in {chat.id}")
         if card == 'x_0':
             send_animation_async(
-                bot, chat.id, animation="https://media.giphy.com/media/MU3C5bTFIoREYIEaRq/giphy.gif", caption=f"Qui a partagé les cartes ci? Fin du game! {user.first_name} gagne avec la famille!")
+                bot, chat.id, animation="https://media.giphy.com/media/MU3C5bTFIoREYIEaRq/giphy.gif", caption=f"Qui a partagé les cartes ci? Fin du game! {mention_user(user.first_name, user.link)} gagne avec la famille!")
             logger.debug(
                 f"WIN GAME *FAM* ({user.id}) in {chat.id}")
 
@@ -78,8 +78,9 @@ def do_play_card(bot, player, result_id):
 
         # 5 play_round = 1 game round
         if game.play_round != (len(game.players) * 5):
-            send_async(bot, chat.id, text=f"○ {game.control_player.user.first_name} contrôle ({controller})\n● {game.current_player.user.name} à toi de jouer.",
+            send_async(bot, chat.id, text=f"○ {mention_user(game.control_player.user.first_name, game.control_player.user.link)} contrôle ({controller})\n● {mention_user(game.current_player.user.first_name, game.current_player.user.link)} à toi de jouer.",
                        reply_markup=InlineKeyboardMarkup(choice))
+
             # add this information to the game info list
             game.game_round += 1
 
@@ -89,19 +90,19 @@ def do_play_card(bot, player, result_id):
             # DOUBLE KORA - if the 4th round was controlled with 3 by the same player
             if game.game_info[3].get('control_card').value == '3' and game.game_info[3].get('control_player').user.id == game.control_player.user.id:
                 send_animation_async(
-                    bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} gagne par DOUBLE KORA (33) !")
+                    bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"Fin de partie! {mention_user(game.control_player.user.first_name, game.control_player.user.link)} gagne par DOUBLE KORA (33) !")
                 logger.debug(
                     f"WIN GAME *DOUBLE-KORA* ({game.control_player.user.id}) in {chat.id}")
             else:
                 send_animation_async(
-                    bot, chat.id, animation="https://media.giphy.com/media/WrgtbRE1zywNy/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} gagne par KORA!")
+                    bot, chat.id, animation="https://media.giphy.com/media/WrgtbRE1zywNy/giphy.gif", caption=f"Fin de partie! {mention_user(game.control_player.user.first_name, game.control_player.user.link)} gagne par KORA!")
                 logger.debug(
                     f"WIN GAME *KORA* ({game.control_player.user.id}) in {chat.id}")
 
         # Normal win
         else:
             send_animation_async(
-                bot, chat.id, animation="https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", caption=f"Fin de partie! {game.control_player.user.first_name} a gagné!")
+                bot, chat.id, animation="https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", caption=f"Fin de partie! {mention_user(game.control_player.user.first_name, game.control_player.user.link)} a gagné!")
             logger.debug(
                 f"WIN GAME ({game.control_player.user.id}) in {chat.id}")
 
