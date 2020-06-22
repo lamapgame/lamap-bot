@@ -1,6 +1,7 @@
 import logging
 
 from telegram.ext.dispatcher import run_async
+from telegram import ParseMode
 from global_variables import gm
 
 from mwt import MWT
@@ -21,7 +22,8 @@ def send_async(bot, *args, **kwargs):
     if 'timeout' not in kwargs:
         kwargs['timeout'] = TIMEOUT
     try:
-        msg_sent = bot.sendMessage(*args, **kwargs)
+        msg_sent = bot.sendMessage(
+            *args, **kwargs, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         if 'to_delete' in kwargs:
             gm.start_gm_msgs[args[0]].append(msg_sent.message_id)
     except Exception as e:
@@ -39,7 +41,8 @@ def send_animation_async(bot, *args, **kwargs):
     if 'timeout' not in kwargs:
         kwargs['timeout'] = TIMEOUT
     try:
-        msg_sent = bot.send_animation(*args, **kwargs)
+        msg_sent = bot.send_animation(
+            *args, **kwargs, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         gm
         if 'to_delete' in kwargs:
             gm.start_gm_msgs[args[0]].append(msg_sent.message_id)
@@ -90,6 +93,10 @@ def user_is_admin(user, bot, chat):
 
 def user_is_creator_or_admin(user, game, bot, chat):
     return user_is_creator(user, game) or user_is_admin(user, bot, chat)
+
+
+def mention_user(name, link):
+    return f'[{name}]({link})'
 
 
 @MWT(timeout=60*60)

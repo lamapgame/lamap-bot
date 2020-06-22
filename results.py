@@ -1,6 +1,7 @@
-from telegram import InlineQueryResultArticle, InputTextMessageContent, \
+from telegram import InlineQueryResultArticle, ParseMode,  InputTextMessageContent, \
     InlineQueryResultCachedSticker as Sticker
 import card as c
+from utils import mention_user
 from uuid import uuid4
 
 
@@ -80,7 +81,8 @@ def add_not_started(results):
 
 def game_info(game):
     players = player_list(game)
-    name = game.current_player.user.name
+    name = mention_user(game.current_player.user.first_name,
+                        game.current_player.user.link)
     card = repr(game.last_card)
     controlling_card = ""
     controlling_player = "Aucun"
@@ -89,9 +91,10 @@ def game_info(game):
         card = "Aucune"
 
     if game.control_player is not None:
-        controlling_player = game.control_player.user.name
+        controlling_player = mention_user(
+            game.control_player.user.first_name, game.control_player.user.link)
         controlling_card = repr(game.control_card)
 
-    return InputTextMessageContent(f"Joueur actuel: {name}\nContrôle 🤴🏾: {controlling_card} - {controlling_player}")
+    return InputTextMessageContent(f"Joueur actuel: {name}\nContrôle 🤴🏾: {controlling_card} - {controlling_player}", parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
     """ return InputTextMessageContent(f"Joueur actuel: {name} + "\n\nJoueurs:\n" + "\n".join(players)) """
