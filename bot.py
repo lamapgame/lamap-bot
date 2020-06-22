@@ -95,7 +95,7 @@ def start_the_game(context):
         start_lamap(context.job.context, context)
     elif not game.started:
         send_async(context.bot, chat.id,
-                   text=f'Les gars ne sont pas chaud, je tue le way. Utilise /call_me_back et je vais te notifier quand on va lancer ici.')
+                   text=f'Les gars ne sont pas chaud, je tue le way. Utilise /call\_me\_back et je vais te notifier quand on va lancer ici.')
         delete_start_msgs(context.bot, chat.id)
 
 
@@ -119,11 +119,11 @@ def join_game(update, context):
         send_async(bot, chat.id, text="La partie est fermée", to_delete=True)
 
     except MaxPlayersReached:
-        send_async(bot, chat.id, text="Le terre est plein, tu ne peux pas joindre. Utilise /call_me_back pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
+        send_async(bot, chat.id, text="Le terre est plein, tu ne peux pas joindre. Utilise /call\_me\_back pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
 
     except GameAlreadyStartedError:
         send_async(
-            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilise /call_me_back pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
+            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilise /call\_me\_back pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
 
     except NoGameInChatError:
         send_async(
@@ -459,12 +459,6 @@ def kick_player(update, context):
                    reply_to_message_id=update.message.message_id)
 
 
-def help_me(update, context):
-    update.message.reply_text(
-        "Utilise /new_game pour lancer une partie de Lamap."
-    )
-
-
 def cbhandler(update, context):
     bot = context.bot
     chat = update.effective_message.chat
@@ -496,7 +490,6 @@ def main():
     dispatcher.add_handler(CommandHandler('new_game', new_game))
     dispatcher.add_handler(CommandHandler('close', close_game))
     dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
-    dispatcher.add_handler(CommandHandler('help', help_me))
     dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('call_me_back', call_me_back))
     dispatcher.add_handler(CommandHandler('start_game', start_lamap))
