@@ -34,14 +34,16 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-def notify_me(update, context):
+def call_me_back(update, context):
     bot = context.bot
-    """Handler for /notify_me command, pm people for next game"""
+    """Handler for /call_me_back command, pm people for next game"""
     chat_id = update.message.chat_id
     if update.message.chat.type == 'private':
-        send_async(bot, chat_id, text=f"Envoyez cette commande dans un groupe avec le bot et vous serez notifié lorsqu'une nouvelle partie sera lancé.")
+        send_async(bot, chat_id, text=f"Envoyez cette commande dans un groupe de jeu et vous serez notifié lorsqu'une nouvelle partie sera lancé.")
     else:
         try:
+            send_async(bot, update.message.from_user.id,
+                       text=f"Sois posé, je vais te notifier quand on vas commencer.")
             gm.remind_dict[chat_id].add(update.message.from_user.id)
         except KeyError:
             gm.remind_dict[chat_id] = {update.message.from_user.id}
@@ -93,7 +95,7 @@ def start_the_game(context):
         start_lamap(context.job.context, context)
     elif not game.started:
         send_async(context.bot, chat.id,
-                   text=f'Les gars ne sont pas chaud, je tue le way.')
+                   text=f'Les gars ne sont pas chaud, je tue le way. Utilise /call_me_back et je vais te notifier quand on va lancer ici.')
         delete_start_msgs(context.bot, chat.id)
 
 
@@ -117,11 +119,11 @@ def join_game(update, context):
         send_async(bot, chat.id, text="La partie est fermée", to_delete=True)
 
     except MaxPlayersReached:
-        send_async(bot, chat.id, text="Le terre est plein, tu ne peux pas joindre. Utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
+        send_async(bot, chat.id, text="Le terre est plein, tu ne peux pas joindre. Utilise /call_me_back pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
 
     except GameAlreadyStartedError:
         send_async(
-            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilise /notify_me pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
+            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilise /call_me_back pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
 
     except NoGameInChatError:
         send_async(
@@ -496,7 +498,7 @@ def main():
     dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     dispatcher.add_handler(CommandHandler('help', help_me))
     dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
-    dispatcher.add_handler(CommandHandler('notify_me', notify_me))
+    dispatcher.add_handler(CommandHandler('call_me_back', call_me_back))
     dispatcher.add_handler(CommandHandler('start_game', start_lamap))
 
     # muted commands
