@@ -12,9 +12,8 @@ LAMAP_CARDS = [
 
 # ? Test cards - input any set to test with only that set
 # ? Do not forget to remove shuffle and know the cards are taken from the right to the left
-''' LAMAP_CARDS = [
-    'c_6', 'd_3', 'd_4', 'd_9', 'd_10', 's_3', 's_4', 'c_3', 'c_8', 'c_4', 'c_7', 'c_10'
-] '''
+""" LAMAP_CARDS = ['c_3', 'h_3', 's_3', 'd_10',
+               's_4', 'd_4', 'c_8', 'c_4', 'c_5', 'c_10'] """
 
 
 class Deck(object):
@@ -36,6 +35,3 @@ class Deck(object):
         self.logger.debug("Shuffling deck...")
         # ? remove shuffle when testing cards
         shuffle(self.cards)
-
-    def rosco(self):
-        """ Roscoes """

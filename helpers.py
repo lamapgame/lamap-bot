@@ -1,6 +1,8 @@
 from telegram import ParseMode
 from telegram.ext import CommandHandler
 
+from pony.orm import db_session
+from user_db import UserDB
 from global_variables import dispatcher
 from utils import send_async
 
@@ -42,7 +44,7 @@ def tchoko(update, context):
             "Ah! Tu veux me tchoko?\n\n"
             "- Cause avec le [freeboy ci](https://t.me/panachaud), pour gérer par Mobile Money.\n"
             "- Ou alors, tu peux gérer [sur Paypal](https://www.paypal.me/DylanTientcheu) si tu as la rage\n\n"
-            "_Retiens que ça ne change rien sur tes cartes..._"
+            "Mais, saches que ce n'est pas une bière qui va donner des bonnes cartes..._"
         )
     else:
         tchoko_text = ("En vrai? Vient on gère en solo...")
@@ -51,7 +53,41 @@ def tchoko(update, context):
                              parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id)
 
 
+@db_session
+def stats(update, context, checked=None):
+    if checked is not None:
+        user = checked.user.id
+    else:
+        user = update.message.from_user
+    u = UserDB.get(id=user.id)
+    if update.message.chat.type == 'private':
+        if not u:
+            UserDB(id=user.id)
+            context.bot.send_message(
+                update.message.chat_id, text="Mola, je n'ai pas tes stats. Va d'abord jouer.")
+        else:
+            w_pct = str(100 * float(u.wins)/float(u.games_played)) + " %"
+            l_pct = str(100 * float(u.losses)/float(u.games_played)) + " %"
+
+            stats_txt = (
+                f"`{u.points:>10}`    {'points LaMap':<30}"
+                f"\n`{u.games_played:>10}`    {'parties joués':<30}"
+                f"\n`{u.wins:>10}`    {'parties gagnées':<30}"
+                f"\n`{u.losses:>10}`    {'parties perdues':<30}"
+                f"\n`{u.wins_kora:>10}`    {'Kora donnés':<30}"
+                f"\n`{u.losses_kora:>10}`    {'Kora reçus':<30}"
+                f"\n`{w_pct:>10}`    {'pct gagné':<30}"
+                f"\n`{l_pct:>10}`    {'pct perdu':<30}"
+                f"\n`{u.kicked:>10}`    {'parties quittées':<30}"
+                f"\n`{u.quit:>10}`    {'fois chassés':<30}"
+            )
+
+            context.bot.send_message(update.message.chat_id, text=stats_txt,
+                                     parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id)
+
+
 def register():
     dispatcher.add_handler(CommandHandler('apprendre', apprendre))
     dispatcher.add_handler(CommandHandler('tchoko', tchoko))
     dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('stats', stats))
