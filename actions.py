@@ -12,6 +12,8 @@ from errors import DeckEmptyError, NotEnoughPlayersError
 from global_variables import gm
 from utils import send_async, game_is_running, send_animation_async, mention_user
 
+import stats
+
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -44,21 +46,49 @@ def do_play_card(bot, player, result_id):
         if card == 'x_21':
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/26uf9MHun4UNCYvle/giphy.gif", caption=f"Fin du game! {mention_user(user.first_name, user.link)} gagne avec le Tia (21)!")
+            stats.user_won(user.id, '21')
+            loosers = [
+                lost.user.id for lost in game.players if lost.user.id != user.id
+            ]
+            for looser in loosers:
+                stats.user_lost(looser, '21')
+
             logger.debug(
                 f"WIN GAME *X21* ({game.control_player.user.id}) in {chat.id}")
         if card == 'x_333':
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/l0K3XTDR4lxtFVL9K/giphy.gif", caption=f"Fin du game! {mention_user(user.first_name, user.link)} gagne avec les trois 3!")
+            stats.user_won(user.id, '333')
+            loosers = [
+                lost.user.id for lost in game.players if lost.user.id != user.id
+            ]
+            for looser in loosers:
+                stats.user_lost(looser, '333')
+
             logger.debug(
                 f"WIN GAME *X333* ({user.id}) in {chat.id}")
         if card == 'x_777':
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/l2Sqd3jnE4QEyOPM4/giphy.gif", caption=f"Fin du game! {mention_user(user.first_name, user.link)} gagne avec les trois 7!")
+            stats.user_won(user.id, '777')
+            loosers = [
+                lost.user.id for lost in game.players if lost.user.id != user.id
+            ]
+            for looser in loosers:
+                stats.user_lost(looser, '777')
+
             logger.debug(
                 f"WIN GAME *X777* ({user.id}) in {chat.id}")
         if card == 'x_0':
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/MU3C5bTFIoREYIEaRq/giphy.gif", caption=f"Qui a partagé les cartes ci? Fin du game! {mention_user(user.first_name, user.link)} gagne avec la famille!")
+            stats.user_won(user.id, 'fam')
+            loosers = [
+                lost.user.id for lost in game.players if lost.user.id != user.id
+            ]
+            for looser in loosers:
+                stats.user_lost(looser, 'fam')
+
             logger.debug(
                 f"WIN GAME *FAM* ({user.id}) in {chat.id}")
 
@@ -91,11 +121,25 @@ def do_play_card(bot, player, result_id):
             if game.game_info[3].get('control_card').value == '3' and game.game_info[3].get('control_player').user.id == game.control_player.user.id:
                 send_animation_async(
                     bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"Fin de partie! {mention_user(game.control_player.user.first_name, game.control_player.user.link)} gagne par DOUBLE KORA (33) !")
+                stats.user_won(user.id, 'dbl_kora')
+                loosers = [
+                    lost.user.id for lost in game.players if lost.user.id != user.id
+                ]
+                for looser in loosers:
+                    stats.user_lost(looser, 'dbl_kora')
+
                 logger.debug(
                     f"WIN GAME *DOUBLE-KORA* ({game.control_player.user.id}) in {chat.id}")
             else:
                 send_animation_async(
                     bot, chat.id, animation="https://media.giphy.com/media/WrgtbRE1zywNy/giphy.gif", caption=f"Fin de partie! {mention_user(game.control_player.user.first_name, game.control_player.user.link)} gagne par KORA!")
+                stats.user_won(user.id, 'kora')
+                loosers = [
+                    lost.user.id for lost in game.players if lost.user.id != user.id
+                ]
+                for looser in loosers:
+                    stats.user_lost(looser, 'kora')
+
                 logger.debug(
                     f"WIN GAME *KORA* ({game.control_player.user.id}) in {chat.id}")
 
@@ -103,6 +147,13 @@ def do_play_card(bot, player, result_id):
         else:
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", caption=f"Fin de partie! {mention_user(game.control_player.user.first_name, game.control_player.user.link)} a gagné!")
+            stats.user_won(user.id, 'n')
+            loosers = [
+                lost.user.id for lost in game.players if lost.user.id != user.id
+            ]
+            for looser in loosers:
+                stats.user_lost(looser, 'n')
+
             logger.debug(
                 f"WIN GAME ({game.control_player.user.id}) in {chat.id}")
 
