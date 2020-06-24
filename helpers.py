@@ -54,36 +54,36 @@ def tchoko(update, context):
 
 
 @db_session
-def stats(update, context, checked=None):
-    if checked is not None:
-        user = checked.user.id
+def stats(update, context):
+    if update.message.reply_to_message is not None:
+        user = update.message.reply_to_message.from_user
     else:
         user = update.message.from_user
     u = UserDB.get(id=user.id)
-    if update.message.chat.type == 'private':
-        if not u:
-            UserDB(id=user.id)
-            context.bot.send_message(
-                update.message.chat_id, text="Mola, je n'ai pas tes stats. Va d'abord jouer.")
-        else:
-            w_pct = str(100 * float(u.wins)/float(u.games_played)) + " %"
-            l_pct = str(100 * float(u.losses)/float(u.games_played)) + " %"
 
-            stats_txt = (
-                f"`{u.points:>10}`    {'points LaMap':<30}"
-                f"\n`{u.games_played:>10}`    {'parties joués':<30}"
-                f"\n`{u.wins:>10}`    {'parties gagnées':<30}"
-                f"\n`{u.losses:>10}`    {'parties perdues':<30}"
-                f"\n`{u.wins_kora:>10}`    {'Kora donnés':<30}"
-                f"\n`{u.losses_kora:>10}`    {'Kora reçus':<30}"
-                f"\n`{w_pct:>10}`    {'pct gagné':<30}"
-                f"\n`{l_pct:>10}`    {'pct perdu':<30}"
-                f"\n`{u.kicked:>10}`    {'parties quittées':<30}"
-                f"\n`{u.quit:>10}`    {'fois chassés':<30}"
-            )
+    if not u:
+        UserDB(id=user.id)
+        context.bot.send_message(
+            update.message.chat_id, text="Mola, je n'ai pas tes stats. Il faut jouer d'abord.")
+    else:
+        w_pct = str(100 * float(u.wins)/float(u.games_played)) + "%"
+        l_pct = str(100 * float(u.losses)/float(u.games_played)) + "%"
 
-            context.bot.send_message(update.message.chat_id, text=stats_txt,
-                                     parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id)
+        stats_txt = (
+            f"`{u.points:>6}`    {'points LaMap':<5}"
+            f"\n`{u.games_played:>6}`    {'parties joués':<5}"
+            f"\n`{u.wins:>6}`    {'parties gagnées':<5}"
+            f"\n`{u.losses:>6}`    {'parties perdues':<5}"
+            f"\n`{u.wins_kora:>6}`    {'Kora donnés':<5}"
+            f"\n`{u.losses_kora:>6}`    {'Kora reçus':<5}"
+            f"\n`{w_pct:>6}`    {'pct gagné':<5}"
+            f"\n`{l_pct:>6}`    {'pct perdu':<5}"
+            f"\n`{u.kicked:>6}`    {'parties quittées':<5}"
+            f"\n`{u.quit:>6}`    {'fois chassés':<5}"
+        )
+
+        context.bot.send_message(update.message.chat_id, text=stats_txt,
+                                 parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id)
 
 
 def register():
