@@ -28,7 +28,6 @@ def send_async(bot, *args, **kwargs):
             gm.start_gm_msgs[args[0]].append(msg_sent.message_id)
     except Exception as e:
         error(None, None, e)
-    return msg_sent
 
 
 def send_msg(bot, *args, **kwargs):
@@ -95,8 +94,8 @@ def user_is_creator_or_admin(user, game, bot, chat):
     return user_is_creator(user, game) or user_is_admin(user, bot, chat)
 
 
-def mention_user(name, link):
-    return f'[{name}]({link})'
+def mention(user):
+    return f'[{user.first_name}]({user.link})'
 
 
 @MWT(timeout=60*60)
