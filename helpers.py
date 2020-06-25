@@ -4,7 +4,7 @@ from telegram.ext import CommandHandler
 from pony.orm import db_session
 from user_db import UserDB
 from global_variables import dispatcher
-from utils import send_async
+from utils import send_async, mention
 
 
 def help_handler(update, context):
@@ -66,24 +66,28 @@ def stats(update, context):
         context.bot.send_message(
             update.message.chat_id, text="Mola, je n'ai pas tes stats. Il faut jouer d'abord.")
     else:
-        w_pct = str(100 * float(u.wins)/float(u.games_played)) + "%"
-        l_pct = str(100 * float(u.losses)/float(u.games_played)) + "%"
+        w_pct = " (" + str(round(100 * float(u.wins) /
+                                 float(u.games_played), 1)) + "%" + ")"
+        l_pct = " (" + str(round(100 * float(u.losses) /
+                                 float(u.games_played), 1)) + "%" + ")"
+        ufinished = u.games_played - (u.wins + u.losses)
+        ufinished_pct = " (" + str(round(100 * float(ufinished) /
+                                         float(u.games_played), 1)) + "%" + ")"
 
         stats_txt = (
-            f"`{u.points:>6}`    {'points LaMap':<5}"
-            f"\n`{u.games_played:>6}`    {'parties joués':<5}"
-            f"\n`{u.wins:>6}`    {'parties gagnées':<5}"
-            f"\n`{u.losses:>6}`    {'parties perdues':<5}"
-            f"\n`{u.wins_kora:>6}`    {'Kora donnés':<5}"
-            f"\n`{u.losses_kora:>6}`    {'Kora reçus':<5}"
-            f"\n`{w_pct:>6}`    {'pct gagné':<5}"
-            f"\n`{l_pct:>6}`    {'pct perdu':<5}"
-            f"\n`{u.kicked:>6}`    {'parties quittées':<5}"
-            f"\n`{u.quit:>6}`    {'fois chassés':<5}"
+            f"{mention(user):>10}"
+            f"\n`{u.points:>6}`    {'points LaMap'}"
+            f"\n`{u.games_played:>6}`    {'parties joués'}"
+            f"\n`{u.wins:>6}`    {'parties gagnées'+w_pct}"
+            f"\n`{u.losses:>6}`    {'parties perdues'+l_pct}"
+            f"\n`{ufinished:>6}`    {'non terminées'+ufinished_pct}"
+            f"\n`{u.wins_kora:>6}`    {'Kora donnés'}"
+            f"\n`{u.losses_kora:>6}`    {'Kora reçus'}"
+            f"\n`{u.quit:>6}`    {'fois banquées'}"
         )
 
         context.bot.send_message(update.message.chat_id, text=stats_txt,
-                                 parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id)
+                                 parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
 def register():
