@@ -70,8 +70,8 @@ def new_game(update, context):
             game.owner.append(update.message.from_user.id)
 
             join_btn = [[InlineKeyboardButton(
-                "Lancer", callback_data="start_game"), InlineKeyboardButton(
-                "Rejoindre", callback_data="join_game")]]
+                "🖐🏽 - Rejoindre", callback_data="join_game"), InlineKeyboardButton(
+                "Lancer - 🚀", callback_data="start_game")]]
 
             # Reply to inform the start of game
             send_animation_async(
@@ -81,11 +81,19 @@ def new_game(update, context):
 
             # start the game after TIME_TO_START secs
             context.job_queue.run_once(
-                start_the_game, TIME_TO_START, context=update)
+                start_the_game_soon, TIME_TO_START/2, context=update)
 
         except AlreadyGameInChat:
             send_async(context.bot, chat_id,
                        text=f'On a déjà lancé ici', to_delete=True, reply_to_message_id=gm.start_gm_msgs[chat_id][0])
+
+
+def start_the_game_soon(context):
+    chat = context.job.context.effective_message.chat
+    send_async(context.bot, chat.id,
+               text=f'Je partage dans **{int(TIME_TO_START/2)} secondes**...', to_delete=True)
+    context.job_queue.run_once(
+        start_the_game, TIME_TO_START/2, context=context.job.context)
 
 
 def start_the_game(context):
