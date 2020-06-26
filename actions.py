@@ -118,7 +118,7 @@ def do_play_card(bot, player, result_id):
         # KORA
         if game.control_card.value == '3':
             # DOUBLE KORA - if the 4th round was controlled with 3 by the same player
-            if game.game_info[3].get('control_card').value == '3' and game.game_info[3].get('control_player').user.id == game.control_player.user.id:
+            if game.game_info[3]['control_card'].value == '3' and game.game_info[3]['control_player'].user.id == game.control_player.user.id:
                 send_animation_async(
                     bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"Fin de partie! {mention(game.control_player.user)} gagne par DOUBLE KORA (33) !")
                 stats.user_won(user.id, 'dbl_kora')
