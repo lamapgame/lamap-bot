@@ -95,8 +95,6 @@ def game_info(game):
     else: '''
     return InputTextMessageContent(f"Joueur actuel: {name}\nContrôle 🤴🏾: {controlling_card} - {controlling_player}", parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
-    """ return InputTextMessageContent(f"Joueur actuel: {name} + "\n\nJoueurs:\n" + "\n".join(players)) """
-
 
 def get_game_status(game):
     ''' Get the current status of the game played '''
