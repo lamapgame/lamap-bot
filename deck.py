@@ -12,8 +12,8 @@ LAMAP_CARDS = [
 
 # ? Test cards - input any set to test with only that set
 # ? Do not forget to remove shuffle and know the cards are taken from the right to the left
-""" LAMAP_CARDS = ['c_3', 'h_3', 's_3', 'd_10',
-               's_4', 'd_4', 'c_8', 'c_4', 'c_5', 'c_10'] """
+''' LAMAP_CARDS = ['h_4', 'd_7', 'd_6', 'd_5', 'd_4', 'd_3', 'h_3', 'h_8', 'h_9',
+               'h_10', 's_3', 'c_3', 'c_4', 'c_5', 'c_10'] '''
 
 
 class Deck(object):

@@ -20,7 +20,7 @@ from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
 from utils import send_async, send_animation_async, answer_async, delete_async, delete_start_msgs, user_is_creator_or_admin, user_is_creator, mention, TIMEOUT
 from start_bot import start_bot
 from results import (add_no_game, add_not_started,
-                     add_special_card, add_card, game_info, check_quick_win)
+                     add_special_card, add_card, game_info, check_quick_win, get_game_status)
 from actions import do_play_card
 
 from settings import set_waiting_time
@@ -70,6 +70,7 @@ def new_game(update, context):
             game.owner.append(update.message.from_user.id)
 
             join_btn = [[InlineKeyboardButton(
+                "Lancer", callback_data="start_game"), InlineKeyboardButton(
                 "Rejoindre", callback_data="join_game")]]
 
             # Reply to inform the start of game
@@ -271,7 +272,7 @@ def close_game(update, context):
 
     if not games:
         send_async(
-            bot, chat.id, f"Il n'y a aucune partie en cours dans ce groupe")
+            bot, chat.id, f"Il n'y a aucune partie en cours dans ce groupe. Utilise /new_game pour lancer")
 
     game = games[-1]
 
@@ -326,7 +327,7 @@ def quit_game(update, context):
             stats.user_lost(user.id)
 
     except NoGameInChatError:
-        send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe",
+        send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /new_game.",
                    reply_to_message_id=update.message.message_id)
 
     except NotEnoughPlayersError:
@@ -390,7 +391,8 @@ def kill_game(update, context):
         return
 
     if not games:
-        send_async(bot, chat.id, text="Aucune partie lancé ici.")
+        send_async(
+            bot, chat.id, text="Aucune partie lancé ici, crée une nouvelle avec /new_game.")
         return
 
     game = games[-1]
@@ -405,11 +407,11 @@ def kill_game(update, context):
 
         except NoGameInChatError:
             send_async(bot, chat.id,
-                       text="Aucune partie en cours", reply_to_message_id=update.message.message_id)
+                       text="Aucune partie en cours. Utilise /new_game pour lancer", reply_to_message_id=update.message.message_id)
 
     else:
         send_async(
-            bot, chat.id, text=f"Tu es qui pour tuer le way? Seul le créateur de la partie ({mention(game.starter)}) et un admin peuvent tuer le way.", reply_to_message_id=update.message.message_id)
+            bot, chat.id, text=f"Tu es qui pour tuer le way? Seul l'organisateur ({mention(game.starter)}) et un admin peuvent tuer le way.", reply_to_message_id=update.message.message_id)
 
 
 def kick_player(update, context):
@@ -483,6 +485,26 @@ def kick_player(update, context):
                    reply_to_message_id=update.message.message_id)
 
 
+def game_status(update, context):
+    chat = update.message.chat
+    user = update.message.from_user
+    games = gm.chatid_games.get(chat.id)
+    bot = context.bot
+
+    if update.message.chat.type == 'private':
+        help_handler(bot, update)
+        return
+
+    if not games:
+        send_async(
+            bot, chat.id, text="Aucune partie lancé ici, crée une nouvelle avec /new_game.")
+        return
+
+    game = games[-1]
+
+    send_async(bot, chat.id, text=get_game_status(game))
+
+
 def cbhandler(update, context):
     bot = context.bot
     chat = update.effective_message.chat
@@ -517,7 +539,7 @@ def main():
     dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('call_me_back', call_me_back))
     dispatcher.add_handler(CommandHandler('start_game', start_lamap))
-
+    dispatcher.add_handler(CommandHandler('game_status', game_status))
     # muted commands
     dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CommandHandler('chasser', kick_player))
