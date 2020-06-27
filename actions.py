@@ -120,7 +120,7 @@ def do_play_card(bot, player, result_id):
             # DOUBLE KORA - if the 4th round was controlled with 3 by the same player
             if game.game_info[3]['control_card'].value == '3' and game.game_info[3]['control_player'].user.id == game.control_player.user.id:
                 send_animation_async(
-                    bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"Fin de partie! {mention(game.control_player.user)} gagne par DOUBLE KORA (33) !")
+                    bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"{mention(game.control_player.user)} ça fait comme si ils ont bu ta 33 que tu avais posé là!")
                 stats.user_won(user.id, 'dbl_kora')
                 loosers = [
                     lost.user.id for lost in game.players if lost.user.id != user.id
@@ -132,7 +132,7 @@ def do_play_card(bot, player, result_id):
                     f"WIN GAME *DOUBLE-KORA* ({game.control_player.user.id}) in {chat.id}")
             else:
                 send_animation_async(
-                    bot, chat.id, animation="https://media.giphy.com/media/WrgtbRE1zywNy/giphy.gif", caption=f"Fin de partie! {mention(game.control_player.user)} gagne par KORA!")
+                    bot, chat.id, animation="https://media.giphy.com/media/WrgtbRE1zywNy/giphy.gif", caption=f"Fin de partie! c'est par KORA que {mention(game.control_player.user)} gagne!")
                 stats.user_won(user.id, 'kora')
                 loosers = [
                     lost.user.id for lost in game.players if lost.user.id != user.id

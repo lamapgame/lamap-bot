@@ -27,7 +27,7 @@ def start(update, context):
 def apprendre(update, context):
     """Handler for the /apprendre command"""
     if update.message.chat.type == 'private':
-        rules_text = "La Map est un jeu de cartes rapide de 2-4 joueurs.\nPour qu'un joueur gagnes, il doit d'avoir le contrôle du jeu à la fin.\nPour prendre le contrôle, il faut jouer une carte de la même famille et supérieur en chiffre à la carte qui contrôle ce tour. Si vous n'avez pas une carte correspondante, vous jouez ce que vous voulez\n\n- [Explications illustrées](https://github.io/blurdylan/lamapbot/htp)"
+        rules_text = "La Map est un jeu de cartes rapide de 2-4 joueurs.\nPour qu'un joueur gagnes, il doit d'avoir le contrôle du jeu à la fin.\nPour prendre le contrôle, il faut jouer une carte de la même famille et supérieur en chiffre à la carte qui contrôle ce tour. Si vous n'avez pas une carte correspondante, vous jouez ce que vous voulez\n\n- [Apprendre Plus...](https://lamap-bot.vercel.app/learn)"
     else:
         rules_text = ("Ne t'affiches pas, vient me demander ça en solo.")
 

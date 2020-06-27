@@ -55,7 +55,7 @@ This software uses the following tech:
 
 - [Python Telegram Bot](https://python-telegram-bot.org/): Python framework to help build Telegram bots
 - [Telegram Messenger](https://telegram.org/): Base chat platform on which the bot functions
-- [Redis DB](https://redis.io/): Data persistence and management
+- SQLite DB: Data persistence and management
 
 ## Related
 
@@ -65,7 +65,7 @@ This software uses the following tech:
 
 <a href="https://www.paypal.me/DylanTientcheu">
     <img src="https://img.shields.io/badge/$-paypal-3b7bbf.svg?maxAge=2592000&style=for-the-badge">
-		</a>
+  </a>
 <a href="https://www.buymeacoffee.com/dylantiencheu">
     <img src="https://img.shields.io/badge/$-Buy me a coffee-ff4234.svg?maxAge=2592000&style=for-the-badge">
 </a>
