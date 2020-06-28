@@ -65,7 +65,7 @@ def stats(update, context):
     u = UserDB.get(id=user.id)
 
     if not u:
-        UserDB(id=user.id)
+        UserDB(id=user.id, name=user.name)
         context.bot.send_message(
             update.message.chat_id, text="Mola, je n'ai pas tes stats. Il faut d'abord jouer.")
     else:
