@@ -1,10 +1,11 @@
-from pony.orm import db_session
 from telegram import ParseMode
 from telegram.ext import CommandHandler
 
-from global_variables import dispatcher
+from pony.orm import db_session
 from user_db import UserDB
-from utils import mention, send_async
+
+from global_variables import dispatcher
+from utils import mention
 
 
 def help_handler(update, context):
@@ -66,15 +67,22 @@ def stats(update, context):
     if not u:
         UserDB(id=user.id)
         context.bot.send_message(
-            update.message.chat_id, text="Mola, je n'ai pas tes stats. Il faut jouer d'abord.")
+            update.message.chat_id, text="Mola, je n'ai pas tes stats. Il faut d'abord jouer.")
     else:
-        w_pct = " (" + str(round(100 * float(u.wins) /
-                                 float(u.games_played), 1)) + "%" + ")"
-        l_pct = " (" + str(round(100 * float(u.losses) /
-                                 float(u.games_played), 1)) + "%" + ")"
         ufinished = u.games_played - (u.wins + u.losses)
-        ufinished_pct = " (" + str(round(100 * float(ufinished) /
-                                         float(u.games_played), 1)) + "%" + ")"
+
+        if u.games_played != 0:
+            w_pct = " (" + str(round(100 * float(u.wins) /
+                                     float(u.games_played), 1)) + "%" + ")"
+            l_pct = " (" + str(round(100 * float(u.losses) /
+                                     float(u.games_played), 1)) + "%" + ")"
+            ufinished_pct = " (" + str(round(100 * float(ufinished) /
+                                             float(u.games_played), 1)) + "%" + ")"
+        else:
+            w_pct = " (0%)"
+            l_pct = " (0%)"
+            ufinished = 0
+            ufinished_pct = " (0%)"
 
         stats_txt = (
             f"{mention(user):>10}"
@@ -82,7 +90,7 @@ def stats(update, context):
             f"\n`{u.games_played:>6}`    {'parties joués'}"
             f"\n`{u.wins:>6}`    {'parties gagnées'+w_pct}"
             f"\n`{u.losses:>6}`    {'parties perdues'+l_pct}"
-            f"\n`{ufinished:>6}`    {'non terminées'+ufinished_pct}"
+            # f"\n`{ufinished:>6}`    {'non terminées'+ufinished_pct}"
             f"\n`{u.wins_kora:>6}`    {'Kora donnés'}"
             f"\n`{u.losses_kora:>6}`    {'Kora reçus'}"
             f"\n`{u.quit:>6}`    {'fois banquées'}"
