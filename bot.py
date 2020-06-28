@@ -1,38 +1,58 @@
+# -*- coding: utf-8 -*-
+#
+# Telegram bot to play La Map in group chats
+# Copyright (c) 2020 Dylan Tientcheu <dylantientcheu@gmail.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 # python modules
-import logging
-from pprint import pprint, pformat
 import json
+import logging
 import random
+from pprint import pformat, pprint
 
 # telegram api
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
-from telegram.ext import InlineQueryHandler, ChosenInlineResultHandler, Updater, CommandHandler, CallbackQueryHandler, MessageHandler, Filters
+from telegram.ext import (CallbackQueryHandler, ChosenInlineResultHandler,
+                          CommandHandler, Filters, InlineQueryHandler,
+                          MessageHandler, Updater)
 from telegram.ext.dispatcher import run_async
 
 # bot modules
 import helpers
 import logger as loggero
-
-
-from global_variables import gm, updater, dispatcher
-from errors import (NoGameInChatError, LobbyClosedError, AlreadyJoinedError,
-                    NotEnoughPlayersError, DeckEmptyError, GameAlreadyStartedError, MaxPlayersReached, AlreadyGameInChat)
-from utils import send_async, send_animation_async, answer_async, delete_async, delete_start_msgs, user_is_creator_or_admin, user_is_creator, mention, TIMEOUT
-from start_bot import start_bot
-from results import (add_no_game, add_not_started,
-                     add_special_card, add_card, game_info, check_quick_win, get_game_status)
-from actions import do_play_card
-
-from settings import set_waiting_time
-
 import stats
-
-from config import WAITING_TIME, DEFAULT_GAMEMODE, MIN_PLAYERS, TIME_TO_START
-
+from actions import do_play_card
+from config import DEFAULT_GAMEMODE, MIN_PLAYERS, TIME_TO_START, WAITING_TIME
+from errors import (AlreadyGameInChat, AlreadyJoinedError, DeckEmptyError,
+                    GameAlreadyStartedError, LobbyClosedError,
+                    MaxPlayersReached, NoGameInChatError,
+                    NotEnoughPlayersError)
+from global_variables import dispatcher, gm, updater
+from results import (add_card, add_no_game, add_not_started, add_special_card,
+                     check_quick_win, game_info, get_game_status)
+from settings import set_waiting_time
+from start_bot import start_bot
+from utils import (TIMEOUT, answer_async, delete_async, delete_start_msgs,
+                   mention, send_animation_async, send_async, user_is_creator,
+                   user_is_creator_or_admin)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
+# pyright: reportInvalidStringEscapeSequence=false
 
 
 def call_me_back(update, context):
@@ -109,8 +129,7 @@ def start_the_game(context):
         send_async(context.bot, chat.id,
                    text=f'Les gars ne sont pas chaud, je tue le way. Utilise /call\_me\_back et je vais te notifier quand on va lancer ici.')
         delete_start_msgs(context.bot, chat.id)
-        self.logger.debug(
-            "END GAME - NOTENOUGHPLAYERS in chat " + str(chat.id))
+        logger.debug("END GAME - NOTENOUGHPLAYERS in chat " + str(chat.id))
 
 
 def join_game(update, context):
@@ -325,14 +344,14 @@ def quit_game(update, context):
                        reply_to_message_id=update.message.message_id)
             gm.leave_game(user, chat)
             stats.user_quit(user.id)
-            stats.user_lost(user.id)
+            stats.user_lost(user.id, "n")
 
         else:
             send_async(bot, chat.id, text=f"{mention(user)} a fui sans voir ses cartes.",
                        reply_to_message_id=update.message.message_id)
             gm.leave_game(user, chat)
             stats.user_quit(user.id)
-            stats.user_lost(user.id)
+            stats.user_lost(user.id, "n")
 
     except NoGameInChatError:
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /new_game.",
@@ -357,7 +376,7 @@ def quit_game(update, context):
             try:
                 gm.leave_game(user, chat)
                 stats.user_quit(user.id)
-                stats.user_lost(user.id)
+                stats.user_lost(user.id, "n")
 
             except NotEnoughPlayersError:
                 if game.control_player is None:
@@ -374,7 +393,7 @@ def quit_game(update, context):
             try:
                 gm.leave_game(user, chat)
                 stats.user_quit(user.id)
-                stats.user_lost(user.id)
+                stats.user_lost(user.id, "n")
 
             except NotEnoughPlayersError:
                 if game.control_player is None:
@@ -395,7 +414,7 @@ def kill_game(update, context):
     bot = context.bot
 
     if update.message.chat.type == 'private':
-        help_handler(bot, update)
+        helpers.help_handler(bot, update)
         return
 
     if not games:
@@ -500,7 +519,7 @@ def game_status(update, context):
     bot = context.bot
 
     if update.message.chat.type == 'private':
-        help_handler(bot, update)
+        helpers.help_handler(bot, update)
         return
 
     if not games:
