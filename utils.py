@@ -1,9 +1,9 @@
 import logging
 
-from telegram.ext.dispatcher import run_async
 from telegram import ParseMode
-from global_variables import gm
+from telegram.ext.dispatcher import run_async
 
+from global_variables import gm
 from mwt import MWT
 
 logger = logging.getLogger(__name__)

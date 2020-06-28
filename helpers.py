@@ -1,14 +1,16 @@
+from pony.orm import db_session
 from telegram import ParseMode
 from telegram.ext import CommandHandler
 
-from pony.orm import db_session
-from user_db import UserDB
 from global_variables import dispatcher
-from utils import send_async, mention
+from user_db import UserDB
+from utils import mention, send_async
 
 
 def help_handler(update, context):
     """Handler for the /help command"""
+
+    # pyright: reportInvalidStringEscapeSequence=false
     help_text = "Cette commande ne peut être lancé que dans un groupe.\nAjoutez ce bot a votre groupe, rendez le administrateur, lancez une nouvelle partie avec /new\_game et suivez les instructions.\n\nUtilisez /rules pour apprendre les règles\n\n\n- [Lamap Updates Channel](https://t.me/lamapupdates)\n- [Lamap Devs Group](https://t.me/lamapdevs)"
 
     context.bot.send_message(update.message.chat_id, text=help_text,
