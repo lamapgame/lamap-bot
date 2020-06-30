@@ -22,6 +22,7 @@ MIN_PLAYERS = config.get("MIN_PLAYERS", 2)
 MAX_PLAYERS = config.get("MAX_PLAYERS", 4)
 TIME_TO_START = config.get("TIME_TO_START", 60)
 HEROKU_URL = ""
+HEROKU_PORT = int(os.environ.get('PORT', 5000))
 
 if sys.argv[1] == "prod":
     load_dotenv(prod_env_path)

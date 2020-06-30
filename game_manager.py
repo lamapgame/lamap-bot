@@ -27,13 +27,13 @@ class GameManager(object):
             self.start_gm_msgs[chat_id] = list()
 
         # do not start another if there's already one going on
-        if len(self.chatid_games[chat_id]) == 1:
+        if len(self.chatid_games[chat_id]) >= 1:
             raise AlreadyGameInChat()
 
         # remove old games
-        for g in list(self.chatid_games[chat_id]):
+        for g in self.chatid_games[chat_id]:
             if not g.players:
-                self.chatid_games[chat_id].remove(g)
+                self.chatid_games[chat_id] = []
 
         self.start_gm_msgs[chat_id].clear()
         self.chatid_games[chat_id].append(game)
@@ -141,6 +141,7 @@ class GameManager(object):
             self.chatid_games[chat.id].remove(game)
         except ValueError:
             pass
+
         if not self.chatid_games[chat.id]:
             del self.chatid_games[chat.id]
 

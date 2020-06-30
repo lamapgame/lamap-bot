@@ -102,4 +102,7 @@ def get_game_status(game):
     for idx, round in enumerate(game.game_info, start=1):
         string = f"`Tour {idx}:` - **{mention(round['control_player'].user)}** - **{repr(round['control_card'])}**\n"
         status_txt.append(string)
+    if len(status_txt) == 0:
+        status_txt = [
+            "Molah joue d'abord! Je ne peux pas te donner le statut d'un demi tour."]
     return ''.join(status_txt)
