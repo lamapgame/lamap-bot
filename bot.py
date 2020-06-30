@@ -17,16 +17,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 # python modules
-import json
 import logging
+from logging import Logger
 import random
-from pprint import pformat, pprint
 
 # telegram api
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
 from telegram.ext import (CallbackQueryHandler, ChosenInlineResultHandler,
                           CommandHandler, Filters, InlineQueryHandler,
-                          MessageHandler, Updater)
+                          )
 from telegram.ext.dispatcher import run_async
 
 # bot modules
@@ -34,19 +33,19 @@ import helpers
 import logger as loggero
 import stats
 from actions import do_play_card
-from config import DEFAULT_GAMEMODE, MIN_PLAYERS, TIME_TO_START, WAITING_TIME
-from errors import (AlreadyGameInChat, AlreadyJoinedError, DeckEmptyError,
+from config import MIN_PLAYERS, TIME_TO_START
+from errors import (AlreadyGameInChat, AlreadyJoinedError,
                     GameAlreadyStartedError, LobbyClosedError,
                     MaxPlayersReached, NoGameInChatError,
                     NotEnoughPlayersError)
 from global_variables import dispatcher, gm, updater
 from results import (add_card, add_no_game, add_not_started, add_special_card,
-                     check_quick_win, game_info, get_game_status)
-from settings import set_waiting_time
+                     check_quick_win, get_game_status)
 from start_bot import start_bot
-from utils import (TIMEOUT, answer_async, delete_async, delete_start_msgs,
+from utils import (TIMEOUT, answer_async, delete_start_msgs,
                    mention, send_animation_async, send_async, user_is_creator,
                    user_is_creator_or_admin)
+from gifs import start_Anim, win_forfeit_Anim
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
@@ -95,7 +94,7 @@ def new_game(update, context):
 
             # Reply to inform the start of game
             send_animation_async(
-                context.bot, chat_id, animation="https://media.giphy.com/media/37q7weFc48rocjJGW7/giphy.gif", caption=f"{mention(game.starter)} a ouvert le terre! Rejoint avec le bouton ci-dessous.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
+                context.bot, chat_id, animation=start_Anim(), caption=f"{mention(game.starter)} a ouvert le terre! Rejoint avec le bouton ci-dessous.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
 
             stats.user_started(update.message.from_user.id)
 
@@ -111,7 +110,7 @@ def new_game(update, context):
 def start_the_game_soon(context):
     chat = context.job.context.effective_message.chat
     send_async(context.bot, chat.id,
-               text=f'Je partage dans **{int(TIME_TO_START/2)} secondes**...', to_delete=True)
+               text=f'Je partage les cartes dans **{int(TIME_TO_START/2)} secondes**...', to_delete=True)
     context.job_queue.run_once(
         start_the_game, TIME_TO_START/2, context=context.job.context)
 
@@ -125,11 +124,15 @@ def start_the_game(context):
         return
     if len(game.players) >= MIN_PLAYERS and not game.started:
         start_lamap(context.job.context, context)
+        return
     elif not game.started:
         send_async(context.bot, chat.id,
-                   text=f'Les gars ne sont pas chaud, je tue le way. Utilise /call\_me\_back et je vais te notifier quand on va lancer ici.')
+                   text=f'Les gars ne sont pas chauds, je tue le way. Utilise /call\_me\_back et je vais te notifier quand on va lancer ici.')
         delete_start_msgs(context.bot, chat.id)
+        # kill previous game
+        gm.chatid_games[chat.id] = []
         logger.debug("END GAME - NOTENOUGHPLAYERS in chat " + str(chat.id))
+        return
 
 
 def join_game(update, context):
@@ -401,7 +404,7 @@ def quit_game(update, context):
                         bot, chat.id, text=f"Comment vous partez tous?! Fin de partie!")
                 else:
                     send_animation_async(
-                        bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
+                        bot, chat.id, animation=win_forfeit_Anim(), caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
                 stats.user_won(game.control_player.user.id, "n")
                 gm.end_game(chat, user)
 
@@ -419,7 +422,7 @@ def kill_game(update, context):
 
     if not games:
         send_async(
-            bot, chat.id, text="Aucune partie lancé ici, crée une nouvelle avec /new_game.")
+            bot, chat.id, text="Aucune partie lancé ici, crée une nouvelle avec /new\_game.")
         return
 
     game = games[-1]
@@ -434,7 +437,9 @@ def kill_game(update, context):
 
         except NoGameInChatError:
             send_async(bot, chat.id,
-                       text="Aucune partie en cours. Utilise /new_game pour lancer", reply_to_message_id=update.message.message_id)
+                       text="Ok. j'éteins le feu.", reply_to_message_id=update.message.message_id)
+            gm.chatid_games[chat.id] = []
+            context.job_queue.stop()
 
     else:
         send_async(
