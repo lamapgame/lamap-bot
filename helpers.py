@@ -90,7 +90,7 @@ def stats(update, context):
             f"\n`{u.games_played:>6}`    {'parties joués'}"
             f"\n`{u.wins:>6}`    {'parties gagnées'+w_pct}"
             f"\n`{u.losses:>6}`    {'parties perdues'+l_pct}"
-            # f"\n`{ufinished:>6}`    {'non terminées'+ufinished_pct}"
+            f"\n`{ufinished:>6}`    {'non terminées'+ufinished_pct}"
             f"\n`{u.wins_kora:>6}`    {'Kora donnés'}"
             f"\n`{u.losses_kora:>6}`    {'Kora reçus'}"
             f"\n`{u.quit:>6}`    {'fois banquées'}"
