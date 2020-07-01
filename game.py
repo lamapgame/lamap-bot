@@ -69,7 +69,7 @@ class Game(object):
         self.turn()
 
     def start(self):
-        self.deck._fill_cards_()
+        self.deck.fill_cards()
         self.started = True
 
 

@@ -1,8 +1,9 @@
 import logging
 
+from telegram import ParseMode
 from telegram.ext.dispatcher import run_async
-from global_variables import gm
 
+from global_variables import gm
 from mwt import MWT
 
 logger = logging.getLogger(__name__)
@@ -21,12 +22,12 @@ def send_async(bot, *args, **kwargs):
     if 'timeout' not in kwargs:
         kwargs['timeout'] = TIMEOUT
     try:
-        msg_sent = bot.sendMessage(*args, **kwargs)
+        msg_sent = bot.sendMessage(
+            *args, **kwargs, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
         if 'to_delete' in kwargs:
-            gm.start_gm_msgs.append(msg_sent.message_id)
+            gm.start_gm_msgs[args[0]].append(msg_sent.message_id)
     except Exception as e:
         error(None, None, e)
-    return msg_sent
 
 
 def send_msg(bot, *args, **kwargs):
@@ -39,9 +40,11 @@ def send_animation_async(bot, *args, **kwargs):
     if 'timeout' not in kwargs:
         kwargs['timeout'] = TIMEOUT
     try:
-        msg_sent = bot.send_animation(*args, **kwargs)
+        msg_sent = bot.send_animation(
+            *args, **kwargs, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        gm
         if 'to_delete' in kwargs:
-            gm.start_gm_msgs.append(msg_sent.message_id)
+            gm.start_gm_msgs[args[0]].append(msg_sent.message_id)
     except Exception as e:
         error(None, None, e)
 
@@ -59,7 +62,7 @@ def delete_async(bot, *args, **kwargs):
 
 def delete_start_msgs(bot, chat_id, **kwargs):
     """ Delete message from group """
-    for msg in gm.start_gm_msgs:
+    for msg in gm.start_gm_msgs[chat_id]:
         delete_async(bot, chat_id, message_id=msg)
 
 
@@ -89,6 +92,10 @@ def user_is_admin(user, bot, chat):
 
 def user_is_creator_or_admin(user, game, bot, chat):
     return user_is_creator(user, game) or user_is_admin(user, bot, chat)
+
+
+def mention(user):
+    return f'[{user.first_name}](tg://user?id={user.id})'
 
 
 @MWT(timeout=60*60)

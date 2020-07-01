@@ -1,7 +1,9 @@
 new_game - Lancer une nouvelle partie de Lamap.
+game_status - État de la partie en cours.
+call_me_back - Me notifier lorsqu'une nouvelle partie débutera dans ce groupe.
+stats - Voir les statistiques.
+apprendre - Apprendre les règles du jeu.
 se_banquer - Quitter la partie en cours (se banquer) si elle est lancé.
-notify_me - Me notifier lorsqu'une nouvelle partie débutera dans ce groupe.
-rules - Apprendre les règles du jeu.
-donate - Faire un don au dévéloppeurs du bot.
 chasser - Retirer un joueur (Only ADMIN)
 tuer_le_way - Arrêter une partie (Only ADMIN)
+tchoko - Faire un don au dévéloppeur du bot.

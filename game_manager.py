@@ -4,7 +4,7 @@ game manager
 import logging
 from game import Game
 from player import Player
-from errors import AlreadyJoinedError, LobbyClosedError, NoGameInChatError, NotEnoughPlayersError, GameAlreadyStartedError, MaxPlayersReached
+from errors import AlreadyJoinedError, LobbyClosedError, NoGameInChatError, NotEnoughPlayersError, GameAlreadyStartedError, MaxPlayersReached, AlreadyGameInChat
 
 
 class GameManager(object):
@@ -14,26 +14,31 @@ class GameManager(object):
         self.userid_players = dict()
         self.userid_current = dict()
         self.remind_dict = dict()
-        self.start_gm_msgs = list()
+        self.start_gm_msgs = dict()
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
 
     def new_game(self, chat):
         """Create new game in chat"""
         chat_id = chat.id
-        self.logger.debug(f"NEW GAME in chat {chat_id}")
         game = Game(chat)
         if chat_id not in self.chatid_games:
             self.chatid_games[chat_id] = list()
+            self.start_gm_msgs[chat_id] = list()
+
+        # do not start another if there's already one going on
+        if len(self.chatid_games[chat_id]) >= 1:
+            raise AlreadyGameInChat()
 
         # remove old games
-        for g in list(self.chatid_games[chat_id]):
+        for g in self.chatid_games[chat_id]:
             if not g.players:
-                self.chatid_games[chat_id].remove(g)
+                self.chatid_games[chat_id] = []
 
-        self.start_gm_msgs.clear()
+        self.start_gm_msgs[chat_id].clear()
         self.chatid_games[chat_id].append(game)
 
+        self.logger.debug(f"NEW GAME in chat {chat_id}")
         return game
 
     def join_game(self, user, chat):
@@ -136,6 +141,7 @@ class GameManager(object):
             self.chatid_games[chat.id].remove(game)
         except ValueError:
             pass
+
         if not self.chatid_games[chat.id]:
             del self.chatid_games[chat.id]
 

@@ -84,10 +84,14 @@ celerybeat-schedule
 env/
 venv/
 ENV/
+.env*
 
 # Spyder project settings
 .spyderproject
 .spyproject
+
+# db
+*.sqlite
 
 # Rope project settings
 .ropeproject
@@ -100,3 +104,5 @@ ENV/
 
 # config.json
 var_holder.json
+pyrightconfig.json
+config.json
