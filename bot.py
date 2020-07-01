@@ -18,7 +18,6 @@
 
 # python modules
 import logging
-from logging import Logger
 import random
 
 # telegram api
@@ -80,13 +79,14 @@ def new_game(update, context):
         if chat_id in gm.remind_dict:
             for user in gm.remind_dict[chat_id]:
                 send_async(
-                    bot, user, text=f"Va jouer dans le groupe {title}. Ils ont lancé")
+                    bot, user, text=f"Va jouer dans le groupe **{title}**. Ils ont ouvert le terre")
             del gm.remind_dict[chat_id]
 
         try:
             game = gm.new_game(update.message.chat)
             game.starter = update.message.from_user
             game.owner.append(update.message.from_user.id)
+            game.game_info = []
 
             join_btn = [[InlineKeyboardButton(
                 "🖐🏽 - Rejoindre", callback_data="join_game"), InlineKeyboardButton(
@@ -104,20 +104,26 @@ def new_game(update, context):
 
         except AlreadyGameInChat:
             send_async(context.bot, chat_id,
-                       text=f'On a déjà lancé ici', to_delete=True, reply_to_message_id=gm.start_gm_msgs[chat_id][0])
+                       text=f'Calme toi! C\'est déjà lancé ici.', to_delete=True)
 
 
 def start_the_game_soon(context):
     chat = context.job.context.effective_message.chat
-    send_async(context.bot, chat.id,
-               text=f'Je partage les cartes dans **{int(TIME_TO_START/2)} secondes**...', to_delete=True)
-    context.job_queue.run_once(
-        start_the_game, TIME_TO_START/2, context=context.job.context)
+    try:
+        game = gm.chatid_games[chat.id][-1]
+    except (KeyError, IndexError):
+        return
+    if not game.started:
+        send_async(context.bot, chat.id,
+                   text=f'Je partage les cartes dans **{int(TIME_TO_START/2)} secondes**...', to_delete=True)
+        context.job_queue.run_once(
+            start_the_game, TIME_TO_START/2, context=context.job.context)
 
 
 def start_the_game(context):
     chat = context.job.context.effective_message.chat
     user = context.job.context.effective_user
+
     try:
         game = gm.chatid_games[chat.id][-1]
     except (KeyError, IndexError):
@@ -207,12 +213,13 @@ def start_lamap(update, context):
 
             else:
                 game.start()
+
                 delete_start_msgs(bot, chat.id)
                 for player in game.players:
                     stats.user_plays(player.user.id)
                     player.draw_hand()
                 choice = [[InlineKeyboardButton(
-                    text=f"Tu dégage avec quoi?", switch_inline_query_current_chat='')]]
+                    text=f"Tu dégages avec quoi?", switch_inline_query_current_chat='')]]
 
                 game.first_player = random.choice(game.players)
                 game.current_player = game.first_player
@@ -224,6 +231,7 @@ def start_lamap(update, context):
                         choice), timeout=TIMEOUT, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
                 send_first()
+
         else:
             send_async(
                 bot, chat.id, text=f'Toi qui? Seuls le créateur de la partie et les admins peuvent utiliser cette commande.')
@@ -529,7 +537,7 @@ def game_status(update, context):
 
     if not games:
         send_async(
-            bot, chat.id, text="Aucune partie lancé ici, crée une nouvelle avec /new_game.")
+            bot, chat.id, text="Aucune partie n'est lancé ici, crée une nouvelle avec /new\_game.")
         return
 
     game = games[-1]

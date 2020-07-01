@@ -90,17 +90,17 @@ def game_info(game):
         controlling_player = mention(game.control_player.user)
         controlling_card = repr(game.control_card)
 
-    ''' if controlling_card is "":
-        return InputTextMessageContent(f"", parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-    else: '''
-    return InputTextMessageContent(f"Joueur actuel: {name}\nContrôle 🤴🏾: {controlling_card} - {controlling_player}", parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    if controlling_card is None:
+        return InputTextMessageContent(f"🤙🏾 - {controlling_player}", parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    else:
+        return InputTextMessageContent(f"🤴🏾: {controlling_card} - {controlling_player}", parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
 def get_game_status(game):
     ''' Get the current status of the game played '''
     status_txt = []
     for idx, round in enumerate(game.game_info, start=1):
-        string = f"`Tour {idx}:` - **{mention(round['control_player'].user)}** - **{repr(round['control_card'])}**\n"
+        string = f"`Tour {idx}:` **{mention(round['control_player'].user)}** - **{repr(round['control_card'])}**\n"
         status_txt.append(string)
     if len(status_txt) == 0:
         status_txt = [

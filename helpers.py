@@ -40,20 +40,29 @@ def apprendre(update, context):
 
 def tchoko(update, context):
     """Handler for the /tchoko command"""
-    tchoko_text = "Faire un don"
+    tchoko_text = (
+        "Oh ma personne! Vient on gère...\n\n"
+        "- Cause avec le [freeboy ci](https://t.me/panachaud), pour gérer par Mobile Money.\n"
+        "- Ou alors, tu peux gérer [sur Paypal](https://www.paypal.me/DylanTientcheu) si tu as la rage\n\n"
+        "Mais, saches que ce n'est pas une bière qui va donner des bonnes cartes..."
+    )
 
     if update.message.chat.type == 'private':
-        tchoko_text = (
-            "Ah! Tu veux me tchoko?\n\n"
+        tchoko_text1 = (
+            "Ah tu veux me donner une bière! Vient on gère...\n\n"
             "- Cause avec le [freeboy ci](https://t.me/panachaud), pour gérer par Mobile Money.\n"
             "- Ou alors, tu peux gérer [sur Paypal](https://www.paypal.me/DylanTientcheu) si tu as la rage\n\n"
-            "Mais, saches que ce n'est pas une bière qui va donner des bonnes cartes..._"
+            "Mais, saches que ce n'est pas une bière qui va donner des bonnes cartes..."
         )
+        context.bot.send_message(update.message.chat_id, text=tchoko_text1,
+                                 parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id)
     else:
-        tchoko_text = ("En vrai? Vient on gère en solo...")
+        tchoko_texto = "En vrai? Vient on gère en solo..."
+        context.bot.send_message(update.message.chat_id, text=tchoko_texto,
+                                 parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id)
 
-    context.bot.send_message(update.message.chat_id, text=tchoko_text,
-                             parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id)
+    context.bot.send_message(update.message.from_user.id, text=tchoko_text,
+                             parse_mode=ParseMode.MARKDOWN)
 
 
 @db_session
@@ -87,7 +96,7 @@ def stats(update, context):
         stats_txt = (
             f"{mention(user):>10}"
             f"\n`{u.points:>6}`    {'points LaMap'}"
-            f"\n`{u.games_played:>6}`    {'parties joués'}"
+            f"\n`{u.games_played:>6}`    {'parties jouées'}"
             f"\n`{u.wins:>6}`    {'parties gagnées'+w_pct}"
             f"\n`{u.losses:>6}`    {'parties perdues'+l_pct}"
             f"\n`{ufinished:>6}`    {'non terminées'+ufinished_pct}"

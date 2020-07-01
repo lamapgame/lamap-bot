@@ -48,7 +48,6 @@ def user_started(id):
         UserDB(id=id)
     else:
         u.games_started += 1
-        u.points += 0.5
 
 
 @db_session
@@ -62,16 +61,22 @@ def user_won(id, style):
         u.wins += 1
         u.wl_streak += 1
         if style is "kora":
+            u.points += 2
             u.wins_kora += 1
         elif style is "dbl_kora":
+            u.points += 4
             u.wins_dbl_kora += 1
         elif style is "333":
+            u.points += 1
             u.wins_333 += 1
         elif style is "777":
+            u.points += 1
             u.wins_777 += 1
         elif style is "21":
+            u.points += 1
             u.wins_21 += 1
         elif style is "fam":
+            u.points += 1
             u.wins_fam += 1
         u.last_game_win = True
 
@@ -87,8 +92,10 @@ def user_lost(id, style):
         u.losses += 1
         u.wl_streak -= 1
         if style is "kora":
+            u.points -= 1
             u.losses_kora += 1
         elif style is "dbl_kora":
+            u.points -= 2
             u.losses_dbl_kora += 1
         elif style is "333":
             u.losses_333 += 1

@@ -36,8 +36,16 @@ def do_play_card(bot, player, result_id):
     controller = repr(game.control_card)
     info = dict()
 
+    c_list = []
+    no_cards = len(player.cards)
+
+    for _ in range(no_cards):
+        c_list.append("🎴")
+    for _ in range(5-no_cards):
+        c_list.append("🃏")
+
     choice = [[InlineKeyboardButton(
-        text=f"Afficher mes cartes", switch_inline_query_current_chat='')]]
+        text=f"".join(c_list), switch_inline_query_current_chat='')]]
 
     if card in c.SPECIALS:
         if card == 'x_21':
@@ -105,8 +113,8 @@ def do_play_card(bot, player, result_id):
 
         # 5 play_round = 1 game round
         if game.play_round != (len(game.players) * 5):
-            send_async(bot, chat.id, text=f"○ {mention(game.control_player.user)} contrôle ({controller})\n● {mention(game.current_player.user)} à toi de jouer.",
-                       reply_markup=InlineKeyboardMarkup(choice))
+            send_async(
+                bot, chat.id, text=f"👑 {mention(game.control_player.user)} - {controller}\n〰️\n🤙🏾 {mention(game.current_player.user)} à toi.", reply_markup=InlineKeyboardMarkup(choice))
 
             # add this information to the game info list
             game.game_round += 1
@@ -118,9 +126,9 @@ def do_play_card(bot, player, result_id):
             if game.game_info[3]['control_card'].value == '3' and game.game_info[3]['control_player'].user.id == game.control_player.user.id:
                 send_animation_async(
                     bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"{mention(game.control_player.user)} ça fait comme si ils ont bu ta 33 que tu avais posé là!")
-                stats.user_won(user.id, 'dbl_kora')
+                stats.user_won(game.control_player.user.id, 'dbl_kora')
                 loosers = [
-                    lost.user.id for lost in game.players if lost.user.id != user.id
+                    lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
                 ]
                 for looser in loosers:
                     stats.user_lost(looser, 'dbl_kora')
@@ -130,9 +138,9 @@ def do_play_card(bot, player, result_id):
             else:
                 send_animation_async(
                     bot, chat.id, animation=win_kora_Anim(), caption=f"Fin de partie! c'est par KORA que {mention(game.control_player.user)} gagne!")
-                stats.user_won(user.id, 'kora')
+                stats.user_won(game.control_player.user.id, 'kora')
                 loosers = [
-                    lost.user.id for lost in game.players if lost.user.id != user.id
+                    lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
                 ]
                 for looser in loosers:
                     stats.user_lost(looser, 'kora')
@@ -144,9 +152,9 @@ def do_play_card(bot, player, result_id):
         else:
             send_animation_async(
                 bot, chat.id, animation=win_Anim(), caption=f"Fin de partie! {mention(game.control_player.user)} a gagné!")
-            stats.user_won(user.id, 'n')
+            stats.user_won(game.control_player.user.id, 'n')
             loosers = [
-                lost.user.id for lost in game.players if lost.user.id != user.id
+                lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
             ]
             for looser in loosers:
                 stats.user_lost(looser, 'n')
