@@ -7,13 +7,13 @@ start_game_GIF = [
 
 # won
 win_game_GIF = [
-    "https://media.giphy.com/media/h3u7jI6xHzAA7ElwII/giphy-downsized.gif", "https://media.giphy.com/media/QzADrVlEiuV3fS1dFi/giphy-downsized.gif", "https://media.giphy.com/media/mCEC1BxCIJv2sQmFNP/giphy-downsized.gif", "https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", ]
+    "https://media.giphy.com/media/h3u7jI6xHzAA7ElwII/giphy-downsized.gif", "https://media.giphy.com/media/QzADrVlEiuV3fS1dFi/giphy-downsized.gif", "https://media.giphy.com/media/mCEC1BxCIJv2sQmFNP/giphy-downsized.gif", "https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", "https://media.giphy.com/media/dxn6nOILy3OixVA1FY/giphy-downsized.gif", "https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif"]
 # won by kora
 win_kora_game_GIF = [
     "https://media.giphy.com/media/Q7FEPREUzLJoy16WFu/giphy-downsized.gif", "https://media.giphy.com/media/Jmfq3XfBo2RJsaskm0/giphy-downsized.gif", "https://media.giphy.com/media/IeoL0iD3eUrEibN6fm/giphy-downsized.gif"]
 # won by double kora
 win_double_kora_game_GIF = [
-    "https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif"]
+    "https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", "https://media.giphy.com/media/dxn6nOILy3OixVA1FY/giphy-downsized.gif", "https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif"]
 # won by forfeit
 win_forfeit_game_GIF = [
     "https://media.giphy.com/media/dxn6nOILy3OixVA1FY/giphy-downsized.gif", "https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif"
