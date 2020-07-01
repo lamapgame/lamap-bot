@@ -95,7 +95,7 @@ def user_is_creator_or_admin(user, game, bot, chat):
 
 
 def mention(user):
-    return f'[{user.first_name}]({user.link})'
+    return f'[{user.first_name}](tg://user?id={user.id})'
 
 
 @MWT(timeout=60*60)
