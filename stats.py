@@ -3,8 +3,11 @@ from user_db import UserDB
 
 
 @db_session
-def users():
-    """ Users """
+def init_stats(id):
+    """ User init stats """
+    u = UserDB.get(id=id)
+    if not u:
+        UserDB(id=id)
 
 
 @db_session

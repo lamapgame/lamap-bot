@@ -176,6 +176,7 @@ def join_game(update, context):
             bot, chat.id, text=f"{mention(user)}, calme toi, j'ai déjà coupé tes cartes.", to_delete=True)
 
     else:
+        stats.init_stats(user.id)
         send_async(
             bot, chat.id, text=f'{mention(user)} a réjoint la partie !', to_delete=True)
 
