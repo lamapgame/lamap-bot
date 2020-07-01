@@ -29,13 +29,17 @@ def start(update, context):
 
 def apprendre(update, context):
     """Handler for the /apprendre command"""
-    if update.message.chat.type == 'private':
-        rules_text = "La Map est un jeu de cartes rapide de 2-4 joueurs.\nPour qu'un joueur gagnes, il doit d'avoir le contrôle du jeu à la fin.\nPour prendre le contrôle, il faut jouer une carte de la même famille et supérieur en chiffre à la carte qui contrôle ce tour. Si vous n'avez pas une carte correspondante, vous jouez ce que vous voulez\n\n- [Apprendre Plus...](https://lamap-bot.vercel.app/learn)"
-    else:
-        rules_text = ("Ne t'affiches pas, vient me demander ça en solo.")
+    rules_text = "La Map est un jeu de cartes rapide de 2-4 joueurs.\nPour qu'un joueur gagne, il doit d'avoir le contrôle du jeu à la fin.\nPour prendre le contrôle, il faut jouer une carte de la même famille et supérieur en chiffre à la carte qui contrôle ce tour. Si vous n'avez pas une carte correspondante, vous jouez ce que vous voulez\n\n- [Clique ici pour tout savoir.](https://lamap-bot.vercel.app/learn)"
 
-    context.bot.send_message(update.message.chat_id, text=rules_text,
-                             parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id)
+    if update.message.chat.type == 'private':
+        context.bot.send_message(update.message.chat_id, text=rules_text,
+                                 parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id, disable_web_page_preview=True)
+    else:
+        rules_cta = ("Ne t'affiches pas, vient me demander ça en solo.")
+        context.bot.send_message(update.message.chat_id, text=rules_cta,
+                                 parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id, disable_web_page_preview=True)
+        context.bot.send_message(update.message.from_user.id, text=rules_text,
+                                 parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
 def tchoko(update, context):
@@ -94,7 +98,7 @@ def stats(update, context):
             ufinished_pct = " (0%)"
 
         stats_txt = (
-            f"{mention(user):>10}"
+            f"{mention(user)}"
             f"\n`{u.games_played:<3}`    {'Parties jouées'}"
             f"\n`{u.wins:<3}`    {'Parties gagnées'+w_pct}"
             f"\n`{u.losses:<3}`    {'Parties perdues'+l_pct}"
