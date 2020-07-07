@@ -41,6 +41,7 @@ from global_variables import dispatcher, gm, updater
 from results import (add_card, add_no_game, add_not_started, add_special_card,
                      check_quick_win, get_game_status)
 from start_bot import start_bot
+from stats import reset_all_stats
 from utils import (TIMEOUT, answer_async, delete_start_msgs,
                    mention, send_animation_async, send_async, user_is_creator,
                    user_is_creator_or_admin)
@@ -176,7 +177,7 @@ def join_game(update, context):
             bot, chat.id, text=f"{mention(user)}, calme toi, j'ai déjà coupé tes cartes.", to_delete=True)
 
     else:
-        stats.init_stats(user.id)
+        stats.init_stats(user.id, user.name)
         send_async(
             bot, chat.id, text=f'{mention(user)} a réjoint la partie !', to_delete=True)
 
@@ -546,6 +547,22 @@ def game_status(update, context):
     send_async(bot, chat.id, text=get_game_status(game))
 
 
+def reset_stats(update, context):
+    chat = update.message.chat
+    user = update.message.from_user
+    bot = context.bot
+
+    if update.message.chat.type == 'private':
+        stats.reset_all_stats(user.id)
+        send_async(bot, chat.id, text="C'est bon, j'ai oublié ton passé.")
+        return
+
+    else:
+        send_async(
+            bot, chat.id, text="Vient en DM me dire ce que tu essaies de cacher.", reply_to_message_id=update.message.message_id)
+        return
+
+
 def cbhandler(update, context):
     bot = context.bot
     chat = update.effective_message.chat
@@ -584,6 +601,7 @@ def main():
     # muted commands
     dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CommandHandler('chasser', kick_player))
+    dispatcher.add_handler(CommandHandler('reset_stats', reset_stats))
 
     # callback queries handler
     dispatcher.add_handler(CallbackQueryHandler(cbhandler))

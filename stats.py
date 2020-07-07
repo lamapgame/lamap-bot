@@ -3,11 +3,14 @@ from user_db import UserDB
 
 
 @db_session
-def init_stats(id):
+def init_stats(id, name):
     """ User init stats """
     u = UserDB.get(id=id)
+    un = UserDB.get(name=name)
     if not u:
         UserDB(id=id)
+    if not un:
+        UserDB(name=name)
 
 
 @db_session
@@ -109,3 +112,12 @@ def user_lost(id, style):
         elif style is "fam":
             u.losses_fam += 1
         u.last_game_win = False
+
+
+@db_session
+def reset_all_stats(id):
+    u = UserDB.get(id=id)
+    if not u:
+        UserDB(id=id)
+    else:
+        u.delete()

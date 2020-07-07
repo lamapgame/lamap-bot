@@ -64,9 +64,8 @@ def tchoko(update, context):
         tchoko_texto = "En vrai? Vient on gère en solo..."
         context.bot.send_message(update.message.chat_id, text=tchoko_texto,
                                  parse_mode=ParseMode.MARKDOWN, reply_to_message_id=update.message.message_id)
-
-    context.bot.send_message(update.message.from_user.id, text=tchoko_text,
-                             parse_mode=ParseMode.MARKDOWN)
+        context.bot.send_message(update.message.from_user.id, text=tchoko_text,
+                                 parse_mode=ParseMode.MARKDOWN)
 
 
 @db_session
