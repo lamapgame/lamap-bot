@@ -10,7 +10,7 @@ def init_stats(id, name):
     if not u:
         UserDB(id=id)
     if not un:
-        UserDB.set(name=name)
+        u.name = name
 
 
 @db_session
