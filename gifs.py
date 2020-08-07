@@ -4,7 +4,6 @@ from random import choice
 start_game_GIF = [
     "https://media.giphy.com/media/Y2buJBCkGdkfJV41X4/giphy-downsized.gif", "https://media.giphy.com/media/TGQoUSuNBNEOACAIGv/giphy-downsized.gif", "https://media.giphy.com/media/kDOJumTGGTSYw2zNwJ/giphy-downsized.gif", "https://media.giphy.com/media/JmCOTovHMQ2OCifNIV/giphy-downsized.gif", "https://media.giphy.com/media/Z9nPjqX1vDIgSPrGGX/giphy-downsized.gif", "https://media.giphy.com/media/U4jfvnw81uHeQNs9rO/giphy-downsized.gif"
 ]
-
 # won
 win_game_GIF = [
     "https://media.giphy.com/media/h3u7jI6xHzAA7ElwII/giphy-downsized.gif", "https://media.giphy.com/media/QzADrVlEiuV3fS1dFi/giphy-downsized.gif", "https://media.giphy.com/media/mCEC1BxCIJv2sQmFNP/giphy-downsized.gif", "https://media.giphy.com/media/W9WSk4tEU1aJW/giphy.gif", "https://media.giphy.com/media/dxn6nOILy3OixVA1FY/giphy-downsized.gif", "https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif"]
@@ -18,8 +17,6 @@ win_double_kora_game_GIF = [
 win_forfeit_game_GIF = [
     "https://media.giphy.com/media/dxn6nOILy3OixVA1FY/giphy-downsized.gif", "https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif"
 ]
-# won by quick win
-win_qw_game_GIF = []
 
 
 def start_Anim():

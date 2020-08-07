@@ -80,7 +80,7 @@ def new_game(update, context):
         if chat_id in gm.remind_dict:
             for user in gm.remind_dict[chat_id]:
                 send_async(
-                    bot, user, text=f"Va jouer dans le groupe **{title}**. Ils ont ouvert le terre")
+                    bot, user, text=f"Va jouer dans le groupe [{title}]({update.message.link}). Ils ont ouvert le terre")
             del gm.remind_dict[chat_id]
 
         try:
