@@ -97,8 +97,8 @@ def stats(update, context):
             ufinished_pct = " (0%)"
 
         stats_txt = (
-            f"{mention(user)}"
-            f"\n`{u.games_played:<3}`    {'Parties jouées'}"
+            f"`{str(u.nkap)+' Ň':<3}`    {mention(user)}"
+            f"\n\n`{u.games_played:<3}`    {'Parties jouées'}"
             f"\n`{u.wins:<3}`    {'Parties gagnées'+w_pct}"
             f"\n`{u.losses:<3}`    {'Parties perdues'+l_pct}"
             f"\n`{ufinished:<3}`    {'Non terminées'+ufinished_pct}"

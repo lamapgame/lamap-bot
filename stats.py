@@ -57,7 +57,7 @@ def user_started(id):
 
 
 @db_session
-def user_won(id, style):
+def user_won(id, style, nkap, bet):
     """ User win """
     u = UserDB.get(id=id)
     if not u:
@@ -66,10 +66,16 @@ def user_won(id, style):
         u.points += 2
         u.wins += 1
         u.wl_streak += 1
+        if nkap:
+            u.nkap += bet
         if style is "kora":
+            if nkap:
+                u.nkap += bet
             u.points += 2
             u.wins_kora += 1
         elif style is "dbl_kora":
+            if nkap:
+                u.nkap += bet*3
             u.points += 4
             u.wins_dbl_kora += 1
         elif style is "333":
@@ -88,7 +94,7 @@ def user_won(id, style):
 
 
 @db_session
-def user_lost(id, style):
+def user_lost(id, style, nkap, bet):
     """ User lost """
     u = UserDB.get(id=id)
     if not u:
@@ -97,10 +103,16 @@ def user_lost(id, style):
         u.points -= 1
         u.losses += 1
         u.wl_streak -= 1
+        if nkap:
+            u.nkap -= bet
         if style is "kora":
+            if nkap:
+                u.nkap -= bet
             u.points -= 1
             u.losses_kora += 1
         elif style is "dbl_kora":
+            if nkap:
+                u.nkap -= bet*3
             u.points -= 2
             u.losses_dbl_kora += 1
         elif style is "333":
@@ -121,3 +133,11 @@ def reset_all_stats(id):
         UserDB(id=id)
     else:
         u.delete()
+
+
+@db_session
+def get_nkap(id):
+    u = UserDB.get(id=id)
+    if not u:
+        UserDB(id=id)
+    return u.nkap

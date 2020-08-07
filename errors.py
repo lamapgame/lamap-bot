@@ -18,6 +18,10 @@ class AlreadyGameInChat(Exception):
     pass
 
 
+class NotEnoughNkap(Exception):
+    pass
+
+
 class LobbyClosedError(Exception):
     pass
 

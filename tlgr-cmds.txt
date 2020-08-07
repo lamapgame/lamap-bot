@@ -1,4 +1,5 @@
-new_game - Lancer une nouvelle partie de Lamap.
+new_game - Nouvelle partie de Lamap.
+nkap - Nouvelle Partie misé
 game_status - État de la partie en cours.
 call_me_back - Me notifier lorsqu'une nouvelle partie débutera dans ce groupe.
 stats - Voir les statistiques.
