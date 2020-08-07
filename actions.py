@@ -2,7 +2,7 @@ import logging
 
 import card as c
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup
 
 
 from global_variables import gm
@@ -35,6 +35,16 @@ def do_play_card(bot, player, result_id):
     user = player.user
     controller = repr(game.control_card)
     info = dict()
+
+    next_bet = game.bet
+
+    if next_bet == 0:
+        next_bet = 500
+
+    restart_keyboard = [
+        [f"/nkap {next_bet}", f"/nkap {next_bet*2}", f"/nkap {next_bet*5}"], ["/new_game", "/call_me_back"]]
+    restart_markup = ReplyKeyboardMarkup(
+        restart_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
     c_list = []
     no_cards = len(player.cards)
@@ -162,10 +172,10 @@ def do_play_card(bot, player, result_id):
         else:
             if game.nkap:
                 send_animation_async(
-                    bot, chat.id, animation=win_Anim(), caption=f"Voilà {mention(game.control_player.user)} qui part avec {game.bet} Ň!")
+                    bot, chat.id, animation=win_Anim(), caption=f"Voilà {mention(game.control_player.user)} qui part avec {game.bet} Ň!", reply_markup=restart_markup)
             else:
                 send_animation_async(
-                    bot, chat.id, animation=win_Anim(), caption=f"Fin de partie! {mention(game.control_player.user)} a gagné!")
+                    bot, chat.id, animation=win_Anim(), caption=f"Fin de partie! {mention(game.control_player.user)} a gagné!", reply_markup=restart_markup)
 
             stats.user_won(game.control_player.user.id,
                            'n', game.nkap, game.bet)

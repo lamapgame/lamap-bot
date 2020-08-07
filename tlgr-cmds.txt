@@ -1,9 +1,9 @@
 new_game - Nouvelle partie de Lamap.
-nkap - Nouvelle Partie misé
-game_status - État de la partie en cours.
+nkap - Nouvelle Partie misé - Ajoutez y un montant [Ex: /nkap 500]
 call_me_back - Me notifier lorsqu'une nouvelle partie débutera dans ce groupe.
 stats - Voir les statistiques.
-apprendre - Apprendre les règles du jeu.
+apprendre - Apprendre à jouer.
+leaderboard - Classement global
 se_banquer - Quitter la partie en cours (se banquer) si elle est lancé.
 chasser - Retirer un joueur (Only ADMIN)
 tuer_le_way - Arrêter une partie (Only ADMIN)
