@@ -1,7 +1,7 @@
 from telegram import ParseMode
 from telegram.ext import CommandHandler
 
-from pony.orm import db_session
+from pony.orm import db_session, desc
 from user_db import UserDB
 
 from global_variables import dispatcher
@@ -112,8 +112,22 @@ def stats(update, context):
                                  parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
+@db_session
+def top_players(update, context):
+    top_10_players = list(UserDB.select().order_by(
+        lambda u: desc(u.points))[:10])
+    top_txt = []
+    for idx, user in enumerate(top_10_players, start=1):
+        string = f"`{idx}–` *{user.name}* - {user.points} Points\n"
+        top_txt.append(string)
+
+    context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
+                             parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+
+
 def register():
     dispatcher.add_handler(CommandHandler('apprendre', apprendre))
     dispatcher.add_handler(CommandHandler('tchoko', tchoko))
+    dispatcher.add_handler(CommandHandler('top10', top_players))
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('stats', stats))
