@@ -4,7 +4,5 @@ call_me_back - Me notifier lorsqu'une nouvelle partie débutera dans ce groupe.
 stats - Voir les statistiques.
 apprendre - Apprendre à jouer.
 leaderboard - Classement global
-se_banquer - Quitter la partie en cours (se banquer) si elle est lancé.
-chasser - Retirer un joueur (Only ADMIN)
 tuer_le_way - Arrêter une partie (Only ADMIN)
 tchoko - Faire un don au dévéloppeur du bot.

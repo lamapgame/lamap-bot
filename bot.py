@@ -653,14 +653,14 @@ def main():
     dispatcher.add_handler(CommandHandler('nkap_game', new_nkap_game))
     dispatcher.add_handler(CommandHandler('nkap', new_nkap_game))
     dispatcher.add_handler(CommandHandler('close', close_game))
-    dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
+    # dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('call_me_back', call_me_back))
     dispatcher.add_handler(CommandHandler('start_game', start_lamap))
     dispatcher.add_handler(CommandHandler('game_status', game_status))
     # muted commands
     dispatcher.add_handler(CommandHandler('join', join_game))
-    dispatcher.add_handler(CommandHandler('chasser', kick_player))
+    # dispatcher.add_handler(CommandHandler('chasser', kick_player))
     dispatcher.add_handler(CommandHandler('reset_stats', reset_stats))
 
     # callback queries handler

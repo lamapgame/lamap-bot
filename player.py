@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 
 import card as c
-import deck
 from errors import DeckEmptyError
 from config import WAITING_TIME
 
@@ -80,7 +79,6 @@ class Player(object):
     def playable_cards(self):
         """Returns a list of the cards this player can play right now"""
         playable = list()
-        last = self.game.last_card
         c_card = self.game.control_card
         cards = self.cards
 
@@ -101,7 +99,7 @@ class Player(object):
         is_playable = True
         # if there's a control card, then if he should play that
         if c_card is not None:
-            # if they do not have the same suit, they cannot be playable
+            # if they do not have the same suit, it cannot be playable
             if card.suit is not c_card.suit:
                 is_playable = False
 

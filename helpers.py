@@ -104,7 +104,6 @@ def stats(update, context):
             f"\n`{ufinished:<3}`    {'Non terminées'+ufinished_pct}"
             f"\n`{u.wins_kora:<3}`    {'Kora donnés'}"
             f"\n`{u.losses_kora:<3}`    {'Kora reçus'}"
-            f"\n`{u.quit:<3}`    {'Fois banquées'}"
             f"\n\n`{u.points:<3}`    {'Points'}"
         )
 
