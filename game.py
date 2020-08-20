@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 from config import ADMIN_LIST, OPEN_LOBBY, MAX_PLAYERS, WAITING_TIME
 from deck import Deck
-import card as c
 
 
 class Game(object):
@@ -17,6 +16,8 @@ class Game(object):
     play_round = 0  # game has 5 rounds: each player plays 5 times
     game_round = 1
     game_info = list()
+    nkap = False
+    bet = 0
     owner = ADMIN_LIST
     waiting_time = WAITING_TIME
     max_players = MAX_PLAYERS
@@ -47,6 +48,7 @@ class Game(object):
 
     def turn(self):
         """ Change a turn and change the player """
+        # pyright: reportGeneralTypeIssues=false
         self.current_player = self.current_player.next
         self.current_player.turn_started = datetime.now()
         self.play_round += 1
