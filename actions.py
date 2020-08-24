@@ -136,7 +136,7 @@ def do_play_card(bot, player, result_id):
             if game.game_info[3]['control_card'].value == '3' and game.game_info[3]['control_player'].user.id == game.control_player.user.id:
                 if game.nkap:
                     send_animation_async(
-                        bot, chat.id, animation=win_Anim(), caption=f"Eyeehh! {mention(game.control_player.user)} la facture des 33 là c'est (game.bet * (len(game.players)-1))*4 Ň!")
+                        bot, chat.id, animation=win_Anim(), caption=f"Eyeehh! {mention(game.control_player.user)} la facture des 33 là c'est {(game.bet * (len(game.players)-1))*4} Ň!")
                 else:
                     send_animation_async(
                         bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"{mention(game.control_player.user)} ça fait comme si ils ont bu ta 33 que tu avais posé là!")
