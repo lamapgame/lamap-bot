@@ -26,4 +26,4 @@ class UserDB(db.Entity):
     wins_kora = Optional(int, default=0)
     wins_dbl_kora = Optional(int, default=0)
     wl_streak = Optional(int, default=0)
-    nkap = Optional(int, default=20000)
+    nkap = Optional(int, default=30000)
