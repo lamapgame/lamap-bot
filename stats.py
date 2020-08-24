@@ -134,7 +134,28 @@ def reset_all_stats(id):
     if not u:
         UserDB(id=id)
     else:
-        u.delete()
+        u.points = 0
+        u.games_started = 0
+        u.games_played = 0
+        u.kicked = 0
+        u.quit = 0
+        u.losses = 0
+        u.losses_333 = 0
+        u.losses_777 = 0
+        u.losses_21 = 0
+        u.losses_kora = 0
+        u.losses_fam = 0
+        u.losses_dbl_kora = 0
+        u.last_game_win = 0
+        u.wins = 0
+        u.wins_333 = 0
+        u.wins_777 = 0
+        u.wins_21 = 0
+        u.wins_fam = 0
+        u.wins_kora = 0
+        u.wins_dbl_kora = 0
+        u.wl_streak = 0
+        u.nkap = 100
 
 
 @db_session
