@@ -612,7 +612,8 @@ def reset_stats(update, context):
 
     if update.message.chat.type == 'private':
         stats.reset_all_stats(user.id)
-        send_async(bot, chat.id, text="C'est bon, j'ai oublié ton passé.")
+        send_async(
+            bot, chat.id, text="C'est bon, j'ai tout oublié ton passé, sauf l'argent que tu avais 😎")
         return
 
     else:

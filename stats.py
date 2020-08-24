@@ -155,7 +155,6 @@ def reset_all_stats(id):
         u.wins_kora = 0
         u.wins_dbl_kora = 0
         u.wl_streak = 0
-        u.nkap = 100
 
 
 @db_session
