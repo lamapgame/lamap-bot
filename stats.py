@@ -72,12 +72,12 @@ def user_won(id, style, nkap, bet):
         if style is "kora":
             if nkap:
                 u.nkap += bet
-            u.points += 2
+            u.points += 10
             u.wins_kora += 1
         elif style is "dbl_kora":
             if nkap:
                 u.nkap += bet*3
-            u.points += 4
+            u.points += 20
             u.wins_dbl_kora += 1
         elif style is "333":
             u.points += 1
@@ -106,16 +106,16 @@ def user_lost(id, style, nkap, bet):
         u.wl_streak -= 1
         if nkap:
             u.nkap -= bet
-            u.points -= 1
+            u.points -= 20
         if style is "kora":
             if nkap:
                 u.nkap -= bet
-            u.points -= 1
+            u.points -= 20
             u.losses_kora += 1
         elif style is "dbl_kora":
             if nkap:
                 u.nkap -= bet*3
-            u.points -= 2
+            u.points -= 10
             u.losses_dbl_kora += 1
         elif style is "333":
             u.losses_333 += 1
