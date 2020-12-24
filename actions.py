@@ -8,6 +8,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMa
 from global_variables import gm
 from utils import send_async, send_animation_async, mention, n_format
 from gifs import win_Anim, win_kora_Anim, win_qw_Anim
+from helpers import dm_information
 
 import stats
 
@@ -60,49 +61,66 @@ def do_play_card(bot, player, result_id):
     if card in c.SPECIALS:
         if card == 'x_21':
             send_animation_async(
-                bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game! {mention(user)} gagne avec le Tia (21)!")
-            stats.user_won(user.id, '21', game.nkap, game.bet)
+                bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game! {mention(user)} gagne avec le Tia (21) !")
+            pts_won = stats.user_won(user.id, '21', game.nkap, game.bet)
+            dm_information(chat, user.id, bot, "W",
+                           pts_won, game.bet, game.bet)
             loosers = [
                 lost.user.id for lost in game.players if lost.user.id != user.id
             ]
             for looser in loosers:
-                stats.user_lost(looser, '21', game.nkap, game.bet)
+                pts_loss = stats.user_lost(looser, '21', game.nkap, game.bet)
+                dm_information(chat, looser, bot, "L",
+                               pts_loss, game.bet, game.bet)
 
             logger.debug(
                 f"WIN GAME *X21* ({game.control_player.user.id}) in {chat.id}")
         if card == 'x_333':
             send_animation_async(
-                bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game! {mention(user)} gagne avec les trois 3!")
-            stats.user_won(user.id, '333', game.nkap, game.bet)
+                bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game! {mention(user)} gagne avec les trois 3 !")
+            pts_won = stats.user_won(user.id, '333', game.nkap, game.bet)
+            dm_information(chat, user.id, bot, "W",
+                           pts_won, game.bet, game.bet)
             loosers = [
                 lost.user.id for lost in game.players if lost.user.id != user.id
             ]
             for looser in loosers:
-                stats.user_lost(looser, '333', game.nkap, game.bet)
-
+                pts_loss = stats.user_lost(
+                    looser, '333', game.nkap, game.bet)
+                dm_information(chat, looser, bot, "L",
+                               pts_loss, game.bet, game.bet)
             logger.debug(
                 f"WIN GAME *X333* ({user.id}) in {chat.id}")
+
         if card == 'x_777':
             send_animation_async(
-                bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game! {mention(user)} gagne avec les trois 7!")
-            stats.user_won(user.id, '777', game.nkap, game.bet)
+                bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game! {mention(user)} gagne avec les trois 7 !")
+            pts_won = stats.user_won(user.id, '777', game.nkap, game.bet)
+            dm_information(chat, user.id, bot, "W",
+                           pts_won, game.bet, game.bet)
             loosers = [
                 lost.user.id for lost in game.players if lost.user.id != user.id
             ]
             for looser in loosers:
-                stats.user_lost(looser, '777', game.nkap, game.bet)
+                pts_loss = stats.user_lost(looser, '777', game.nkap, game.bet)
+                dm_information(chat, looser, bot, "L",
+                               pts_loss, game.bet, game.bet)
 
             logger.debug(
                 f"WIN GAME *X777* ({user.id}) in {chat.id}")
         if card == 'x_0':
             send_animation_async(
-                bot, chat.id, animation=win_qw_Anim(), caption=f"Qui a partagé les cartes ci? Fin du game! {mention(user)} gagne avec la famille!")
-            stats.user_won(user.id, 'fam', game.nkap, game.bet)
+                bot, chat.id, animation=win_qw_Anim(), caption=f"Qui a partagé les cartes ci? Fin du game! {mention(user)} gagne avec la famille !")
+            pts_won = stats.user_won(user.id, 'fam', game.nkap, game.bet)
+            dm_information(chat, user.id, bot, "W",
+                           pts_won, game.bet, game.bet)
             loosers = [
                 lost.user.id for lost in game.players if lost.user.id != user.id
             ]
             for looser in loosers:
-                stats.user_lost(looser, 'fam', game.nkap, game.bet)
+                pts_loss = stats.user_lost(looser, 'fam', game.nkap, game.bet)
+                dm_information(chat, looser, bot, "L",
+                               pts_loss, game.bet, game.bet)
 
             logger.debug(
                 f"WIN GAME *FAM* ({user.id}) in {chat.id}")
@@ -136,34 +154,44 @@ def do_play_card(bot, player, result_id):
             if game.game_info[3]['control_card'].value == '3' and game.game_info[3]['control_player'].user.id == game.control_player.user.id:
                 if game.nkap:
                     send_animation_async(
-                        bot, chat.id, animation=win_Anim(), caption=f"Eyeehh! {mention(game.control_player.user)} la facture des 33 là c'est {n_format((game.bet * (len(game.players)-1))*4)}!")
+                        bot, chat.id, animation=win_Anim(), caption=f"Eyeehh! {mention(game.control_player.user)} la facture des 33 là c'est {n_format((game.bet * (len(game.players)-1))*4)} !")
                 else:
                     send_animation_async(
-                        bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"{mention(game.control_player.user)} ça fait comme si ils ont bu ta 33 que tu avais posé là!")
-                stats.user_won(game.control_player.user.id,
-                               'dbl_kora', game.nkap, game.bet * (len(game.players)-1))
+                        bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"{mention(game.control_player.user)} ça fait comme si ils ont bu ta 33 que tu avais posé là !")
+                pts_won = stats.user_won(game.control_player.user.id,
+                                         'dbl_kora', game.nkap, game.bet * (len(game.players)-1))
+                dm_information(chat, game.control_player.user.id, bot, "W",
+                               pts_won, game.bet, game.bet * (len(game.players)-1))
                 loosers = [
                     lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
                 ]
                 for looser in loosers:
-                    stats.user_lost(looser, 'dbl_kora', game.nkap, game.bet)
+                    pts_loss = stats.user_lost(
+                        looser, 'dbl_kora', game.nkap, game.bet)
+                    dm_information(chat, looser, bot, "L",
+                                   pts_loss, game.bet, game.bet)
 
                 logger.debug(
                     f"WIN GAME *DOUBLE-KORA* ({game.control_player.user.id}) in {chat.id}")
             else:
                 if game.nkap:
                     send_animation_async(
-                        bot, chat.id, animation=win_Anim(), caption=f"KORA! {mention(game.control_player.user)} porte {n_format((game.bet * (len(game.players)-1))*2)}!")
+                        bot, chat.id, animation=win_Anim(), caption=f"KORA! {mention(game.control_player.user)} porte {n_format((game.bet * (len(game.players)-1))*2)} !")
                 else:
                     send_animation_async(
-                        bot, chat.id, animation=win_kora_Anim(), caption=f"Fin de partie! c'est par KORA que {mention(game.control_player.user)} gagne!")
-                stats.user_won(game.control_player.user.id,
-                               'kora', game.nkap, game.bet * (len(game.players)-1))
+                        bot, chat.id, animation=win_kora_Anim(), caption=f"Fin de partie! c'est par KORA que {mention(game.control_player.user)} gagne !")
+                    pts_won = stats.user_won(game.control_player.user.id,
+                                             'kora', game.nkap, game.bet * (len(game.players)-1))
+                    dm_information(chat, game.control_player.user.id, bot, "W",
+                                   pts_won, game.bet, game.bet * (len(game.players)-1))
                 loosers = [
                     lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
                 ]
                 for looser in loosers:
-                    stats.user_lost(looser, 'kora', game.nkap, game.bet)
+                    pts_loss = stats.user_lost(
+                        looser, 'kora', game.nkap, game.bet)
+                    dm_information(chat, looser, bot, "L",
+                                   pts_loss, game.bet, game.bet)
 
                 logger.debug(
                     f"WIN GAME *KORA* ({game.control_player.user.id}) in {chat.id}")
@@ -172,18 +200,23 @@ def do_play_card(bot, player, result_id):
         else:
             if game.nkap:
                 send_animation_async(
-                    bot, chat.id, animation=win_Anim(), caption=f"Voilà {mention(game.control_player.user)} qui part avec {n_format(game.bet * (len(game.players)-1))}!", reply_markup=restart_markup)
+                    bot, chat.id, animation=win_Anim(), caption=f"Voilà {mention(game.control_player.user)} qui part avec {n_format(game.bet * (len(game.players)-1))} !", reply_markup=restart_markup)
             else:
                 send_animation_async(
-                    bot, chat.id, animation=win_Anim(), caption=f"Fin de partie! {mention(game.control_player.user)} a gagné!", reply_markup=restart_markup)
+                    bot, chat.id, animation=win_Anim(), caption=f"Fin de partie! {mention(game.control_player.user)} a gagné !", reply_markup=restart_markup)
 
-            stats.user_won(game.control_player.user.id,
-                           'n', game.nkap, game.bet*(len(game.players)-1))
+            pts_won = stats.user_won(
+                game.control_player.user.id, 'n', game.nkap, game.bet*(len(game.players)-1))
+            dm_information(chat, game.control_player.user.id, bot, "W", pts_won, game.bet,
+                           game.bet*(len(game.players)-1))
+
             loosers = [
                 lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
             ]
             for looser in loosers:
-                stats.user_lost(looser, 'n', game.nkap, game.bet)
+                pts_loss = stats.user_lost(looser, 'n', game.nkap, game.bet)
+                dm_information(chat, looser, bot, "L",
+                               pts_loss, game.bet, game.bet)
 
             logger.debug(
                 f"WIN GAME ({game.control_player.user.id}) in {chat.id}")

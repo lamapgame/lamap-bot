@@ -104,7 +104,7 @@ def n_format(num):
     while abs(num) >= 1000:
         magnitude += 1
         num /= 1000.0
-    return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', ' Kolo', ' Bâtons', ' Panos', ' Ngomna'][magnitude])
+    return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', ' kolos', ' bâtons', ' myondos', ' mitoumba'][magnitude])
 
 
 @MWT(timeout=60*60)

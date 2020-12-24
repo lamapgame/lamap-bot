@@ -425,7 +425,7 @@ def quit_game(update, context):
         gm.end_game(chat, user)
         if game.control_player is None:
             send_async(
-                bot, chat.id, text=f"Comment vous partez tous?! Fin de partie!")
+                bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
         else:
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
@@ -446,7 +446,7 @@ def quit_game(update, context):
             except NotEnoughPlayersError:
                 if game.control_player is None:
                     send_async(
-                        bot, chat.id, text=f"Comment vous partez tous?! Fin de partie!")
+                        bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
                 else:
                     send_animation_async(
                         bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
@@ -464,7 +464,7 @@ def quit_game(update, context):
             except NotEnoughPlayersError:
                 if game.control_player is None:
                     send_async(
-                        bot, chat.id, text=f"Comment vous partez tous?! Fin de partie!")
+                        bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
                 else:
                     send_animation_async(
                         bot, chat.id, animation=win_forfeit_Anim(), caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
@@ -495,7 +495,7 @@ def kill_game(update, context):
 
         try:
             gm.end_game(chat, user)
-            send_async(bot, chat.id, text="J'ai tué le way!")
+            send_async(bot, chat.id, text="J'ai tué le way !")
             logger.debug("KILLED GAME in chat " +
                          str(chat.id) + "by user" + str(user.id))
 
@@ -555,14 +555,14 @@ def kick_player(update, context):
             except NotEnoughPlayersError:
                 gm.end_game(chat, user)
                 send_async(bot, chat.id,
-                           text=f"Ce n'est pas la salle d'attente ici! {mention(user)} a chassé {mention(kicked)}!")
+                           text=f"Ce n'est pas la salle d'attente ici! {mention(user)} a chassé {mention(kicked)} !")
                 stats.user_kicked(kicked.id)
                 send_async(
-                    bot, chat.id, text=f"Plus assez de joueurs, Fin de partie!")
+                    bot, chat.id, text=f"Plus assez de joueurs, Fin de partie !")
                 return
 
             send_async(
-                bot, chat.id, text=f"C'est pas la salle d'attente ici, {mention(user)} a chassé {mention(kicked)}!")
+                bot, chat.id, text=f"C'est pas la salle d'attente ici, {mention(user)} a chassé {mention(kicked)} !")
 
         else:
             send_async(bot, chat.id,

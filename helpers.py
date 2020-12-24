@@ -107,8 +107,31 @@ def stats(update, context):
             f"\n\n`{n_format(u.points):<3}`    {'Points'}"
         )
 
-        context.bot.send_message(update.message.chat_id, text=stats_txt,
-                                 parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        context.bot.send_message(
+            update.message.chat_id, text=stats_txt, disable_web_page_preview=True)
+
+
+def dm_information(chat, user, bot, result, points, bet, gains_losses, achievements=None):
+    ''' DM player about his results '''
+    title = chat.title
+    text = ""
+    if result == "L":
+        text = (
+            f"{title}: PERDU"
+            f"\n\nMise: `{n_format(bet)}`"
+            f"\nPertes: `{n_format(gains_losses)}`"
+            f"\nPoints: `-{points}`"
+        )
+    if result == "W":
+        text = (
+            f"{title}: GAGNÉ"
+            f"\n\nMise: `+ {n_format(bet)}`"
+            f"\nGains: `+ {n_format(gains_losses)}`"
+            f"\nPoints: `+ {points}`"
+        )
+
+    bot.send_message(user,
+                     text=text, disable_web_page_preview=True)
 
 
 @db_session
@@ -124,9 +147,23 @@ def top_players(update, context):
                              parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
+@db_session
+def top_rich_players(update, context):
+    top_10_rich = list(UserDB.select().order_by(
+        lambda u: desc(u.nkap))[:10])
+    top_txt = []
+    for idx, user in enumerate(top_10_rich, start=1):
+        string = f"`{idx}–` *{user.name}* - {n_format(user.nkap)}\n"
+        top_txt.append(string)
+
+    context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
+                             parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+
+
 def register():
     dispatcher.add_handler(CommandHandler('apprendre', apprendre))
     dispatcher.add_handler(CommandHandler('tchoko', tchoko))
     dispatcher.add_handler(CommandHandler('top10', top_players))
+    dispatcher.add_handler(CommandHandler('top10nkap', top_rich_players))
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('stats', stats))
