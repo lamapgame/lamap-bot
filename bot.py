@@ -50,7 +50,6 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# pyright: reportInvalidStringEscapeSequence=false
 
 
 def call_me_back(update, context):
@@ -281,7 +280,7 @@ def start_lamap(update, context):
                 game.first_player = random.choice(game.players)
                 game.current_player = game.first_player
 
-                @run_async
+
                 def send_first():
                     ''' Send the first card and player '''
                     bot.send_message(chat.id, text=f"La partie vient d'être lancée, {mention(game.first_player.user)}, Tu joues la première carte", reply_markup=InlineKeyboardMarkup(

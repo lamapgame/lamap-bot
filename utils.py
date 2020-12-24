@@ -16,40 +16,42 @@ def error(bot, update, error):
     logger.exception(error)
 
 
-@run_async
 def send_async(bot, *args, **kwargs):
     """Send a message asynchronously"""
+    remove = False
     if 'timeout' not in kwargs:
         kwargs['timeout'] = TIMEOUT
+    if 'to_delete' in kwargs:
+        remove = True
+        del kwargs['to_delete']
     try:
-        msg_sent = bot.sendMessage(
-            *args, **kwargs, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-        if 'to_delete' in kwargs:
+        msg_sent = bot.send_message(
+            *args, **kwargs, disable_web_page_preview=True)
+        if remove:
             gm.start_gm_msgs[args[0]].append(msg_sent.message_id)
     except Exception as e:
         error(None, None, e)
 
 
-def send_msg(bot, *args, **kwargs):
-    """ Send direct message """
-
-
-@run_async
 def send_animation_async(bot, *args, **kwargs):
     """Send an animation asynchronously"""
+    remove = False
     if 'timeout' not in kwargs:
         kwargs['timeout'] = TIMEOUT
+    if 'to_delete' in kwargs:
+        remove = True
+        del kwargs['to_delete']
     try:
         msg_sent = bot.send_animation(
-            *args, **kwargs, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-        gm
-        if 'to_delete' in kwargs:
+            *args, **kwargs, parse_mode=ParseMode.MARKDOWN)
+
+        if remove:
             gm.start_gm_msgs[args[0]].append(msg_sent.message_id)
+
     except Exception as e:
         error(None, None, e)
 
 
-@run_async
 def delete_async(bot, *args, **kwargs):
     """ Delete message from group """
     if 'timeout' not in kwargs:
@@ -66,7 +68,6 @@ def delete_start_msgs(bot, chat_id, **kwargs):
         delete_async(bot, chat_id, message_id=msg)
 
 
-@run_async
 def answer_async(bot, *args, **kwargs):
     ''' Answer an inline query asynchronously '''
     if 'timeout' not in kwargs:
