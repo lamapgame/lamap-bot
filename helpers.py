@@ -5,7 +5,7 @@ from pony.orm import db_session, desc
 from user_db import UserDB
 
 from global_variables import dispatcher
-from utils import mention
+from utils import mention, n_format
 
 
 def help_handler(update, context):
@@ -97,14 +97,14 @@ def stats(update, context):
             ufinished_pct = " (0%)"
 
         stats_txt = (
-            f"`{str(u.nkap)+' Ň':<3}`    {mention(user)}"
-            f"\n\n`{u.games_played:<3}`    {'Parties jouées'}"
-            f"\n`{u.wins:<3}`    {'Parties gagnées'+w_pct}"
-            f"\n`{u.losses:<3}`    {'Parties perdues'+l_pct}"
-            f"\n`{ufinished:<3}`    {'Non terminées'+ufinished_pct}"
-            f"\n`{u.wins_kora:<3}`    {'Kora donnés'}"
-            f"\n`{u.losses_kora:<3}`    {'Kora reçus'}"
-            f"\n\n`{u.points:<3}`    {'Points'}"
+            f"`{n_format(u.nkap):<3}`    {mention(user)}"
+            f"\n\n`{n_format(u.games_played):<3}`    {'Parties jouées'}"
+            f"\n`{n_format(u.wins):<3}`    {'Parties gagnées'+w_pct}"
+            f"\n`{n_format(u.losses):<3}`    {'Parties perdues'+l_pct}"
+            f"\n`{n_format(ufinished):<3}`    {'Non terminées'+ufinished_pct}"
+            f"\n`{n_format(u.wins_kora):<3}`    {'Kora donnés'}"
+            f"\n`{n_format(u.losses_kora):<3}`    {'Kora reçus'}"
+            f"\n\n`{n_format(u.points):<3}`    {'Points'}"
         )
 
         context.bot.send_message(update.message.chat_id, text=stats_txt,

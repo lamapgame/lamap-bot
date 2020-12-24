@@ -6,7 +6,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMa
 
 
 from global_variables import gm
-from utils import send_async, send_animation_async, mention
+from utils import send_async, send_animation_async, mention, n_format
 from gifs import win_Anim, win_kora_Anim, win_qw_Anim
 
 import stats
@@ -136,7 +136,7 @@ def do_play_card(bot, player, result_id):
             if game.game_info[3]['control_card'].value == '3' and game.game_info[3]['control_player'].user.id == game.control_player.user.id:
                 if game.nkap:
                     send_animation_async(
-                        bot, chat.id, animation=win_Anim(), caption=f"Eyeehh! {mention(game.control_player.user)} la facture des 33 là c'est {(game.bet * (len(game.players)-1))*4} Ň!")
+                        bot, chat.id, animation=win_Anim(), caption=f"Eyeehh! {mention(game.control_player.user)} la facture des 33 là c'est {n_format((game.bet * (len(game.players)-1))*4)}!")
                 else:
                     send_animation_async(
                         bot, chat.id, animation="https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", caption=f"{mention(game.control_player.user)} ça fait comme si ils ont bu ta 33 que tu avais posé là!")
@@ -153,7 +153,7 @@ def do_play_card(bot, player, result_id):
             else:
                 if game.nkap:
                     send_animation_async(
-                        bot, chat.id, animation=win_Anim(), caption=f"KORA! {mention(game.control_player.user)} porte {(game.bet * (len(game.players)-1))*2} Ň!")
+                        bot, chat.id, animation=win_Anim(), caption=f"KORA! {mention(game.control_player.user)} porte {n_format((game.bet * (len(game.players)-1))*2)}!")
                 else:
                     send_animation_async(
                         bot, chat.id, animation=win_kora_Anim(), caption=f"Fin de partie! c'est par KORA que {mention(game.control_player.user)} gagne!")
@@ -172,7 +172,7 @@ def do_play_card(bot, player, result_id):
         else:
             if game.nkap:
                 send_animation_async(
-                    bot, chat.id, animation=win_Anim(), caption=f"Voilà {mention(game.control_player.user)} qui part avec {game.bet * (len(game.players)-1)} Ň!", reply_markup=restart_markup)
+                    bot, chat.id, animation=win_Anim(), caption=f"Voilà {mention(game.control_player.user)} qui part avec {n_format(game.bet * (len(game.players)-1))}!", reply_markup=restart_markup)
             else:
                 send_animation_async(
                     bot, chat.id, animation=win_Anim(), caption=f"Fin de partie! {mention(game.control_player.user)} a gagné!", reply_markup=restart_markup)

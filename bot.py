@@ -22,10 +22,10 @@ import random
 
 # telegram api
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode
-from telegram.ext import (CallbackQueryHandler, ChosenInlineResultHandler,
-                          CommandHandler, InlineQueryHandler,
-                          )
-from telegram.ext.dispatcher import run_async
+from telegram.ext import (
+    CallbackQueryHandler, ChosenInlineResultHandler,
+    CommandHandler, InlineQueryHandler,
+)
 
 # bot modules
 import helpers
@@ -43,13 +43,12 @@ from results import (add_card, add_no_game, add_not_started, add_special_card,
 from start_bot import start_bot
 from utils import (TIMEOUT, answer_async, delete_start_msgs,
                    mention, send_animation_async, send_async, user_is_creator,
-                   user_is_creator_or_admin)
+                   user_is_creator_or_admin, n_format)
 from gifs import start_Anim, win_forfeit_Anim
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
 
 
 def call_me_back(update, context):
@@ -128,7 +127,7 @@ def new_nkap_game(update, context):
         if chat_id in gm.remind_dict:
             for user in gm.remind_dict[chat_id]:
                 send_async(
-                    bot, user, text=f"Va jouer dans le groupe [{title}]({update.message.link}). La mise c'est {current_bet} Ň")
+                    bot, user, text=f"Va jouer dans le groupe [{title}]({update.message.link}). La mise c'est {n_format(current_bet)}")
             del gm.remind_dict[chat_id]
 
         try:
@@ -145,7 +144,7 @@ def new_nkap_game(update, context):
 
             # Reply to inform the start of game
             send_animation_async(
-                context.bot, chat_id, animation=start_Anim(), caption=f"{mention(game.starter)} dépose *{current_bet} Ň*! Vient ramasser ton Nkap.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
+                context.bot, chat_id, animation=start_Anim(), caption=f"{mention(game.starter)} dépose *{n_format(current_bet)}*! Vient ramasser ton Nkap.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
 
             stats.user_started(update.message.from_user.id)
 
@@ -265,7 +264,6 @@ def start_lamap(update, context):
             elif len(game.players) < MIN_PLAYERS:
                 send_async(
                     bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer.', to_delete=True)
-                gm.end_game(chat, user)
 
             else:
                 game.start()
@@ -279,7 +277,6 @@ def start_lamap(update, context):
 
                 game.first_player = random.choice(game.players)
                 game.current_player = game.first_player
-
 
                 def send_first():
                     ''' Send the first card and player '''

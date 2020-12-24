@@ -1,7 +1,6 @@
 import logging
 
 from telegram import ParseMode
-from telegram.ext.dispatcher import run_async
 
 from global_variables import gm
 from mwt import MWT
@@ -97,6 +96,15 @@ def user_is_creator_or_admin(user, game, bot, chat):
 
 def mention(user):
     return f'[{user.first_name}](tg://user?id={user.id})'
+
+
+def n_format(num):
+    num = float('{:.3g}'.format(num))
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', ' Kolo', ' Bâtons', ' Panos', ' Ngomna'][magnitude])
 
 
 @MWT(timeout=60*60)
