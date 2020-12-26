@@ -633,8 +633,8 @@ def cbhandler(update, context):
         if user_is_creator_or_admin(user, game, bot, chat):
             start_lamap(update, context)
     elif query.data == 'notify':
-
-        pin_game_message(context.bot, chat.id)
+        if user_is_creator_or_admin(user, game, bot, chat):
+            pin_game_message(context.bot, chat.id)
     elif query.data == 'kill_game':
         if user_is_creator_or_admin(user, game, bot, chat):
             kill_game(update, context)
