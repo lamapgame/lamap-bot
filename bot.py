@@ -41,7 +41,7 @@ from global_variables import dispatcher, gm, updater
 from results import (add_card, add_no_game, add_not_started, add_special_card,
                      check_quick_win, get_game_status)
 from start_bot import start_bot
-from utils import (TIMEOUT, answer_async, delete_start_msgs,
+from utils import (TIMEOUT, answer_async, delete_start_msgs, pin_game_message,
                    mention, send_animation_async, send_async, user_is_creator,
                    user_is_creator_or_admin, n_format)
 from gifs import start_Anim, win_forfeit_Anim
@@ -140,11 +140,12 @@ def new_nkap_game(update, context):
 
             join_btn = [[InlineKeyboardButton(
                 "🖐🏽 - Rejoindre", callback_data="join_game"), InlineKeyboardButton(
-                "Lancer - 🚀", callback_data="start_game")]]
+                    "Notifier - 🔔", callback_data="notify")], [InlineKeyboardButton(
+                        "Lancer - 🚀", callback_data="start_game")]]
 
             # Reply to inform the start of game
             send_animation_async(
-                context.bot, chat_id, animation=start_Anim(), caption=f"{mention(game.starter)} dépose *{n_format(current_bet)}*! Vient ramasser ton Nkap.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
+                context.bot, chat_id, animation=start_Anim(), caption=f"{mention(game.starter)} dépose *{n_format(current_bet)}* ! Vient ramasser ton Nkap.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
 
             stats.user_started(update.message.from_user.id)
 
@@ -631,6 +632,12 @@ def cbhandler(update, context):
     elif query.data == 'start_game':
         if user_is_creator_or_admin(user, game, bot, chat):
             start_lamap(update, context)
+    elif query.data == 'notify':
+
+        pin_game_message(context.bot, chat.id)
+    elif query.data == 'kill_game':
+        if user_is_creator_or_admin(user, game, bot, chat):
+            kill_game(update, context)
 
     query.answer()
 

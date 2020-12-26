@@ -125,13 +125,12 @@ def dm_information(chat, user, bot, result, points, bet, gains_losses, achieveme
     if result == "W":
         text = (
             f"{title}: GAGNÉ"
-            f"\n\nMise: `+ {n_format(bet)}`"
-            f"\nGains: `+ {n_format(gains_losses)}`"
-            f"\nPoints: `+ {points}`"
+            f"\n\nMise: `{n_format(bet)}`"
+            f"\nGains: `+{n_format(gains_losses)}`"
+            f"\nPoints: `+{points}`"
         )
 
-    bot.send_message(user,
-                     text=text, disable_web_page_preview=True)
+    bot.send_message(user, text=text, disable_web_page_preview=True)
 
 
 @db_session
@@ -143,8 +142,8 @@ def top_players(update, context):
         string = f"`{idx}–` *{user.name}* - {user.points} Points\n"
         top_txt.append(string)
 
-    context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
-                             parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    context.bot.send_message(update.message.chat_id, text=''.join(
+        top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
 @db_session
