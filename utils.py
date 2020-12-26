@@ -78,6 +78,11 @@ def answer_async(bot, *args, **kwargs):
         error(None, None, e)
 
 
+def pin_game_message(bot, *args):
+    game_start_msg_id = gm.start_gm_msgs[args[0]]
+    bot.pin_chat_message(args[0], game_start_msg_id[0])
+
+
 def game_is_running(game):
     return game in gm.chatid_games.get(game.chat.id, list())
 

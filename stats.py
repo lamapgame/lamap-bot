@@ -167,3 +167,11 @@ def get_nkap(id):
     if not u:
         UserDB(id=id)
     return u.nkap
+
+
+@db_session
+def get_points(id):
+    u = UserDB.get(id=id)
+    if not u:
+        UserDB(id=id)
+    return u.points
