@@ -12,7 +12,7 @@ def help_handler(update, context):
     """Handler for the /help command"""
 
     # pyright: reportInvalidStringEscapeSequence=false
-    help_text = "Cette commande ne peut être lancé que dans un groupe.\nAjoutez ce bot a votre groupe, rendez le administrateur, lancez une nouvelle partie avec /new\_game et suivez les instructions.\n\nUtilisez /rules pour apprendre les règles\n\n\n- [Lamap Updates Channel](https://t.me/lamapupdates)\n- [Lamap Devs Group](https://t.me/lamapdevs)"
+    help_text = "Cette commande ne peut être lancé que dans un groupe.\nAjoutez ce bot a votre groupe, rendez le administrateur, lancez une nouvelle partie avec /nkap et suivez les instructions.\n\nUtilisez /rules pour apprendre les règles\n\n\n- [Lamap Updates Channel](https://t.me/lamapupdates)\n- [Lamap Devs Group](https://t.me/lamapdevs)"
 
     context.bot.send_message(update.message.chat_id, text=help_text,
                              parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
@@ -21,7 +21,7 @@ def help_handler(update, context):
 def start(update, context):
     """ Handler for /start command """
     start_txt = (
-        "Ao !? \n\n1.Tchouk moi dans un groupe\n2. Mets moi ADMIN\n3. Lance /new\_game et on se met bien."
+        "Ao !? \n\n1.Tchouk moi dans un groupe\n2. Mets moi ADMIN\n3. Lance /nkap et on se met bien."
     )
     context.bot.send_message(update.message.chat_id, text=start_txt,
                              parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
@@ -111,7 +111,7 @@ def stats(update, context):
             update.message.chat_id, text=stats_txt, disable_web_page_preview=True)
 
 
-def dm_information(chat, user, bot, result, points, bet, gains_losses, achievements=None):
+def dm_information(chat, user, bot, result, points, bet, gains_losses):
     ''' DM player about his results '''
     title = chat.title
     text = ""

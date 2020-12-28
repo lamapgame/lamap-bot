@@ -1,4 +1,4 @@
-from pony.orm import Optional, PrimaryKey
+from pony.orm import Optional, PrimaryKey, Set, Required
 from database import db
 
 
@@ -26,4 +26,12 @@ class UserDB(db.Entity):
     wins_kora = Optional(int, default=0)
     wins_dbl_kora = Optional(int, default=0)
     wl_streak = Optional(int, default=0)
-    nkap = Optional(int, default=30000)
+    nkap = Optional(int, default=300000)
+    achievements = Set('Achievement')
+
+
+class AchievementDB(db.Entity):
+    id = PrimaryKey(int, auto=True, size=64)
+    name = Required(int)
+    emoji = Required(str)
+    date = Required(str)

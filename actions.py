@@ -43,7 +43,7 @@ def do_play_card(bot, player, result_id):
         next_bet = 500
 
     restart_keyboard = [
-        ["/new_game", "/call_me_back"], [f"/nkap {next_bet}", f"/nkap {next_bet*2}", f"/nkap {next_bet*5}"]]
+        ["/stats", "/call_me_back"], [f"/nkap {next_bet}", f"/nkap {next_bet*2}", f"/nkap {next_bet*5}"]]
     restart_markup = ReplyKeyboardMarkup(
         restart_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True)
 
