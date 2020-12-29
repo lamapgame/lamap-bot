@@ -1,27 +1,9 @@
-# -*- coding: utf-8 -*-
-#
-# Telegram bot to play La Map in group chats
-# Copyright (c) 2020 Dylan Tientcheu <dylantientcheu@gmail.com>
-#
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details.
-#
-# You should have received a copy of the GNU Affero General Public License
-# along with this program. If not, see <http://www.gnu.org/licenses/>.
-
 # python modules
 import logging
 import random
 
 # telegram api
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from telegram.ext import (
     CallbackQueryHandler, ChosenInlineResultHandler,
     CommandHandler, InlineQueryHandler, ConversationHandler, CallbackContext, Filters, MessageHandler
@@ -45,6 +27,7 @@ from utils import (TIMEOUT, answer_async, delete_start_msgs, pin_game_message,
                    mention, send_animation_async, send_async, user_is_creator,
                    user_is_creator_or_admin, n_format)
 from gifs import start_Anim, win_forfeit_Anim
+from interactions import tu_joue_combien_txt, i_do_not_understand, just_launched
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
@@ -74,8 +57,9 @@ def initiate_nkap(update: Update, context: CallbackContext):
                        text=f'Calme toi! Nous jouons l\'argent ici.')
             return ConversationHandler.END
     if not context.args:
-        send_async(context.bot, chat_id,
-                   text=f'Tu veux jouer combien ?', reply_to_message_id=update.message.message_id, to_delete=True)
+
+        send_async(context.bot, chat_id, text=tu_joue_combien_txt(),
+                   reply_to_message_id=update.message.message_id)
         return 1
     else:
         new_nkap_game(update, context,
@@ -83,7 +67,8 @@ def initiate_nkap(update: Update, context: CallbackContext):
 
 
 def stop_nkap_game(update: Update, context: CallbackContext):
-    send_async(context.bot, update.message.chat_id, text=f'Mboutman.')
+    send_async(context.bot, update.message.chat_id,
+               text=f'Ok c\'est free, Mboutman.',  reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
 
@@ -101,8 +86,10 @@ def new_nkap_game(update, context, montant=None):
         else:
             current_bet = int(update.message.text.replace(" ", ""))
     except ValueError:
+        reply_keyboard = [['50000', '25000', '10000', '5000'], [
+            '2500', '1000', '500', '/ndem']]
         send_async(context.bot, chat_id,
-                   text=f"Pere, place moi un vrai montant. Je ne comprends pas l'autre là.", reply_to_message_id=update.message.message_id, to_delete=True)
+                   text=i_do_not_understand(), reply_to_message_id=update.message.message_id, reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
         return 1
 
     if update.message.chat.type == 'private':
@@ -129,7 +116,7 @@ def new_nkap_game(update, context, montant=None):
 
             # Reply to inform the start of game
             send_animation_async(
-                context.bot, chat_id, animation=start_Anim(), caption=f"{mention(game.starter)} dépose *{n_format(current_bet)}* ! Vient ramasser ton Nkap.", reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
+                context.bot, chat_id, animation=start_Anim(), caption=just_launched(mention(game.starter), n_format(current_bet)), reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
 
             stats.user_started(update.message.from_user.id)
 
@@ -650,9 +637,9 @@ def main():
         ConversationHandler(
             entry_points=[CommandHandler('nkap', initiate_nkap)],
             states={
-                1: [MessageHandler(Filters.text, new_nkap_game)]
+                1: [MessageHandler(Filters.text & ~Filters.command, new_nkap_game)]
             },
-            fallbacks=[CommandHandler('tuer', stop_nkap_game)]
+            fallbacks=[CommandHandler('ndem', stop_nkap_game)]
         )
     )
     # dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
