@@ -27,11 +27,12 @@ class UserDB(db.Entity):
     wins_dbl_kora = Optional(int, default=0)
     wl_streak = Optional(int, default=0)
     nkap = Optional(int, default=300000)
-    achievements = Set('Achievement')
+    achievements = Set(lambda: Achievements)
 
 
-class AchievementDB(db.Entity):
+class Achievements(db.Entity):
     id = PrimaryKey(int, auto=True, size=64)
-    name = Required(int)
+    user = Optional(UserDB)
+    name = Required(str)
     emoji = Required(str)
     date = Required(str)
