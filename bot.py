@@ -89,7 +89,7 @@ def new_nkap_game(update, context, montant=None):
         reply_keyboard = [['50000', '25000', '10000', '5000'], [
             '2500', '1000', '500', '/ndem']]
         send_async(context.bot, chat_id,
-                   text=i_do_not_understand(), reply_to_message_id=update.message.message_id, reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
+                   text=i_do_not_understand(), reply_to_message_id=update.message.message_id, reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True))
         return 1
 
     if update.message.chat.type == 'private':
@@ -254,12 +254,9 @@ def start_lamap(update, context):
                 game.first_player = random.choice(game.players)
                 game.current_player = game.first_player
 
-                def send_first():
-                    ''' Send the first card and player '''
-                    bot.send_message(chat.id, text=f"La partie vient d'être lancée, {mention(game.first_player.user)}, Tu joues la première carte", reply_markup=InlineKeyboardMarkup(
-                        choice), timeout=TIMEOUT, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-
-                send_first()
+                # Send the first card and player
+                bot.send_message(chat.id, text=f"La partie vient d'être lancée, {mention(game.first_player.user)}, Tu joues la première carte", reply_markup=InlineKeyboardMarkup(
+                    choice), timeout=TIMEOUT, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
         else:
             send_async(
@@ -280,9 +277,10 @@ def reply_to_query(update, context):
     try:
         user = update.inline_query.from_user
         user_id = user.id
-        players = gm.userid_players[user_id]
         player = gm.userid_current[user_id]
         game = player.game
+        players = game.players
+
     except KeyError:
         add_no_game(results)
     else:
@@ -322,7 +320,7 @@ def process_result(update, context):
         player = gm.userid_current[user.id]
         game = player.game
         result_id = update.chosen_inline_result.result_id
-        chat = game.chat
+
     except (KeyError, AttributeError, ValueError):
         # handle errors that occurs when players play wrong cards
         return
