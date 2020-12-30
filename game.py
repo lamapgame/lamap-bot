@@ -16,8 +16,10 @@ class Game(object):
     play_round = 0  # game has 5 rounds: each player plays 5 times
     game_round = 1
     game_info = list()
+    game_players = list()
     nkap = False
     bet = 0
+    winnings = 0  # what the user wins
     owner = ADMIN_LIST
     waiting_time = WAITING_TIME
     max_players = MAX_PLAYERS
@@ -35,21 +37,24 @@ class Game(object):
     @property
     def players(self):
         """returns a list of all players in game"""
-        players = list()
-        if not self.current_player:
-            return players
-        current_player = self.current_player
-        itplayer = current_player.next
-        players.append(current_player)
-        while itplayer and itplayer is not current_player:
-            players.append(itplayer)
-            itplayer = itplayer.next
-        return players
+        return self.game_players
+
+    @property
+    def current_player_index(self):
+        ref = list(filter(lambda n: n.id ==
+                          self.current_player.id, self.players))
+        index = self.players.index(ref[0])
+        return index
+
+    @property
+    def next_player(self):
+        next = self.players[(self.current_player_index + 1) %
+                            len(self.players)]
+        return next
 
     def turn(self):
         """ Change a turn and change the player """
-        # pyright: reportGeneralTypeIssues=false
-        self.current_player = self.current_player.next
+        self.current_player = self.next_player
         self.current_player.turn_started = datetime.now()
         self.play_round += 1
 

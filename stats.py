@@ -99,7 +99,7 @@ def user_won(id, style, nkap, bet):
 @db_session
 def user_lost(id, style, nkap, bet):
     """ User lost """
-    pts_loss = 10
+    pts_loss = 5
     u = UserDB.get(id=id)
     if not u:
         UserDB(id=id)
@@ -108,7 +108,7 @@ def user_lost(id, style, nkap, bet):
         u.wl_streak -= 1
         if nkap:
             u.nkap -= bet
-            pts_loss += 15
+            pts_loss += 5
         if style is "kora":
             if nkap:
                 u.nkap -= bet

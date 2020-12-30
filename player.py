@@ -17,20 +17,10 @@ class Player(object):
         self.cards = list()
         self.game = game
         self.user = user
-
+        self.id = user.id
+        self.controls = False
         self.logger = logging.getLogger(__name__)
         self.logger.setLevel(logging.DEBUG)
-
-        # Check if this player is the first player in this game.
-        if game.current_player:
-            self.next = game.current_player
-            self.prev = game.current_player.prev
-            game.current_player.prev.next = self
-            game.current_player.prev = self
-        else:
-            self._next = self
-            self._prev = self
-            game.current_player = self
 
         self.turn_started = datetime.now()
         self.waiting_time = WAITING_TIME
@@ -40,22 +30,6 @@ class Player(object):
 
     def __str__(self):
         return str(self.user)
-
-    @property
-    def next(self):
-        return self._next
-
-    @next.setter
-    def next(self, player):
-        self._next = player
-
-    @property
-    def prev(self):
-        return self._prev
-
-    @prev.setter
-    def prev(self, player):
-        self._prev = player
 
     def play(self, card):
         # if it's a special card do not try to remove it
@@ -69,6 +43,7 @@ class Player(object):
         """Draws a card from this deck"""
         game_deck = self.game.deck
         try:
+            # share the 5 randomized cards to players
             for _ in range(5):
                 self.cards.append(game_deck.cards.pop())
             game_deck.cards_dealt += 5
@@ -104,12 +79,3 @@ class Player(object):
                 is_playable = False
 
         return is_playable
-
-    def leave(self):
-        if self.next is self:
-            return
-
-        self.next.prev = self.prev
-        self.prev.next = self.next
-        self.next = None
-        self.prev = None
