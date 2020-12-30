@@ -1,5 +1,5 @@
 from pony.orm import db_session
-from user_db import UserDB, AchievementDB
+from user_db import UserDB, Achievement
 
 ACHIEVEMENT_DICT = {
     "HAVE_ZERO": {'name': "Nguémé", 'emoji': "🤲"},
