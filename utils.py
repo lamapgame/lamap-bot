@@ -10,6 +10,7 @@ from global_variables import gm
 from mwt import MWT
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 TIMEOUT = 2.5
 
@@ -185,7 +186,7 @@ def lost_game(bot, game, chat, style):
                                    pts_loss, game.bet, game.bet)
 
         logger.debug(
-            f"LOSER(S) {style} ({looser.user.id}) in {chat.id}")
+            f"LOSER(S) {style} ({looser.id}) in {chat.id}")
 
 
 @MWT(timeout=60*60)

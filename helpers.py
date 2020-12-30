@@ -111,8 +111,10 @@ def stats(update, context):
             update.message.chat_id, text=stats_txt, disable_web_page_preview=True)
 
 
+@db_session
 def dm_information(chat, user, bot, result, points, bet, gains_losses):
     ''' DM player about his results '''
+    u = UserDB.get(id=user)
     title = chat.title
     text = ""
     if result == "L":
@@ -121,6 +123,7 @@ def dm_information(chat, user, bot, result, points, bet, gains_losses):
             f"\n\nMise: `{n_format(bet)}`"
             f"\nPertes: `{n_format(gains_losses)}`"
             f"\nPoints: `-{points}`"
+            f"\n\nNKAP: `{u.nkap}`"
         )
     if result == "W":
         text = (
@@ -128,6 +131,7 @@ def dm_information(chat, user, bot, result, points, bet, gains_losses):
             f"\n\nMise: `{n_format(bet)}`"
             f"\nGains: `+{n_format(gains_losses)}`"
             f"\nPoints: `+{points}`"
+            f"\n\nNKAP: `{u.nkap}`"
         )
 
     bot.send_message(user, text=text, disable_web_page_preview=True)
