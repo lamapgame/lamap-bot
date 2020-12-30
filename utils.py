@@ -2,6 +2,10 @@ import logging
 
 from telegram import ParseMode
 
+import helpers
+from stats import user_won, user_lost
+from gifs import win_Anim, win_kora_Anim, win_qw_Anim
+
 from global_variables import gm
 from mwt import MWT
 
@@ -110,6 +114,78 @@ def n_format(num):
         magnitude += 1
         num /= 1000.0
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', ' kolos', ' bâtons', ' myondos', ' mitoumba'][magnitude])
+
+
+def win_game(bot, game, chat, style, w_extension=None):
+    winner = game.control_player.user
+    if w_extension is not None:
+        winner = w_extension
+
+    if style == "n":
+        send_animation_async(
+            bot, chat.id, animation=win_Anim(), caption=f"Voilà {mention(winner)} qui part avec {n_format(game.bet * (len(game.players)-1))} !"
+        )
+        pts_won = user_won(winner.id, style, game.nkap,
+                           game.bet*(len(game.players)-1))
+        helpers.dm_information(chat, winner.id, bot, "W", pts_won,
+                               game.bet, game.bet*(len(game.players)-1))
+
+    if style == "kora":
+        send_animation_async(
+            bot, chat.id, animation=win_kora_Anim(), caption=f"KORA! {mention(winner)} porte {n_format((game.bet * (len(game.players)-1))*2)} !")
+        pts_won = user_won(winner.id,
+                           style, game.nkap, game.bet * (len(game.players)-1))
+        helpers.dm_information(chat, winner.id, bot, "W",
+                               pts_won, game.bet, game.bet * (len(game.players)-1)*2)
+
+    if style == "dbl_kora":
+        send_animation_async(
+            bot, chat.id, animation=win_Anim(), caption=f"Eyeehh! {mention(winner)} la facture des 33 là c'est {n_format((game.bet * (len(game.players)-1))*4)} !")
+        pts_won = user_won(winner.id,
+                           style, game.nkap, game.bet * (len(game.players)-1))
+        helpers.dm_information(chat, winner.id, bot, "W",
+                               pts_won, game.bet, game.bet * (len(game.players)-1)*4)
+
+    if (style == "fam" or style == "777" or style == "333" or style == "21"):
+        send_animation_async(
+            bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game! {mention(w_extension)} gagne {n_format(game.bet * (len(game.players)-1))}  !")
+        pts_won = user_won(w_extension.id, style, game.nkap, game.bet)
+        helpers.dm_information(chat, w_extension.id, bot, "W",
+                               pts_won, game.bet, game.bet)
+
+    logger.debug(
+        f"WIN GAME in {style} ({winner.id}) in {chat.id}")
+
+
+def lost_game(bot, game, chat, style):
+    loosers = [
+        lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
+    ]
+    for looser in loosers:
+        if style == "n":
+            pts_loss = user_lost(looser, style, game.nkap, game.bet)
+            helpers.dm_information(chat, looser, bot, "L",
+                                   pts_loss, game.bet, game.bet)
+
+        if style == "kora":
+            pts_loss = user_lost(
+                looser, style, game.nkap, game.bet)
+            helpers.dm_information(chat, looser, bot, "L",
+                                   pts_loss, game.bet, game.bet*2)
+
+        if style == "dbl_kora":
+            pts_loss = user_lost(
+                looser, style, game.nkap, game.bet)
+            helpers.dm_information(chat, looser, bot, "L",
+                                   pts_loss, game.bet, game.bet*4)
+
+        if (style == "fam" or style == "777" or style == "333" or style == "21"):
+            pts_loss = user_lost(looser, style, game.nkap, game.bet)
+            helpers.dm_information(chat, looser, bot, "L",
+                                   pts_loss, game.bet, game.bet)
+
+        logger.debug(
+            f"LOSER(S) {style} ({looser.user.id}) in {chat.id}")
 
 
 @MWT(timeout=60*60)
