@@ -243,11 +243,12 @@ def start_lamap(update, context):
 
             else:
                 game.start()
-
                 delete_start_msgs(bot, chat.id)
+
                 for player in game.players:
                     stats.user_plays(player.user.id)
                     player.draw_hand()
+
                 choice = [[InlineKeyboardButton(
                     text=f"Tu dégages avec quoi?", switch_inline_query_current_chat='')]]
 
@@ -358,13 +359,13 @@ def quit_game(update, context):
     chat = update.message.chat
     user = update.message.from_user
     bot = context.bot
+    player = None
 
-    player = gm.player_for_user_in_chat(user, chat)
-
-    if player is None:
-        send_async(bot, chat.id, text=f"Tu te banque alors que ça n'a pas commencé?",
+    try:
+        player = gm.player_for_user_in_chat(user, chat)
+    except NoGameInChatError:
+        send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
                    reply_to_message_id=update.message.message_id)
-        return
 
     game = player.game
     user = update.message.from_user
@@ -377,6 +378,7 @@ def quit_game(update, context):
                 send_async(bot, chat.id, text=f"Molah, Tu pars où alors que tu as le contrôle ?",
                            reply_to_message_id=update.message.message_id)
                 return
+
         elif game.current_player.user.id == user.id:
             send_async(bot, chat.id, text=f"{mention(user)} a fui en voyant ses cartes.",
                        reply_to_message_id=update.message.message_id)
@@ -402,7 +404,7 @@ def quit_game(update, context):
                 bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
         else:
             send_animation_async(
-                bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
+                bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Je considère que {mention(game.control_player.user)} a gagné")
             logger.debug(
                 f"WIN GAME FOFEIT ({game.control_player.user.id}) in {chat.id}")
             stats.user_won(game.control_player.user.id,
@@ -628,8 +630,6 @@ def main():
     # Get the dispatcher to register handlers
     dispatcher.add_handler(InlineQueryHandler(reply_to_query))
     dispatcher.add_handler(ChosenInlineResultHandler(process_result))
-    dispatcher.add_handler(CommandHandler('lance', new_nkap_game))
-    # dispatcher.add_handler(CommandHandler('nkap', new_nkap_game))
     dispatcher.add_handler(CommandHandler('close', close_game))
     dispatcher.add_handler(
         ConversationHandler(
@@ -647,6 +647,7 @@ def main():
     dispatcher.add_handler(CommandHandler('game_status', game_status))
     # muted commands
     dispatcher.add_handler(CommandHandler('join', join_game))
+    dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     # dispatcher.add_handler(CommandHandler('chasser', kick_player))
     dispatcher.add_handler(CommandHandler('reset_stats', reset_stats))
 

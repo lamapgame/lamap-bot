@@ -67,12 +67,6 @@ class GameManager(object):
         for user_player in list(map(lambda x: x.user, players)):
             if user.id == user_player.id:
                 raise AlreadyJoinedError()
-        try:
-            self.leave_game(user, chat)
-        except NoGameInChatError:
-            pass
-        except NotEnoughPlayersError:
-            self.end_game(chat, user)
 
         player = Player(game, user)
         game.players.append(player)
@@ -138,7 +132,13 @@ class GameManager(object):
         """ Remove a player from its current game """
 
         player = self.player_for_user_in_chat(user, chat)
-        players = self.userid_players.get(user.id, list())
+
+        try:
+            game = self.chatid_games[chat.id][-1]
+        except (KeyError, IndexError):
+            raise NoGameInChatError()
+
+        players = game.players
 
         if not player:
             games = self.chatid_games[chat.id]
@@ -152,30 +152,23 @@ class GameManager(object):
 
             raise NoGameInChatError()
 
-        game = player.game
-
         if len(game.players) < 2:
             raise NotEnoughPlayersError()
 
         if player is game.current_player:
-            game.turn()
+            if game.next_player == 0:
+                game.turn_to_controler()
+            else:
+                game.turn()
 
-        if player.next.user.id == game.control_player.user.id:
-            game.turn()
-
-        player.leave()
         players.remove(player)
 
-        # If this is the selected game, switch to another
-        if self.userid_current.get(user.id, None) is player:
-            if players:
-                self.userid_current[user.id] = players[0]
-            else:
-                del self.userid_current[user.id]
-                del self.userid_players[user.id]
-
     def player_for_user_in_chat(self, user, chat):
-        players = self.userid_players.get(user.id, list())
+        try:
+            game = self.chatid_games[chat.id][-1]
+        except (KeyError, IndexError):
+            raise NoGameInChatError()
+        players = game.players
         for player in players:
             if player.game.chat.id == chat.id:
                 return player

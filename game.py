@@ -47,6 +47,13 @@ class Game(object):
         return index
 
     @property
+    def control_player_index(self):
+        ref = list(filter(lambda n: n.id ==
+                          self.control_player.id, self.players))
+        index = self.players.index(ref[0])
+        return index
+
+    @property
     def next_player(self):
         next = self.players[(self.current_player_index + 1) %
                             len(self.players)]
@@ -57,6 +64,10 @@ class Game(object):
         self.current_player = self.next_player
         self.current_player.turn_started = datetime.now()
         self.play_round += 1
+
+    def turn_to_controler(self):
+        """ Change the turn to the game_controler """
+        self.current_player = self.players[self.control_player_index]
 
     def play_card(self, card):
         """
