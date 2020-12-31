@@ -1,5 +1,5 @@
 from telegram import ParseMode
-from telegram.ext import CommandHandler
+from telegram.ext import CommandHandler, CallbackContext, Updater
 
 from pony.orm import db_session, desc
 from user_db import UserDB
@@ -98,13 +98,13 @@ def stats(update, context):
 
         stats_txt = (
             f"`{n_format(u.nkap):<3}`    {mention(user)}"
-            f"\n\n`{n_format(u.games_played):<3}`    {'Parties jouées'}"
-            f"\n`{n_format(u.wins):<3}`    {'Parties gagnées'+w_pct}"
-            f"\n`{n_format(u.losses):<3}`    {'Parties perdues'+l_pct}"
-            f"\n`{n_format(ufinished):<3}`    {'Non terminées'+ufinished_pct}"
-            f"\n`{n_format(u.wins_kora):<3}`    {'Kora donnés'}"
-            f"\n`{n_format(u.losses_kora):<3}`    {'Kora reçus'}"
-            f"\n\n`{n_format(u.points):<3}`    {'Points'}"
+            f"\n\n`{u.games_played:<3}`    {'Parties jouées'}"
+            f"\n`{u.wins:<3}`    {'Parties gagnées'+w_pct}"
+            f"\n`{u.losses:<3}`    {'Parties perdues'+l_pct}"
+            f"\n`{ufinished:<3}`    {'Non terminées'+ufinished_pct}"
+            f"\n`{u.wins_kora:<3}`    {'Kora donnés'}"
+            f"\n`{u.losses_kora:<3}`    {'Kora reçus'}"
+            f"\n\n`{u.points:<3}`    {'Points'}"
         )
 
         context.bot.send_message(
@@ -189,6 +189,39 @@ def top_dbl_korateurs(update, context):
                              parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
+@db_session
+def transfert(update: Updater, context:  CallbackContext):
+
+    if update.message.reply_to_message is not None:
+        try:
+            amount = int(context.args[0].replace(" ", ""))
+
+            sender = update.message.from_user
+            reciever = update.message.reply_to_message.from_user
+
+            s = UserDB.get(id=sender.id)
+            r = UserDB.get(id=reciever.id)
+
+            if not s or not r or sender.id == reciever.id:
+                context.bot.send_message(
+                    update.message.chat_id, text="Il y a eu un problème pendant ce transfert.")
+            else:
+                if s.nkap > amount:
+                    s.nkap -= amount
+                    r.nkap = amount
+                    context.bot.send_message(
+                        update.message.chat_id, text=f"Confiance ! Tu as envoyé {n_format(amount)} à {reciever.name}.")
+                else:
+                    context.bot.send_message(
+                        update.message.chat_id, text="Molah, tu n'as pas assez de dos.")
+        except ValueError:
+            context.bot.send_message(
+                update.message.chat_id, text="Je ne comprends pas le montant là, éssayes un vrai montant.")
+    else:
+        context.bot.send_message(
+            update.message.chat_id, text="Renvoi moi cette commande en repondant à un autre message.")
+
+
 def register():
     dispatcher.add_handler(CommandHandler('apprendre', apprendre))
     dispatcher.add_handler(CommandHandler('tchoko', tchoko))
@@ -196,5 +229,6 @@ def register():
     dispatcher.add_handler(CommandHandler('top10nkap', top_rich_players))
     dispatcher.add_handler(CommandHandler('top10koras', top_korateurs))
     dispatcher.add_handler(CommandHandler('top10_2koras', top_dbl_korateurs))
+    dispatcher.add_handler(CommandHandler('transfert', transfert))
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('stats', stats))
