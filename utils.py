@@ -142,7 +142,7 @@ def win_game(bot, game, chat, style, w_extension=None):
 
     if style == "dbl_kora":
         send_animation_async(
-            bot, chat.id, animation=win_Anim(), caption=f"Eyeehh! {mention(winner)} la facture des 33 là c'est {n_format((game.bet * (len(game.players)-1))*4)} !")
+            bot, chat.id, animation=win_Anim(), caption=f"Garçon ! {mention(winner)} à laissé la consigne que la facture des 33 là c'est {n_format((game.bet * (len(game.players)-1))*4)} !")
         pts_won = user_won(winner.id,
                            style, game.nkap, game.bet * (len(game.players)-1))
         helpers.dm_information(chat, winner.id, bot, "W",
@@ -150,7 +150,7 @@ def win_game(bot, game, chat, style, w_extension=None):
 
     if (style == "fam" or style == "777" or style == "333" or style == "21"):
         send_animation_async(
-            bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game! {mention(w_extension)} gagne {n_format(game.bet * (len(game.players)-1))}  !")
+            bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game ! {mention(w_extension)} gagne {n_format(game.bet * (len(game.players)-1))}  !")
         pts_won = user_won(w_extension.id, style, game.nkap, game.bet)
         helpers.dm_information(chat, w_extension.id, bot, "W",
                                pts_won, game.bet, game.bet)
