@@ -1,6 +1,7 @@
 import logging
 
 from telegram import ParseMode
+from telegram.error import BadRequest
 
 import helpers
 from stats import user_won, user_lost
@@ -63,7 +64,7 @@ def delete_async(bot, *args, **kwargs):
     try:
         bot.delete_message(*args, **kwargs)
     except Exception as e:
-        error(None, None, e)
+        pass
 
 
 def delete_start_msgs(bot, chat_id, **kwargs):

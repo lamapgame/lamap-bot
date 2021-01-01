@@ -11,7 +11,6 @@ from utils import mention, n_format
 def help_handler(update, context):
     """Handler for the /help command"""
 
-    # pyright: reportInvalidStringEscapeSequence=false
     help_text = "Cette commande ne peut être lancé que dans un groupe.\nAjoutez ce bot a votre groupe, rendez le administrateur, lancez une nouvelle partie avec /nkap et suivez les instructions.\n\nUtilisez /rules pour apprendre les règles\n\n\n- [Lamap Updates Channel](https://t.me/lamapupdates)\n- [Lamap Devs Group](https://t.me/lamapdevs)"
 
     context.bot.send_message(update.message.chat_id, text=help_text,
@@ -119,7 +118,7 @@ def dm_information(chat, user, bot, result, points, bet, gains_losses):
     text = ""
     if result == "L":
         text = (
-            f"{title}: PERDU"
+            f"**PERDU**:\n\n{title}"
             f"\n\nMise: `{n_format(bet)}`"
             f"\nPertes: `{n_format(gains_losses)}`"
             f"\nPoints: `-{points}`"
@@ -127,7 +126,7 @@ def dm_information(chat, user, bot, result, points, bet, gains_losses):
         )
     if result == "W":
         text = (
-            f"{title}: GAGNÉ"
+            f"**GAGNÉ**:\n\n{title}"
             f"\n\nMise: `{n_format(bet)}`"
             f"\nGains: `+{n_format(gains_losses)}`"
             f"\nPoints: `+{points}`"
@@ -222,6 +221,45 @@ def transfert(update: Updater, context:  CallbackContext):
             update.message.chat_id, text="Renvoi moi cette commande en repondant à un autre message.")
 
 
+@db_session
+def le_retour(update: Updater, context:  CallbackContext):
+    if update.message.reply_to_message is not None:
+        if update.message.from_user.id == 223627873:
+            try:
+                reciever = update.message.reply_to_message.from_user
+                amount = int(context.args[0].replace(" ", ""))
+                r = UserDB.get(id=reciever.id)
+                r.nkap -= amount
+                context.bot.send_message(
+                    update.message.chat_id, text=f"C'est bon, le retour est géré.\n\n{mention(reciever)} a payé {n_format(amount)}")
+            except ValueError:
+                context.bot.send_message(
+                    update.message.chat_id, text="Je ne comprends pas bien boss.")
+        else:
+            context.bot.send_message(
+                update.message.chat_id, text="Ca ne pourra jamais te concerner.")
+
+
+@db_session
+def remboursement(update: Updater, context:  CallbackContext):
+    if update.message.reply_to_message is not None:
+        if update.message.from_user.id == 223627873:
+            try:
+                reciever = update.message.reply_to_message.from_user
+                amount = int(context.args[0].replace(" ", ""))
+                r = UserDB.get(id=reciever.id)
+                r.nkap += amount
+                context.bot.send_message(
+                    update.message.chat_id, text=f"La paie a été éffectué.\n\n{mention(reciever)} est payé {n_format(amount)}")
+
+            except ValueError:
+                context.bot.send_message(
+                    update.message.chat_id, text="Je ne comprends pas bien boss.")
+        else:
+            context.bot.send_message(
+                update.message.chat_id, text="Ca ne pourra jamais te concerner.")
+
+
 def register():
     dispatcher.add_handler(CommandHandler('apprendre', apprendre))
     dispatcher.add_handler(CommandHandler('tchoko', tchoko))
@@ -230,5 +268,7 @@ def register():
     dispatcher.add_handler(CommandHandler('top10koras', top_korateurs))
     dispatcher.add_handler(CommandHandler('top10_2koras', top_dbl_korateurs))
     dispatcher.add_handler(CommandHandler('transfert', transfert))
+    dispatcher.add_handler(CommandHandler('le_retour', le_retour))
+    dispatcher.add_handler(CommandHandler('le_remboursement', remboursement))
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('stats', stats))
