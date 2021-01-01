@@ -3,6 +3,8 @@ from datetime import datetime
 from config import ADMIN_LIST, OPEN_LOBBY, MAX_PLAYERS, WAITING_TIME
 from deck import Deck
 
+import global_variables
+
 
 class Game(object):
     """represents one game"""
@@ -19,6 +21,7 @@ class Game(object):
     game_players = list()
     nkap = False
     bet = 0
+
     winnings = 0  # what the user wins
     owner = ADMIN_LIST
     waiting_time = WAITING_TIME
@@ -31,6 +34,7 @@ class Game(object):
         self.chat = chat
         self.last_card = None
         owner = ADMIN_LIST
+        self.job = global_variables.LMjobQueue
         self.deck = Deck()
         self.logger = logging.getLogger(__name__)
 
@@ -63,6 +67,8 @@ class Game(object):
         """ Change a turn and change the player """
         self.current_player = self.next_player
         self.current_player.turn_started = datetime.now()
+        self.job.stop()
+        self.job.start()
         self.play_round += 1
 
     def turn_to_controler(self):
@@ -89,6 +95,11 @@ class Game(object):
     def start(self):
         self.deck.fill_cards()
         self.started = True
+        self.job.run_once(self.end_turn_by_afk, WAITING_TIME)
+
+    def end_turn_by_afk(self, context):
+        """ kill the turn and make the player afk """
+        return
 
 
 def takes_control(previous, current):

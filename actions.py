@@ -4,8 +4,7 @@ import card as c
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-
-from global_variables import gm
+from global_variables import gm, updater
 from utils import send_async, mention, win_game, lost_game
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -42,6 +41,9 @@ def do_play_card(bot, player, result_id):
         c_list.append("🃏")
     choice = [[InlineKeyboardButton(
         text=f"".join(c_list), switch_inline_query_current_chat='')]]
+
+    """ updater.job_queue.stop()
+    updater.job_queue.run_once(end_by_afk, game.waiting_time) """
 
     if card in c.SPECIALS:
         if card == 'x_21':
@@ -107,3 +109,7 @@ def check_kora(game):
 def check_dbl_kora(game):
     """ Check if game is being won by double kora """
     return game.game_info[3]['control_card'].value == '3' and game.game_info[3]['control_player'].user.id == game.control_player.user.id
+
+
+def end_by_afk():
+    print("end by afk")
