@@ -187,7 +187,7 @@ def lost_game(bot, game, chat, style):
                                    pts_loss, game.bet, game.bet)
 
         logger.debug(
-            f"LOSER(S) {style} ({looser.id}) in {chat.id}")
+            f"LOSER(S) {style} ({looser}) in {chat.id}")
 
 
 @MWT(timeout=60*60)

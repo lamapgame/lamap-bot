@@ -1,6 +1,8 @@
 # python modules
+import datetime
 import logging
 import random
+from time import time
 
 # telegram api
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -19,7 +21,7 @@ from errors import (AlreadyGameInChat, AlreadyJoinedError,
                     GameAlreadyStartedError, LobbyClosedError,
                     MaxPlayersReached, NoGameInChatError, NotEnoughNkap,
                     NotEnoughPlayersError)
-from global_variables import dispatcher, gm, updater
+from global_variables import LMjobQueue, dispatcher, gm, updater
 from results import (add_card, add_no_game, add_not_started, add_special_card,
                      check_quick_win, get_game_status)
 from start_bot import start_bot
@@ -664,6 +666,9 @@ def main():
 
     # Start the Bot
     start_bot(updater)
+    # Run job queue
+    LMjobQueue.run_daily(stats.refill, time=datetime.time(
+        6, 00, 00, 000000), days=(2, 6))
 
     # Run the bot until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT

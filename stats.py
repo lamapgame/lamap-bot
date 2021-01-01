@@ -1,5 +1,6 @@
 from pony.orm import db_session
 from user_db import UserDB
+import database
 
 
 @db_session
@@ -175,3 +176,11 @@ def get_points(id):
     if not u:
         UserDB(id=id)
     return u.points
+
+
+@db_session
+def refill(context):
+    database.db.execute(
+        "UPDATE userdb SET nkap=250000 WHERE nkap <= 250000;"
+    )
+    print("REFILL DONE")
