@@ -24,10 +24,11 @@ from results import (add_card, add_no_game, add_not_started, add_special_card,
                      check_quick_win, get_game_status)
 from start_bot import start_bot
 from utils import (TIMEOUT, answer_async, delete_start_msgs, pin_game_message,
-                   mention, send_animation_async, send_async, user_is_creator,
+                   mention, send_animation_async, send_async, user_is_creator, win_game, lost_game,
                    user_is_creator_or_admin, n_format)
 from gifs import start_Anim, win_forfeit_Anim
-from interactions import tu_joue_combien_txt, i_do_not_understand, just_launched
+from interactions import (t_already_joined, t_already_started, t_count_down, t_joining, t_max_reached, t_no_game,
+                          t_no_money, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.DEBUG)
@@ -43,7 +44,7 @@ def call_me_back(update, context):
     else:
         try:
             send_async(bot, update.message.from_user.id,
-                       text=f"Sois posé, je vais te notifier quand nous allons lancer.")
+                       text=t_call_me_back())
             gm.remind_dict[chat_id].add(update.message.from_user.id)
         except KeyError:
             gm.remind_dict[chat_id] = {update.message.from_user.id}
@@ -54,11 +55,10 @@ def initiate_nkap(update: Update, context: CallbackContext):
     if gm.chatid_games:
         if len(gm.chatid_games[chat_id]) >= 1:
             send_async(context.bot, chat_id,
-                       text=f'Calme toi! Nous jouons l\'argent ici.')
+                       text=t_already_started(), reply_to_message_id=update.message.message_id)
             return ConversationHandler.END
     if not context.args:
-
-        send_async(context.bot, chat_id, text=tu_joue_combien_txt(),
+        send_async(context.bot, chat_id, text=t_tu_joue_combien(),
                    reply_to_message_id=update.message.message_id)
         return 1
     else:
@@ -89,7 +89,7 @@ def new_nkap_game(update, context, montant=None):
         reply_keyboard = [['50000', '25000', '10000', '5000'], [
             '2500', '1000', '500', '/ndem']]
         send_async(context.bot, chat_id,
-                   text=i_do_not_understand(), reply_to_message_id=update.message.message_id, reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True))
+                   text=t_i_do_not_understand(), reply_to_message_id=update.message.message_id, reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True))
         return 1
 
     if update.message.chat.type == 'private':
@@ -98,7 +98,7 @@ def new_nkap_game(update, context, montant=None):
         if chat_id in gm.remind_dict:
             for user in gm.remind_dict[chat_id]:
                 send_async(
-                    bot, user, text=f"Va jouer dans le groupe [{title}]({update.message.link}). La mise c'est {n_format(current_bet)}")
+                    bot, user, text=t_reminder(title, update.message.link, n_format(current_bet)))
             del gm.remind_dict[chat_id]
 
         try:
@@ -116,7 +116,7 @@ def new_nkap_game(update, context, montant=None):
 
             # Reply to inform the start of game
             send_animation_async(
-                context.bot, chat_id, animation=start_Anim(), caption=just_launched(mention(game.starter), n_format(current_bet)), reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
+                context.bot, chat_id, animation=start_Anim(), caption=t_just_launched(mention(game.starter), n_format(current_bet)), reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
 
             stats.user_started(update.message.from_user.id)
 
@@ -126,7 +126,7 @@ def new_nkap_game(update, context, montant=None):
 
         except AlreadyGameInChat:
             send_async(context.bot, chat_id,
-                       text=f'Calme toi! Nous jouons l\'argent ici.', to_delete=True)
+                       text=t_already_started(), to_delete=True)
 
     return ConversationHandler.END
 
@@ -139,7 +139,7 @@ def start_the_game_soon(context):
         return
     if not game.started:
         send_async(context.bot, chat.id,
-                   text=f'Je partage les cartes dans **{int(TIME_TO_START/2)} secondes**...', to_delete=True)
+                   text=t_count_down(int(TIME_TO_START/2)), to_delete=True)
         context.job_queue.run_once(
             start_the_game, TIME_TO_START/2, context=context.job.context)
 
@@ -156,8 +156,7 @@ def start_the_game(context):
         start_lamap(context.job.context, context)
         return
     elif not game.started:
-        send_async(context.bot, chat.id,
-                   text=f'Les gars ne sont pas chauds, je tue le way. Utilise /call\_me\_back et je vais te notifier quand on va lancer ici.')
+        send_async(context.bot, chat.id, text=t_not_enough())
         delete_start_msgs(context.bot, chat.id)
         # kill previous game
         gm.chatid_games[chat.id] = []
@@ -186,29 +185,30 @@ def join_game(update, context):
 
     except NotEnoughNkap:
         send_async(
-            bot, chat.id, text=f"Molah, {mention(user)}, tu n'as pas l'argent.\nCe n'est pas le ndoshi ici.", to_delete=True)
+            bot, chat.id, text=t_no_money(mention(user)), to_delete=True)
 
     except LobbyClosedError:
         send_async(bot, chat.id, text="La partie est fermée", to_delete=True)
 
     except MaxPlayersReached:
-        send_async(bot, chat.id, text="Le terre est plein, tu ne peux pas joindre. Utilise /call\_me\_back pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
+        send_async(
+            bot, chat.id, text=t_max_reached(), to_delete=True)
 
     except GameAlreadyStartedError:
         send_async(
-            bot, chat.id, text="Impossible de rejoindre une partie en cours, utilise /call\_me\_back pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe.", to_delete=True)
+            bot, chat.id, text=t_already_started(), to_delete=True)
 
     except NoGameInChatError:
         send_async(
-            bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /nkap.", to_delete=True)
+            bot, chat.id, text=t_no_game(), to_delete=True)
 
     except AlreadyJoinedError:
         send_async(
-            bot, chat.id, text=f"{mention(user)}, calme toi, j'ai déjà coupé tes cartes.", to_delete=True)
+            bot, chat.id, text=t_already_joined(mention(user)), to_delete=True)
 
     else:
         send_async(
-            bot, chat.id, text=f'{mention(user)} a réjoint la partie !', to_delete=True)
+            bot, chat.id, text=t_joining(mention(user)), to_delete=True)
 
 
 def start_lamap(update, context):
@@ -229,7 +229,7 @@ def start_lamap(update, context):
 
         except (KeyError, IndexError):
             send_async(
-                bot, chat.id, text="Il n'y a aucune partie en cours, crée une nouvelle avec /nkap.")
+                bot, chat.id, text=t_no_game())
             return
 
         if user_is_creator_or_admin(user, game, bot, chat):
@@ -240,6 +240,7 @@ def start_lamap(update, context):
             elif len(game.players) < MIN_PLAYERS:
                 send_async(
                     bot, chat.id, text=f'Une partie doit avoir au moins {MIN_PLAYERS} joueurs pour commencer.', to_delete=True)
+                return
 
             else:
                 game.start()
@@ -405,10 +406,9 @@ def quit_game(update, context):
         else:
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Je considère que {mention(game.control_player.user)} a gagné")
+            win_game(bot, game, chat, "n")
             logger.debug(
                 f"WIN GAME FOFEIT ({game.control_player.user.id}) in {chat.id}")
-            stats.user_won(game.control_player.user.id,
-                           "n", game.nkap, game.bet)
 
     else:
         if game.started:
@@ -442,10 +442,10 @@ def quit_game(update, context):
                     send_async(
                         bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
                 else:
-                    send_animation_async(
-                        bot, chat.id, animation=win_forfeit_Anim(), caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
-                stats.user_won(game.control_player.user.id,
-                               "n", game.nkap, game.bet)
+                    send_async(
+                        bot, chat.id, caption=f"Les gars ont tous fui?! ")
+                    win_game(game.control_player.user.id,
+                             "n", game.nkap, game.bet)
                 gm.end_game(chat, user)
 
 
@@ -462,7 +462,7 @@ def kill_game(update, context):
 
     if not games:
         send_async(
-            bot, chat.id, text="Aucune partie lancé ici, crée une nouvelle avec /nkap.")
+            bot, chat.id, text=t_no_game())
         return
 
     game = games[-1]
@@ -481,7 +481,8 @@ def kill_game(update, context):
                        text="Ok. j'éteins le feu.", reply_to_message_id=update.message.message_id)
             delete_start_msgs(bot, chat.id)
             gm.chatid_games[chat.id] = []
-            context.job_queue.stop()
+
+        context.job_queue.stop()
 
     else:
         send_async(
