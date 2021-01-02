@@ -207,7 +207,7 @@ def transfert(update: Updater, context:  CallbackContext):
             else:
                 if s.nkap > amount:
                     s.nkap -= amount
-                    r.nkap = amount
+                    r.nkap += amount
                     context.bot.send_message(
                         update.message.chat_id, text=f"Confiance ! Tu as envoyé {n_format(amount)} à {reciever.name}.")
                 else:
