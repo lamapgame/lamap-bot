@@ -667,8 +667,8 @@ def main():
     # Start the Bot
     start_bot(updater)
     # Run job queue
-    LMjobQueue.run_daily(stats.refill, time=datetime.time(
-        6, 00, 00, 000000), days=(2, 6))
+    ''' LMjobQueue.run_daily(stats.refill, time=datetime.time(
+        6, 00, 00, 000000), days=(2, 6)) '''
 
     # Run the bot until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT
