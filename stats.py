@@ -181,6 +181,14 @@ def get_points(id):
 @db_session
 def refill(context):
     database.db.execute(
-        "UPDATE userdb SET nkap=250000 WHERE nkap <= 250000;"
+        """UPDATE userdb
+        SET    nkap=(
+            CASE
+            WHEN(nkap < 250000) and (nkap > 0) THEN(250000 - nkap)
+            WHEN(nkap <= 0) THEN(250000 + nkap)
+            END
+        )
+        where nkap <= 25000
+        """
     )
     print("REFILL DONE")

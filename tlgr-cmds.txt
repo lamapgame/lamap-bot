@@ -1,7 +1,10 @@
-nkap - Nouvelle Partie misé - Ajoutez y un montant [Ex: /nkap 500]
+nkap - Nouvelle Partie misé
 call_me_back - Me notifier lorsqu'une nouvelle partie débutera dans ce groupe.
-stats - Voir les statistiques.
 apprendre - Apprendre à jouer.
-leaderboard - Classement global
+stats - Voir les statistiques.
+transfert - Transférer du nkap (/transfert <montant>)
+top10 - Top 10 des meilleurs joueurs
+top10koras - Top 10 des korateurs
+top10_2koras - Top 10 des double korateurs
 tuer_le_way - Arrêter une partie (Only ADMIN)
 tchoko - Faire un don au dévéloppeur du bot.

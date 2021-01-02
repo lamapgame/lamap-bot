@@ -465,7 +465,7 @@ def kill_game(update, context):
     if not games:
         send_async(
             bot, chat.id, text=t_no_game())
-        return
+        return ConversationHandler.END
 
     game = games[-1]
 
