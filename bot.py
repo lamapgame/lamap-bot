@@ -194,7 +194,7 @@ def join_game(update, context):
 
     except MaxPlayersReached:
         send_async(
-            bot, chat.id, text=t_max_reached(), to_delete=True)
+            bot, chat.id, text=t_max_reached(mention(user)), to_delete=True)
 
     except GameAlreadyStartedError:
         send_async(
@@ -287,6 +287,7 @@ def reply_to_query(update, context):
 
     except KeyError:
         add_no_game(results)
+
     else:
         # the game has not yet started
         if not game.started:
@@ -470,14 +471,12 @@ def kill_game(update, context):
     game = games[-1]
 
     if user_is_creator_or_admin(user, game, bot, chat):
-
         try:
             gm.end_game(chat, user)
             send_async(bot, chat.id, text="J'ai tué le way !")
             delete_start_msgs(bot, chat.id)
             logger.debug("KILLED GAME in chat " +
                          str(chat.id) + "by user" + str(user.id))
-
         except NoGameInChatError:
             send_async(bot, chat.id,
                        text="Ok. j'éteins le feu.", reply_to_message_id=update.message.message_id)

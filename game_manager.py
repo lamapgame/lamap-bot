@@ -33,10 +33,7 @@ class GameManager(object):
             raise AlreadyGameInChat()
 
         # remove old games
-        for g in self.chatid_games[chat_id]:
-            if not g.players:
-                self.chatid_games[chat_id] = []
-
+        self.chatid_games[chat_id] = []
         self.start_gm_msgs[chat_id].clear()
         self.chatid_games[chat_id].append(game)
 
@@ -57,14 +54,12 @@ class GameManager(object):
         if game.started:
             raise GameAlreadyStartedError()
 
-        players = game.players
-
         # Don't add a player if the max is reached
         if len(game.players) == game.max_players:
             raise MaxPlayersReached()
 
         # Don't re-add a player if he is already one of them
-        for user_player in list(map(lambda x: x.user, players)):
+        for user_player in list(map(lambda x: x.user, game.players)):
             if user.id == user_player.id:
                 raise AlreadyJoinedError()
 
@@ -83,50 +78,17 @@ class GameManager(object):
         """
         End a game
         """
-
-        self.logger.debug("END GAME in chat " + str(chat.id))
-
         # Find the correct game instance to end
-        player = self.player_for_user_in_chat(user, chat)
-
-        if not player:
-            raise NoGameInChatError
-
-        game = player.game
-
-        # Clear game
-        for player_in_game in game.players:
-            this_users_players = self.userid_players.get(
-                player_in_game.user.id, list())
-
-            try:
-                this_users_players.remove(player_in_game)
-            except ValueError:
-                pass
-
-            if this_users_players:
-                try:
-                    self.userid_current[player_in_game.user.id] = this_users_players[0]
-                except KeyError:
-                    pass
-            else:
-                try:
-                    del self.userid_players[player_in_game.user.id]
-                except KeyError:
-                    pass
-
-                try:
-                    del self.userid_current[player_in_game.user.id]
-                except KeyError:
-                    pass
-
         try:
-            self.chatid_games[chat.id].remove(game)
+            self.userid_current.clear()  # todo! make remove player possible
+            self.chatid_games[chat.id].clear()
         except ValueError:
             pass
 
         if not self.chatid_games[chat.id]:
             del self.chatid_games[chat.id]
+
+        self.logger.debug("END GAME in chat " + str(chat.id))
 
     def leave_game(self, user, chat):
         """ Remove a player from its current game """

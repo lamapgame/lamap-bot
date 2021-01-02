@@ -45,23 +45,6 @@ def do_play_card(bot, player, result_id):
     """ updater.job_queue.stop()
     updater.job_queue.run_once(end_by_afk, game.waiting_time) """
 
-    if card in c.SPECIALS:
-        if card == 'x_21':
-            win_game(bot, game, chat, "21", user.id)
-            lost_game(bot, game, chat, "21")
-        if card == 'x_333':
-            win_game(bot, game, chat, "333", user.id)
-            lost_game(bot, game, chat, "333")
-        if card == 'x_777':
-            win_game(bot, game, chat, "777", user.id)
-            lost_game(bot, game, chat, "777")
-        if card == 'x_0':
-            win_game(bot, game, chat, "fam", user.id)
-            lost_game(bot, game, chat, "fam")
-
-        gm.end_game(chat, user)
-        return
-
     if game.control_player is not None:
         if game.play_round % len(game.players) == 0 and game.play_round < (len(game.players) * 5):
             # update game_info
@@ -81,23 +64,41 @@ def do_play_card(bot, player, result_id):
             # add this information to the game info list
             game.game_round += 1
 
+    if card in c.SPECIALS:
+        gm.end_game(chat, user)
+        if card == 'x_21':
+            win_game(bot, game, chat, "21", user)
+            lost_game(bot, game, chat, "21")
+        if card == 'x_333':
+            win_game(bot, game, chat, "333", user)
+            lost_game(bot, game, chat, "333")
+        if card == 'x_777':
+            win_game(bot, game, chat, "777", user)
+            lost_game(bot, game, chat, "777")
+        if card == 'x_0':
+            win_game(bot, game, chat, "fam", user)
+            lost_game(bot, game, chat, "fam")
+
+        return
+
     if game.play_round == (len(game.players) * 5):
         # KORA
         if check_kora(game):
             # DOUBLE KORA - if the 4th round was controlled with 3 by the same player
             if check_dbl_kora(game):
+                gm.end_game(chat, user)
                 win_game(bot, game, chat, "dbl_kora")
                 lost_game(bot, game, chat, "dbl_kora")
             else:
+                gm.end_game(chat, user)
                 win_game(bot, game, chat, "kora")
                 lost_game(bot, game, chat, "kora")
 
         # Normal win
         else:
+            gm.end_game(chat, user)
             win_game(bot, game, chat, "n")  # n is the simple win
             lost_game(bot, game, chat, "n")  # n is the simple lose
-
-        gm.end_game(chat, user)
         return
 
 

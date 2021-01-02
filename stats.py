@@ -7,11 +7,8 @@ import database
 def init_stats(id, name):
     """ User init stats """
     u = UserDB.get(id=id)
-    un = UserDB.get(name=name)
     if not u:
-        UserDB(id=id)
-    if not un:
-        u.name = name
+        UserDB(id=id, name=name)
 
 
 @db_session
