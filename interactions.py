@@ -156,7 +156,7 @@ def t_just_launched(first_name, bet):
 
 
 def t_reminder(title, link, bet):
-    return choice(game_interactions.get('reminder')).format(title=title, bet=bet)
+    return choice(game_interactions.get('reminder')).format(title=title, link=link, bet=bet)
 
 
 def t_call_me_back():
