@@ -17,10 +17,10 @@ WORKERS = config.get("WORKERS", 32)
 ADMIN_LIST = config.get("ADMIN_LIST", None)
 OPEN_LOBBY = config.get("OPEN_LOBBY", True)
 DEFAULT_GAMEMODE = config.get("DEFAULT_GAMEMODE", "classic")
-WAITING_TIME = config.get("WAITING_TIME", 120)
+WAITING_TIME = config.get("WAITING_TIME", 100)
 MIN_PLAYERS = config.get("MIN_PLAYERS", 2)
 MAX_PLAYERS = config.get("MAX_PLAYERS", 4)
-TIME_TO_START = config.get("TIME_TO_START", 60)
+TIME_TO_START = config.get("TIME_TO_START", 30)
 HEROKU_URL = ""
 HEROKU_PORT = int(os.environ.get('PORT', 5000))
 

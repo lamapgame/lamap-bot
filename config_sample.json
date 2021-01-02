@@ -3,7 +3,7 @@
 	"ADMIN_LIST": [],
 	"OPEN_LOBBY": true,
 	"DEFAULT_GAMEMODE": "classic",
-	"WAITING_TIME": 60,
+	"WAITING_TIME": 100,
 	"MIN_PLAYERS": 2,
 	"MAX_PLAYERS": 4
 }

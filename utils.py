@@ -1,12 +1,17 @@
 import logging
 
 from telegram import ParseMode
-from telegram.ext.dispatcher import run_async
+from telegram.error import BadRequest
+
+import helpers
+from stats import user_won, user_lost
+from gifs import win_Anim, win_kora_Anim, win_qw_Anim
 
 from global_variables import gm
 from mwt import MWT
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 TIMEOUT = 2.5
 
@@ -16,40 +21,42 @@ def error(bot, update, error):
     logger.exception(error)
 
 
-@run_async
 def send_async(bot, *args, **kwargs):
     """Send a message asynchronously"""
+    remove = False
     if 'timeout' not in kwargs:
         kwargs['timeout'] = TIMEOUT
+    if 'to_delete' in kwargs:
+        remove = True
+        del kwargs['to_delete']
     try:
-        msg_sent = bot.sendMessage(
-            *args, **kwargs, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-        if 'to_delete' in kwargs:
+        msg_sent = bot.send_message(
+            *args, **kwargs, disable_web_page_preview=True)
+        if remove:
             gm.start_gm_msgs[args[0]].append(msg_sent.message_id)
     except Exception as e:
         error(None, None, e)
 
 
-def send_msg(bot, *args, **kwargs):
-    """ Send direct message """
-
-
-@run_async
 def send_animation_async(bot, *args, **kwargs):
     """Send an animation asynchronously"""
+    remove = False
     if 'timeout' not in kwargs:
         kwargs['timeout'] = TIMEOUT
+    if 'to_delete' in kwargs:
+        remove = True
+        del kwargs['to_delete']
     try:
         msg_sent = bot.send_animation(
-            *args, **kwargs, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-        gm
-        if 'to_delete' in kwargs:
+            *args, **kwargs, parse_mode=ParseMode.MARKDOWN)
+
+        if remove:
             gm.start_gm_msgs[args[0]].append(msg_sent.message_id)
+
     except Exception as e:
         error(None, None, e)
 
 
-@run_async
 def delete_async(bot, *args, **kwargs):
     """ Delete message from group """
     if 'timeout' not in kwargs:
@@ -57,7 +64,7 @@ def delete_async(bot, *args, **kwargs):
     try:
         bot.delete_message(*args, **kwargs)
     except Exception as e:
-        error(None, None, e)
+        pass
 
 
 def delete_start_msgs(bot, chat_id, **kwargs):
@@ -66,7 +73,6 @@ def delete_start_msgs(bot, chat_id, **kwargs):
         delete_async(bot, chat_id, message_id=msg)
 
 
-@run_async
 def answer_async(bot, *args, **kwargs):
     ''' Answer an inline query asynchronously '''
     if 'timeout' not in kwargs:
@@ -76,6 +82,11 @@ def answer_async(bot, *args, **kwargs):
         bot.answerInlineQuery(*args, **kwargs)
     except Exception as e:
         error(None, None, e)
+
+
+def pin_game_message(bot, *args):
+    game_start_msg_id = gm.start_gm_msgs[args[0]]
+    bot.pin_chat_message(args[0], game_start_msg_id[0])
 
 
 def game_is_running(game):
@@ -96,6 +107,87 @@ def user_is_creator_or_admin(user, game, bot, chat):
 
 def mention(user):
     return f'[{user.first_name}](tg://user?id={user.id})'
+
+
+def n_format(num):
+    num = float('{:.3g}'.format(num))
+    magnitude = 0
+    while abs(num) >= 1000:
+        magnitude += 1
+        num /= 1000.0
+    return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', ' kolos', ' bâtons', ' myondos', ' mitoumba'][magnitude])
+
+
+def win_game(bot, game, chat, style, w_extension=None):
+    winner = game.control_player.user
+    if w_extension is not None:
+        winner = w_extension
+
+    if style == "n":
+        send_animation_async(
+            bot, chat.id, animation=win_Anim(), caption=f"Voilà {mention(winner)} qui part avec {n_format(game.bet * (len(game.players)-1))} !"
+        )
+        pts_won = user_won(winner.id, style, game.nkap,
+                           game.bet*(len(game.players)-1))
+        helpers.dm_information(chat, winner.id, bot, "W", pts_won,
+                               game.bet, game.bet*(len(game.players)-1))
+
+    if style == "kora":
+        send_animation_async(
+            bot, chat.id, animation=win_kora_Anim(), caption=f"KORA! {mention(winner)} porte {n_format((game.bet * (len(game.players)-1))*2)} !")
+        pts_won = user_won(winner.id,
+                           style, game.nkap, game.bet * (len(game.players)-1))
+        helpers.dm_information(chat, winner.id, bot, "W",
+                               pts_won, game.bet, game.bet * (len(game.players)-1)*2)
+
+    if style == "dbl_kora":
+        send_animation_async(
+            bot, chat.id, animation=win_Anim(), caption=f"Garçon ! {mention(winner)} à laissé la consigne que la facture des 33 là c'est {n_format((game.bet * (len(game.players)-1))*4)} !")
+        pts_won = user_won(winner.id,
+                           style, game.nkap, game.bet * (len(game.players)-1))
+        helpers.dm_information(chat, winner.id, bot, "W",
+                               pts_won, game.bet, game.bet * (len(game.players)-1)*4)
+
+    if (style == "fam" or style == "777" or style == "333" or style == "21"):
+        send_animation_async(
+            bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game ! {mention(w_extension)} gagne {n_format(game.bet * (len(game.players)-1))}  !")
+        pts_won = user_won(w_extension.id, style, game.nkap, game.bet)
+        helpers.dm_information(chat, w_extension.id, bot, "W",
+                               pts_won, game.bet, game.bet)
+
+    logger.debug(
+        f"WIN GAME in {style} ({winner.id}) in {chat.id}")
+
+
+def lost_game(bot, game, chat, style):
+    loosers = [
+        lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
+    ]
+    for looser in loosers:
+        if style == "n":
+            pts_loss = user_lost(looser, style, game.nkap, game.bet)
+            helpers.dm_information(chat, looser, bot, "L",
+                                   pts_loss, game.bet, game.bet)
+
+        if style == "kora":
+            pts_loss = user_lost(
+                looser, style, game.nkap, game.bet)
+            helpers.dm_information(chat, looser, bot, "L",
+                                   pts_loss, game.bet, game.bet*2)
+
+        if style == "dbl_kora":
+            pts_loss = user_lost(
+                looser, style, game.nkap, game.bet)
+            helpers.dm_information(chat, looser, bot, "L",
+                                   pts_loss, game.bet, game.bet*4)
+
+        if (style == "fam" or style == "777" or style == "333" or style == "21"):
+            pts_loss = user_lost(looser, style, game.nkap, game.bet)
+            helpers.dm_information(chat, looser, bot, "L",
+                                   pts_loss, game.bet, game.bet)
+
+        logger.debug(
+            f"LOSER(S) {style} ({looser}) in {chat.id}")
 
 
 @MWT(timeout=60*60)

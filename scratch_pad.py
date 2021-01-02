@@ -1,1 +1,1 @@
-print(int('3500'.replace(" ", "")))
+hey = len(["yes", "yes", "yes", "yes"])
