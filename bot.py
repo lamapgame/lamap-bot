@@ -180,8 +180,6 @@ def join_game(update, context):
         helpers.help_handler(update, context)
         return
 
-    stats.init_stats(user.id, user.first_name)
-
     try:
         gm.join_game(user, chat)
 
