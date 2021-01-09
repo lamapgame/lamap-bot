@@ -34,4 +34,5 @@ else:
     load_dotenv(local_env_path)
     TOKEN = os.getenv("TOKEN")
     DB_URL = os.getenv("DATABASE_URL")
+    print(DB_URL)
     print("local", TOKEN)
