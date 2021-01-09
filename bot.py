@@ -247,7 +247,6 @@ def start_lamap(update, context):
                 delete_start_msgs(bot, chat.id)
 
                 for player in game.players:
-                    stats.user_plays(player.user.id)
                     player.draw_hand()
 
                 choice = [[InlineKeyboardButton(
