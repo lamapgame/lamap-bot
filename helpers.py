@@ -73,6 +73,7 @@ def stats(update, context):
         user = update.message.reply_to_message.from_user
     else:
         user = update.message.from_user
+
     u = UserDB.get(id=user.id)
 
     if not u:
@@ -141,7 +142,7 @@ def top_players(update, context):
         lambda u: desc(u.points))[:10])
     top_txt = []
     for idx, user in enumerate(top_10_players, start=1):
-        string = f"`{idx}–` *{user.name}* - {user.points} Points\n"
+        string = f"`{idx}–` *{str(user.name)}* - {user.points} Points\n"
         top_txt.append(string)
 
     context.bot.send_message(update.message.chat_id, text=''.join(
@@ -155,7 +156,7 @@ def top_rich_players(update, context):
         lambda u: desc(u.nkap))[:10])
     top_txt = []
     for idx, user in enumerate(top_10_rich, start=1):
-        string = f"`{idx}–` *{user.name}* - {n_format(user.nkap)}\n"
+        string = f"`{idx}–` *{str(user.name)}* - {n_format(user.nkap)}\n"
         top_txt.append(string)
 
     context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
@@ -169,7 +170,7 @@ def top_korateurs(update, context):
         lambda u: desc(u.wins_kora))[:10])
     top_txt = []
     for idx, user in enumerate(top_10_korat, start=1):
-        string = f"`{idx}–` *{user.name}* - {user.wins_kora}\n"
+        string = f"`{idx}–` *{str(user.name)}* - {user.wins_kora}\n"
         top_txt.append(string)
 
     context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
@@ -218,6 +219,9 @@ def transfert(update: Updater, context:  CallbackContext):
         except ValueError:
             context.bot.send_message(
                 update.message.chat_id, text="Je ne comprends pas le montant là, éssayes un vrai montant.")
+        except IndexError:
+            context.bot.send_message(
+                update.message.chat_id, text="Je ne comprends pas désolé.")
     else:
         context.bot.send_message(
             update.message.chat_id, text="Renvoi moi cette commande en repondant à un autre message.")
@@ -234,7 +238,7 @@ def le_retour(update: Updater, context:  CallbackContext):
                 r.nkap -= amount
                 context.bot.send_message(
                     update.message.chat_id, text=f"C'est bon, le retour est géré.\n\n{mention(reciever)} a payé {n_format(amount)}")
-            except ValueError:
+            except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
         else:
@@ -254,7 +258,7 @@ def remboursement(update: Updater, context:  CallbackContext):
                 context.bot.send_message(
                     update.message.chat_id, text=f"La paie a été éffectué.\n\n{mention(reciever)} est payé {n_format(amount)}")
 
-            except ValueError:
+            except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
         else:
@@ -263,14 +267,22 @@ def remboursement(update: Updater, context:  CallbackContext):
 
 
 def register():
-    dispatcher.add_handler(CommandHandler('apprendre', apprendre))
+    dispatcher.add_handler(CommandHandler(
+        'apprendre', apprendre))
     dispatcher.add_handler(CommandHandler('tchoko', tchoko))
-    dispatcher.add_handler(CommandHandler('top10', top_players))
-    dispatcher.add_handler(CommandHandler('top10nkap', top_rich_players))
-    dispatcher.add_handler(CommandHandler('top10koras', top_korateurs))
-    dispatcher.add_handler(CommandHandler('top10_2koras', top_dbl_korateurs))
-    dispatcher.add_handler(CommandHandler('transfert', transfert))
-    dispatcher.add_handler(CommandHandler('le_retour', le_retour))
-    dispatcher.add_handler(CommandHandler('remboursement', remboursement))
-    dispatcher.add_handler(CommandHandler('start', start))
-    dispatcher.add_handler(CommandHandler('stats', stats))
+    dispatcher.add_handler(CommandHandler(
+        'top10', top_players, run_async=False))
+    dispatcher.add_handler(CommandHandler(
+        'top10nkap', top_rich_players, run_async=False))
+    dispatcher.add_handler(CommandHandler(
+        'top10koras', top_korateurs, run_async=False))
+    dispatcher.add_handler(CommandHandler(
+        'top10_2koras', top_dbl_korateurs, run_async=False))
+    dispatcher.add_handler(CommandHandler(
+        'transfert', transfert, run_async=False))
+    dispatcher.add_handler(CommandHandler(
+        'le_retour', le_retour, run_async=False))
+    dispatcher.add_handler(CommandHandler(
+        'remboursement', remboursement, run_async=False))
+    dispatcher.add_handler(CommandHandler('start', start, run_async=False))
+    dispatcher.add_handler(CommandHandler('stats', stats, run_async=False))
