@@ -33,7 +33,7 @@ from interactions import (t_already_joined, t_already_started, t_count_down, t_j
                           t_no_money, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
@@ -162,7 +162,7 @@ def start_the_game(context):
         delete_start_msgs(context.bot, chat.id)
         # kill previous game
         gm.chatid_games[chat.id] = []
-        logger.debug("END GAME - NOTENOUGHPLAYERS in chat " + str(chat.id))
+        logger.info("END GAME - NOTENOUGHPLAYERS in chat " + str(chat.id))
         return
 
 
@@ -289,7 +289,7 @@ def reply_to_query(update, context):
         # the game has not yet started
         if not game.started:
             if user_is_creator(user, game):
-                logger.debug(f"{user.id} wants to start a game")
+                logger.info(f"{user.id} wants to start a game")
             else:
                 add_not_started(results)
 
@@ -317,17 +317,16 @@ def process_result(update, context):
 
     bot = context.bot
 
-    try:
-        user = update.chosen_inline_result.from_user
-        player = gm.userid_current[user.id]
-        game = player.game
-        result_id = update.chosen_inline_result.result_id
+    user = update.chosen_inline_result.from_user
+    player = gm.userid_current[user.id]
+    game = player.game
+    result_id = update.chosen_inline_result.result_id
 
+    try:
+        do_play_card(bot, player, result_id)
     except (KeyError, AttributeError, ValueError):
         # handle errors that occurs when players play wrong cards
         return
-
-    do_play_card(bot, player, result_id)
 
 
 def close_game(update, context):
@@ -407,7 +406,7 @@ def quit_game(update, context):
             send_animation_async(
                 bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Je considère que {mention(game.control_player.user)} a gagné")
             win_game(bot, game, chat, "n")
-            logger.debug(
+            logger.info(
                 f"WIN GAME FOFEIT ({game.control_player.user.id}) in {chat.id}")
 
     else:
@@ -472,8 +471,8 @@ def kill_game(update, context):
             gm.end_game(chat, user)
             send_async(bot, chat.id, text="J'ai tué le way !")
             delete_start_msgs(bot, chat.id)
-            logger.debug("KILLED GAME in chat " +
-                         str(chat.id) + "by user" + str(user.id))
+            logger.info("KILLED GAME in chat " +
+                        str(chat.id) + "by user" + str(user.id))
         except NoGameInChatError:
             send_async(bot, chat.id,
                        text="Ok. j'éteins le feu.", reply_to_message_id=update.message.message_id)
@@ -608,9 +607,15 @@ def cbhandler(update, context):
     elif query.data == 'start_game':
         if user_is_creator_or_admin(user, game, bot, chat):
             start_lamap(update, context)
+        else:
+            query.answer(
+                text="Tu n'as pas ouvert le terre, tu ne peux pas lancer", show_alert=True)
     elif query.data == 'notify':
         if user_is_creator_or_admin(user, game, bot, chat):
             pin_game_message(context.bot, chat.id)
+        else:
+            query.answer(
+                text="Ce n'est pas à toi de faire ça, tu n'as pas ouvert le terre", show_alert=True)
     elif query.data == 'kill_game':
         if user_is_creator_or_admin(user, game, bot, chat):
             kill_game(update, context)
@@ -654,7 +659,7 @@ def main():
     # callback queries handler
     dispatcher.add_handler(CallbackQueryHandler(cbhandler))
 
-    # all handler (use ONLY for debugging!)
+    # all handler (use ONLY for infoging!)
     # dispatcher.add_handler(MessageHandler(Filters.all, mes))
 
     dispatcher.add_error_handler(loggero.error)
