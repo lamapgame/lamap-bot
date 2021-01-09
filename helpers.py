@@ -281,7 +281,7 @@ def register():
     dispatcher.add_handler(CommandHandler(
         'top10_2koras', top_dbl_korateurs, run_async=False))
     dispatcher.add_handler(CommandHandler(
-        'transfert', transfert))
+        'transfert', transfert, run_async=False))
     dispatcher.add_handler(CommandHandler(
         'le_retour', le_retour, run_async=False))
     dispatcher.add_handler(CommandHandler(
