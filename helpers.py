@@ -78,7 +78,7 @@ def stats(update, context):
     if not u:
         UserDB(id=user.id, name=user.name)
         context.bot.send_message(
-            update.message.chat_id, text="Mola, je n'ai pas tes stats. Il faut d'abord jouer.")
+            update.message.chat_id, text="Ok Mola, je te connais maintenant.")
     else:
         ufinished = u.games_played - (u.wins + u.losses)
 
@@ -108,12 +108,12 @@ def stats(update, context):
 
         context.bot.send_message(
             update.message.chat_id, text=stats_txt, disable_web_page_preview=True)
+        return
 
 
 @db_session
 def dm_information(chat, user, bot, result, points, bet, gains_losses):
     ''' DM player about his results '''
-    u = UserDB.get(id=user)
     title = chat.title
     text = ""
     if result == "L":
@@ -122,7 +122,6 @@ def dm_information(chat, user, bot, result, points, bet, gains_losses):
             f"\n\nMise: `{n_format(bet)}`"
             f"\nPertes: `{n_format(gains_losses)}`"
             f"\nPoints: `-{points}`"
-            f"\n\nNKAP: `{u.nkap}`"
         )
     if result == "W":
         text = (
@@ -130,10 +129,10 @@ def dm_information(chat, user, bot, result, points, bet, gains_losses):
             f"\n\nMise: `{n_format(bet)}`"
             f"\nGains: `+{n_format(gains_losses)}`"
             f"\nPoints: `+{points}`"
-            f"\n\nNKAP: `{u.nkap}`"
         )
 
     bot.send_message(user, text=text, disable_web_page_preview=True)
+    return
 
 
 @db_session
@@ -147,6 +146,7 @@ def top_players(update, context):
 
     context.bot.send_message(update.message.chat_id, text=''.join(
         top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    return
 
 
 @db_session
@@ -160,6 +160,7 @@ def top_rich_players(update, context):
 
     context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
                              parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    return
 
 
 @db_session
@@ -173,6 +174,7 @@ def top_korateurs(update, context):
 
     context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
                              parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    return
 
 
 @db_session
@@ -269,6 +271,6 @@ def register():
     dispatcher.add_handler(CommandHandler('top10_2koras', top_dbl_korateurs))
     dispatcher.add_handler(CommandHandler('transfert', transfert))
     dispatcher.add_handler(CommandHandler('le_retour', le_retour))
-    dispatcher.add_handler(CommandHandler('le_remboursement', remboursement))
+    dispatcher.add_handler(CommandHandler('remboursement', remboursement))
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('stats', stats))

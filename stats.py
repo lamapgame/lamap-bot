@@ -37,17 +37,6 @@ def user_kicked(id):
 
 
 @db_session
-def user_plays(id):
-    """ User plays """
-    u = UserDB.get(id=id)
-    if not u:
-        UserDB(id=id)
-    else:
-        u.games_played += 1
-        u.points += 0.5
-
-
-@db_session
 def user_started(id):
     """ User started """
     u = UserDB.get(id=id)
