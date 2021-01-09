@@ -132,8 +132,10 @@ def dm_information(chat, user, bot, result, points, bet, gains_losses):
             f"\nPoints: `+{points}`"
         )
 
-    bot.send_message(user, text=text, disable_web_page_preview=True)
-    return
+    try:
+        bot.send_message(user, text=text, disable_web_page_preview=True)
+    except Exception:
+        pass
 
 
 @db_session
@@ -279,10 +281,10 @@ def register():
     dispatcher.add_handler(CommandHandler(
         'top10_2koras', top_dbl_korateurs, run_async=False))
     dispatcher.add_handler(CommandHandler(
-        'transfert', transfert, run_async=False))
+        'transfert', transfert))
     dispatcher.add_handler(CommandHandler(
         'le_retour', le_retour, run_async=False))
     dispatcher.add_handler(CommandHandler(
         'remboursement', remboursement, run_async=False))
-    dispatcher.add_handler(CommandHandler('start', start, run_async=False))
     dispatcher.add_handler(CommandHandler('stats', stats, run_async=False))
+    dispatcher.add_handler(CommandHandler('start', start, run_async=False))

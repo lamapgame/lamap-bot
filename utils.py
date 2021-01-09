@@ -11,7 +11,7 @@ from global_variables import gm
 from mwt import MWT
 
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 TIMEOUT = 2.5
 
@@ -155,7 +155,7 @@ def win_game(bot, game, chat, style, w_extension=None):
         helpers.dm_information(chat, w_extension.id, bot, "W",
                                pts_won, game.bet, game.bet)
 
-    logger.debug(
+    logger.info(
         f"WIN GAME in {style} ({winner.id}) in {chat.id}")
 
 
@@ -186,7 +186,7 @@ def lost_game(bot, game, chat, style):
             helpers.dm_information(chat, looser, bot, "L",
                                    pts_loss, game.bet, game.bet)
 
-        logger.debug(
+        logger.info(
             f"LOSER(S) {style} ({looser}) in {chat.id}")
 
 

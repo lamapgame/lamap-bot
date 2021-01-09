@@ -18,7 +18,7 @@ class GameManager(object):
         self.remind_dict = dict()
         self.start_gm_msgs = dict()
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
 
     def new_game(self, chat):
         """Create new game in chat"""
@@ -37,7 +37,7 @@ class GameManager(object):
         self.start_gm_msgs[chat_id].clear()
         self.chatid_games[chat_id].append(game)
 
-        self.logger.debug(f"NEW GAME in chat {chat_id}")
+        self.logger.info(f"NEW GAME in chat {chat_id}")
         return game
 
     def join_game(self, user, chat):
@@ -67,12 +67,12 @@ class GameManager(object):
         game.players.append(player)
 
         self.userid_current[user.id] = player
-        self.logger.debug(
+        self.logger.info(
             f"NEW PLAYER - {user.id} on game in the group: {chat.id}")
 
         # start game when the max no of players joined
         if len(game.players) == game.max_players:
-            self.logger.debug(f"MAX PLAYERS ({game.max_players}) in {chat.id}")
+            self.logger.info(f"MAX PLAYERS ({game.max_players}) in {chat.id}")
 
     def end_game(self, chat, user):
         """
@@ -88,7 +88,7 @@ class GameManager(object):
         if not self.chatid_games[chat.id]:
             del self.chatid_games[chat.id]
 
-        self.logger.debug("END GAME in chat " + str(chat.id))
+        self.logger.info("END GAME in chat " + str(chat.id))
 
     def leave_game(self, user, chat):
         """ Remove a player from its current game """

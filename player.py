@@ -20,7 +20,7 @@ class Player(object):
         self.id = user.id
         self.controls = False
         self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.DEBUG)
+        self.logger.setLevel(logging.INFO)
 
         self.turn_started = datetime.now()
         self.waiting_time = WAITING_TIME
