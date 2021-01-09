@@ -32,6 +32,6 @@ class Deck(object):
 
     def shuffle(self):
         """shuffles the deck"""
-        self.logger.debug("Shuffling deck...")
+        self.logger.info("Shuffling deck...")
         # ? remove shuffle when testing cards
         shuffle(self.cards)
