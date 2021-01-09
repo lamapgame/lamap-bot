@@ -55,10 +55,11 @@ def call_me_back(update, context):
 def initiate_nkap(update: Update, context: CallbackContext):
     chat_id = update.message.chat_id
     if gm.chatid_games:
-        if len(gm.chatid_games[chat_id]) >= 1:
-            send_async(context.bot, chat_id,
-                       text=t_already_started(), reply_to_message_id=update.message.message_id)
-            return ConversationHandler.END
+        if chat_id in gm.chatid_games:
+            if len(gm.chatid_games[chat_id]) >= 1:
+                send_async(context.bot, chat_id,
+                           text=t_already_started(), reply_to_message_id=update.message.message_id)
+                return ConversationHandler.END
     if not context.args:
         send_async(context.bot, chat_id, text=t_tu_joue_combien(),
                    reply_to_message_id=update.message.message_id)
