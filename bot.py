@@ -648,7 +648,8 @@ def main():
     dispatcher.add_handler(CommandHandler('join', join_game))
     dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     # dispatcher.add_handler(CommandHandler('chasser', kick_player))
-    dispatcher.add_handler(CommandHandler('reset_stats', reset_stats))
+    dispatcher.add_handler(CommandHandler(
+        'reset_stats', reset_stats, run_async=False))
 
     # callback queries handler
     dispatcher.add_handler(CallbackQueryHandler(cbhandler))
