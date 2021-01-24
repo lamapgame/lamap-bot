@@ -21,7 +21,7 @@ from errors import (AlreadyGameInChat, AlreadyJoinedError,
                     GameAlreadyStartedError, LobbyClosedError,
                     MaxPlayersReached, NoGameInChatError, NotEnoughNkap,
                     NotEnoughPlayersError)
-from global_variables import LMjobQueue, dispatcher, gm, updater
+from global_variables import dispatcher, gm, updater
 from results import (add_card, add_no_game, add_not_started, add_special_card,
                      check_quick_win, get_game_status)
 from start_bot import start_bot
@@ -120,8 +120,6 @@ def new_nkap_game(update, context, montant=None):
             # Reply to inform the start of game
             send_animation_async(
                 context.bot, chat_id, animation=start_Anim(), caption=t_just_launched(mention(game.starter), n_format(current_bet)), reply_markup=InlineKeyboardMarkup(join_btn), to_delete=True)
-
-            stats.user_started(update.message.from_user.id)
 
             # start the game after TIME_TO_START secs
             context.job_queue.run_once(

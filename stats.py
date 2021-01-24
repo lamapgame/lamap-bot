@@ -12,6 +12,7 @@ def init_stats(id, name):
         UserDB(id=id)
     if not un:
         u.name = name
+    return
 
 
 @db_session
@@ -23,6 +24,7 @@ def user_quit(id):
     else:
         u.quit += 1
         u.points -= 0.5
+    return
 
 
 @db_session
@@ -34,6 +36,7 @@ def user_kicked(id):
     else:
         u.kicked += 1
         u.points -= 0.5
+    return
 
 
 @db_session
@@ -44,6 +47,7 @@ def user_started(id):
         UserDB(id=id)
     else:
         u.games_started += 1
+    return
 
 
 @db_session
@@ -149,6 +153,7 @@ def reset_all_stats(id):
         u.wins_kora = 0
         u.wins_dbl_kora = 0
         u.wl_streak = 0
+    return
 
 
 @db_session
@@ -156,7 +161,16 @@ def get_nkap(id):
     u = UserDB.get(id=id)
     if not u:
         UserDB(id=id)
-    return u.nkap
+    nkap = u.nkap
+    return nkap
+
+
+def has_enough_nkap(id, bet):
+    ''' Check if the player has enough nkap to bet '''
+    nkap = get_nkap(id)
+    if (nkap >= 0 and nkap > bet):
+        return True
+    return False
 
 
 @db_session
