@@ -166,25 +166,21 @@ def lost_game(bot, game, chat, style):
     for looser in loosers:
         if style == "n":
             pts_loss = user_lost(looser, style, game.nkap, game.bet)
-            helpers.dm_information(chat, looser, bot, "L",
-                                   pts_loss, game.bet, game.bet)
+            # helpers.dm_information(chat, looser, bot, "L", pts_loss, game.bet, game.bet)
 
         if style == "kora":
             pts_loss = user_lost(
                 looser, style, game.nkap, game.bet)
-            helpers.dm_information(chat, looser, bot, "L",
-                                   pts_loss, game.bet, game.bet*2)
+            # helpers.dm_information(chat, looser, bot, "L",  pts_loss, game.bet, game.bet*2)
 
         if style == "dbl_kora":
             pts_loss = user_lost(
                 looser, style, game.nkap, game.bet)
-            helpers.dm_information(chat, looser, bot, "L",
-                                   pts_loss, game.bet, game.bet*4)
+            # helpers.dm_information(chat, looser, bot, "L",pts_loss, game.bet, game.bet*4)
 
         if (style == "fam" or style == "777" or style == "333" or style == "21"):
             pts_loss = user_lost(looser, style, game.nkap, game.bet)
-            helpers.dm_information(chat, looser, bot, "L",
-                                   pts_loss, game.bet, game.bet)
+            # helpers.dm_information(chat, looser, bot, "L", pts_loss, game.bet, game.bet)
 
         logger.info(
             f"LOSER(S) {style} ({looser}) in {chat.id}")
