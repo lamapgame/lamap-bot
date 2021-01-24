@@ -1,4 +1,4 @@
-from pony.orm import db_session
+
 from user_db import UserDB, Achievement
 
 ACHIEVEMENT_DICT = {
