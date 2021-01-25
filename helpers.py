@@ -153,6 +153,20 @@ def top_players(update, context):
 
 
 @db_session
+def top_pauvrards(update, context):
+    top_10_poor = list(UserDB.select().order_by(
+        lambda u: (u.nkap))[:10])
+    top_txt = []
+    for idx, user in enumerate(top_10_poor, start=1):
+        string = f"`{idx}–` *{str(user.name)}* - {n_format(user.nkap)}\n"
+        top_txt.append(string)
+
+    context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
+                             parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    return
+
+
+@db_session
 def top_rich_players(update, context):
     top_10_rich = list(UserDB.select().order_by(
         lambda u: desc(u.nkap))[:10])
@@ -280,6 +294,8 @@ def register():
         'top10koras', top_korateurs, run_async=False))
     dispatcher.add_handler(CommandHandler(
         'top10_2koras', top_dbl_korateurs, run_async=False))
+    dispatcher.add_handler(CommandHandler(
+        'top_nguemé', top_pauvrards, run_async=False))
     dispatcher.add_handler(CommandHandler(
         'transfert', transfert, run_async=False))
     dispatcher.add_handler(CommandHandler(
