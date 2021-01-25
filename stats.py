@@ -40,6 +40,17 @@ def user_kicked(id):
 
 
 @db_session
+def user_plays(id):
+    """ User kicked """
+    u = UserDB.get(id=id)
+    if not u:
+        UserDB(id=id)
+    else:
+        u.games_played += 1
+    return
+
+
+@db_session
 def user_started(id):
     """ User started """
     u = UserDB.get(id=id)

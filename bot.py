@@ -208,6 +208,7 @@ def join_game(update, context):
     else:
         send_async(
             bot, chat.id, text=t_joining(mention(user)), to_delete=True)
+        stats.user_plays(user.id)
 
 
 def start_lamap(update, context):
