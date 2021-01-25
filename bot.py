@@ -208,6 +208,7 @@ def join_game(update, context):
     else:
         send_async(
             bot, chat.id, text=t_joining(mention(user)), to_delete=True)
+        stats.user_plays(user.id)
 
 
 def start_lamap(update, context):
@@ -640,7 +641,7 @@ def main():
             states={
                 1: [MessageHandler(Filters.text & ~Filters.command, new_nkap_game)]
             },
-            fallbacks=[CommandHandler('ndem', stop_nkap_game)]
+            fallbacks=[CommandHandler('ndem', stop_nkap_game)], conversation_timeout=10
         )
     )
     # dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
