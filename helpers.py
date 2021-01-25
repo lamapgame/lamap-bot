@@ -295,7 +295,7 @@ def register():
     dispatcher.add_handler(CommandHandler(
         'top10_2koras', top_dbl_korateurs, run_async=False))
     dispatcher.add_handler(CommandHandler(
-        'top_nguemé', top_pauvrards, run_async=False))
+        'top10_pauvrard', top_pauvrards, run_async=False))
     dispatcher.add_handler(CommandHandler(
         'transfert', transfert, run_async=False))
     dispatcher.add_handler(CommandHandler(
