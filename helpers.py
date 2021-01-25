@@ -220,9 +220,9 @@ def transfert(update: Updater, context:  CallbackContext):
             s = UserDB.get(id=sender.id)
             r = UserDB.get(id=reciever.id)
 
-            if not s or not r or sender.id == reciever.id:
+            if not s or not r or sender.id == reciever.id or amount < 0:
                 context.bot.send_message(
-                    update.message.chat_id, text="Il y a eu un problème pendant ce transfert.")
+                    update.message.chat_id, text="Je ne fais pas la magie, Il y a eu un problème pendant ce transfert.")
             else:
                 if s.nkap > amount:
                     s.nkap -= amount
@@ -231,7 +231,7 @@ def transfert(update: Updater, context:  CallbackContext):
                         update.message.chat_id, text=f"Confiance ! Tu as envoyé {n_format(amount)} à {reciever.name}.")
                 else:
                     context.bot.send_message(
-                        update.message.chat_id, text="Molah, tu n'as pas assez de dos.")
+                        update.message.chat_id, text="Molah, doucement !.")
         except ValueError:
             context.bot.send_message(
                 update.message.chat_id, text="Je ne comprends pas le montant là, éssayes un vrai montant.")
