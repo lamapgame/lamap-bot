@@ -23,7 +23,7 @@ from errors import (AlreadyGameInChat, AlreadyJoinedError,
                     NotEnoughPlayersError)
 from global_variables import dispatcher, gm, updater
 from results import (add_card, add_no_game, add_not_started, add_special_card,
-                     check_quick_win, get_game_status)
+                     check_quick_win, get_end_game_status, get_game_status)
 from start_bot import start_bot
 from utils import (TIMEOUT, answer_async, delete_start_msgs, pin_game_message,
                    mention, send_animation_async, send_async, user_is_creator, win_game, lost_game,
@@ -114,8 +114,8 @@ def new_nkap_game(update, context, montant=None):
 
             join_btn = [[InlineKeyboardButton(
                 "🖐🏽 - Rejoindre", callback_data="join_game"), InlineKeyboardButton(
-                    "Notifier - 🔔", callback_data="notify")], [InlineKeyboardButton(
-                        "Lancer - 🚀", callback_data="start_game")]]
+                    "Lancer - 🚀", callback_data="start_game")], [InlineKeyboardButton(
+                        "Notifier - 🔔", callback_data="notify")]]
 
             # Reply to inform the start of game
             send_animation_async(
@@ -465,11 +465,19 @@ def kill_game(update, context):
         return ConversationHandler.END
 
     game = games[-1]
+    game.killer = user
 
     if user_is_creator_or_admin(user, game, bot, chat):
         try:
             gm.end_game(chat, user)
-            send_async(bot, chat.id, text="J'ai tué le way !")
+
+            if len(game.game_info) >= 1:
+                status = get_game_status(game)
+                end_game = get_end_game_status(game)
+                send_async(bot, chat.id, text=status)
+                send_async(bot, chat.id, text=end_game)
+
+            send_async(bot, chat.id, text=f"🪓 {mention(user)} a tué le way !")
             delete_start_msgs(bot, chat.id)
             logger.info("KILLED GAME in chat " +
                         str(chat.id) + "by user" + str(user.id))
@@ -574,7 +582,7 @@ def game_status(update, context):
 
     game = games[-1]
 
-    send_async(bot, chat.id, text=get_game_status(game))
+    send_async(bot, chat.id, text=get_end_game_status(game))
 
 
 def reset_stats(update, context):
