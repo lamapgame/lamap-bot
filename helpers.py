@@ -287,20 +287,20 @@ def register():
         'apprendre', apprendre))
     dispatcher.add_handler(CommandHandler('tchoko', tchoko))
     dispatcher.add_handler(CommandHandler(
-        'top10', top_players, run_async=False))
+        'top10', top_players))
     dispatcher.add_handler(CommandHandler(
-        'top10nkap', top_rich_players, run_async=False))
+        'top10nkap', top_rich_players))
     dispatcher.add_handler(CommandHandler(
-        'top10koras', top_korateurs, run_async=False))
+        'top10koras', top_korateurs))
     dispatcher.add_handler(CommandHandler(
-        'top10_2koras', top_dbl_korateurs, run_async=False))
+        'top10_2koras', top_dbl_korateurs))
     dispatcher.add_handler(CommandHandler(
-        'top10_pauvrard', top_pauvrards, run_async=False))
+        'top10_pauvrard', top_pauvrards))
     dispatcher.add_handler(CommandHandler(
-        'transfert', transfert, run_async=False))
+        'transfert', transfert))
     dispatcher.add_handler(CommandHandler(
-        'le_retour', le_retour, run_async=False))
+        'le_retour', le_retour))
     dispatcher.add_handler(CommandHandler(
-        'remboursement', remboursement, run_async=False))
-    dispatcher.add_handler(CommandHandler('stats', stats, run_async=False))
-    dispatcher.add_handler(CommandHandler('start', start, run_async=False))
+        'remboursement', remboursement))
+    dispatcher.add_handler(CommandHandler('stats', stats))
+    dispatcher.add_handler(CommandHandler('start', start))

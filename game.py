@@ -34,6 +34,7 @@ class Game(object):
         self.chat = chat
         self.last_card = None
         self.owner = ADMIN_LIST
+        self.killer = None
         # self.job = global_variables.LMjobQueue
         self.deck = Deck()
         self.logger = logging.getLogger(__name__)
