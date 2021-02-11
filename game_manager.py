@@ -54,6 +54,12 @@ class GameManager(object):
         if game.started:
             raise GameAlreadyStartedError()
 
+        if user.id not in self.userid_players:
+            self.userid_players[user.id] = list()
+
+        players = self.userid_players[user.id]
+        print(players)
+
         # Don't add a player if the max is reached
         if len(game.players) == game.max_players:
             raise MaxPlayersReached()
@@ -78,9 +84,39 @@ class GameManager(object):
         """
         End a game
         """
+        player = self.player_for_user_in_chat(user, chat)
+
+        if not player:
+            raise NoGameInChatError
+
+        game = player.game
+
         # Find the correct game instance to end
+        for player_in_game in game.players:
+            this_users_players = self.userid_players.get(
+                player_in_game.user.id, list())
+
+            try:
+                this_users_players.remove(player_in_game)
+            except ValueError:
+                pass
+
+            if this_users_players:
+                try:
+                    self.userid_current[player_in_game.user.id] = this_users_players[0]
+                except KeyError:
+                    pass
+            else:
+                try:
+                    del self.userid_players[player_in_game.user.id]
+                except KeyError:
+                    pass
+
+                try:
+                    del self.userid_current[player_in_game.user.id]
+                except KeyError:
+                    pass
         try:
-            self.userid_current.clear()  # todo! make remove player possible
             self.chatid_games[chat.id].clear()
         except ValueError:
             pass
