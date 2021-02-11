@@ -1,7 +1,7 @@
 from telegram import InlineQueryResultArticle, ParseMode,  InputTextMessageContent, \
     InlineQueryResultCachedSticker as Sticker
 import card as c
-from utils import mention
+from utils import mention, n_format
 from uuid import uuid4
 
 
@@ -83,8 +83,8 @@ def game_info(game):
     players = player_list(game)
     name = mention(game.current_player.user)
     card = repr(game.last_card)
-    controlling_card = ""
-    controlling_player = "Aucun"
+    controlling_card = "Aucune carte"
+    controlling_player = "Aucun joueur"
 
     if game.control_player is not None:
         controlling_player = mention(game.control_player.user)
@@ -98,11 +98,24 @@ def game_info(game):
 
 def get_game_status(game):
     ''' Get the current status of the game played '''
-    status_txt = []
+    status_txt = [f"`Mise: {n_format(game.bet)}`\n\n"]
+
     for idx, round in enumerate(game.game_info, start=1):
         string = f"`Tour {idx}:` **{mention(round['control_player'].user)}** - **{repr(round['control_card'])}**\n"
         status_txt.append(string)
-    if len(status_txt) == 0:
-        status_txt = [
-            "Molah joue d'abord! Je ne peux pas te donner le statut d'un demi tour."]
+
     return ''.join(status_txt)
+
+
+def get_end_game_status(game):
+    end_game_txt = []
+
+    for player in game.game_players:
+        string = f"{player.user.first_name}: "
+        for card in player.cards:
+            p_card = repr(c.from_str(card))
+            string += f" - {p_card}"
+        string += "\n"
+        end_game_txt.append(string)
+
+    return "".join(end_game_txt)
