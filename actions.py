@@ -65,7 +65,7 @@ def do_play_card(bot, player, result_id):
             game.game_round += 1
 
     if card in c.SPECIALS:
-        gm.end_game(chat, user)
+
         if card == 'x_21':
             win_game(bot, game, chat, "21", user)
             lost_game(bot, game, chat, "21", user)
@@ -78,6 +78,10 @@ def do_play_card(bot, player, result_id):
         if card == 'x_0':
             win_game(bot, game, chat, "fam", user)
             lost_game(bot, game, chat, "fam", user)
+        if card == 'x_5555':
+            win_game(bot, game, chat, "ax", user)
+            lost_game(bot, game, chat, "ax", user)
+        gm.end_game(chat, user)
 
         return
 

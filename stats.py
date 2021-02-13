@@ -87,16 +87,19 @@ def user_won(id, style, nkap, bet):
             pts_gains += pts_gains * 4
         elif style is "333":
             u.wins_333 += 1
-            pts_gains += 25
+            pts_gains += 100
         elif style is "777":
             u.wins_777 += 1
-            pts_gains += 25
+            pts_gains += 100
         elif style is "21":
             u.wins_21 += 1
-            pts_gains += 25
+            pts_gains += 150
         elif style is "fam":
             u.wins_fam += 1
-            pts_gains += 25
+            pts_gains += 150
+        elif style is "ax":
+            u.wins_fam += 1
+            pts_gains += 200
         u.last_game_win = True
         u.points += pts_gains
     return pts_gains
@@ -132,6 +135,8 @@ def user_lost(id, style, nkap, bet):
         elif style is "21":
             u.losses_21 += 1
         elif style is "fam":
+            u.losses_fam += 1
+        elif style is "ax":
             u.losses_fam += 1
         u.last_game_win = False
         u.points -= pts_loss
