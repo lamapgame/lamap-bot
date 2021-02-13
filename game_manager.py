@@ -58,7 +58,6 @@ class GameManager(object):
             self.userid_players[user.id] = list()
 
         players = self.userid_players[user.id]
-        print(players)
 
         # Don't add a player if the max is reached
         if len(game.players) == game.max_players:

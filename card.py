@@ -14,7 +14,7 @@ CARD_ICONS = {
     CLUB: '♣',  # arachide
     DIAMOND: '♦',  # biscuit
     SPADE: '♠',  # macabo
-    SPECIAL: '✳'
+    SPECIAL: '✳'  # special
 }
 
 # Values
@@ -29,7 +29,7 @@ TEN = '10'
 
 VALUES = (THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN)
 
-SPECIALS = ('x_21', 'x_333', 'x_777', 'x_0')
+SPECIALS = ('x_21', 'x_333', 'x_777', 'x_0', 'x_5555')
 
 STICKERS = {
     'h_3': 'CAACAgQAAxkBAAOzXqbjq88jyiRYK0HCxnuHVAtKL40AAtEAA2FKVA1dSx3Iy3IK3xkE',
@@ -70,7 +70,8 @@ STICKERS = {
     'x_21': 'CAACAgQAAxkBAAMNXuLPGA6r1loi2c8EPix80dSsRLQAAu4AA2FKVA3qDTAidx882BoE',
     'x_333': 'CAACAgQAAxkBAAMPXuLPMo_m6LJtBCoJEKQCZbPK9wcAAu8AA2FKVA2_-eKiP4VxnhoE',
     'x_777': 'CAACAgQAAxkBAAMRXuLPUL3O4bkGxyRvO9FDI5ItDiMAAvAAA2FKVA3j7_ZjyANyTBoE',
-    'x_0': 'CAACAgQAAxkBAAMTXuLPafqGPSd5xjX3oxfzb_iG3cwAAvEAA2FKVA10r_2_FR2UFxoE'
+    'x_0': 'CAACAgQAAxkBAAMTXuLPafqGPSd5xjX3oxfzb_iG3cwAAvEAA2FKVA10r_2_FR2UFxoE',
+    'x_5555': 'CAACAgQAAxkBAAPOYCftEAHQA0w6D65PncTmh3_-2HAAAvQAA2FKVA0drR6hxMFu7B4E'
 }
 
 
