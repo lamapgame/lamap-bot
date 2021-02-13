@@ -3,6 +3,7 @@ from telegram import InlineQueryResultArticle, ParseMode,  InputTextMessageConte
 import card as c
 from utils import mention, n_format
 from uuid import uuid4
+from collections import Counter
 
 
 def add_card(game, card, results, can_play):
@@ -34,6 +35,7 @@ def check_quick_win(cards):
     my_cards = [c.from_str(acard) for acard in cards]
     suits = [s.suit for s in my_cards]
     values = [int(i.value) for i in my_cards]
+    val_counter = Counter(values)
     total_value = sum(values)
 
     # check x_21
@@ -45,9 +47,12 @@ def check_quick_win(cards):
     # check x_777
     elif values.count(7) >= 3:
         return 'x_777'
-    # check x_0
+    # check carre-daxe
     elif len(set(suits)) == 1:
         return 'x_0'
+    # check x_0
+    elif val_counter.most_common(1)[0][1] >= 4:
+        return 'x_5555'
 
     return None
 

@@ -120,6 +120,7 @@ def n_format(num):
 
 def win_game(bot, game, chat, style, w_extension=None):
     winner = game.control_player.user
+
     if w_extension is not None:
         winner = w_extension
 
@@ -148,7 +149,7 @@ def win_game(bot, game, chat, style, w_extension=None):
         helpers.dm_information(chat, winner.id, bot, "W",
                                pts_won, game.bet, game.bet * (len(game.players)-1)*4)
 
-    if (style == "fam" or style == "777" or style == "333" or style == "21"):
+    if (style == "fam" or style == "ax" or style == "777" or style == "333" or style == "21"):
         send_animation_async(
             bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game ! {mention(w_extension)} gagne {n_format(game.bet * (len(game.players)-1))}  !")
         pts_won = user_won(w_extension.id, style, game.nkap, game.bet)
@@ -188,7 +189,7 @@ def lost_game(bot, game, chat, style, w_extension=None):
             helpers.dm_information(
                 chat, looser, bot, "L", pts_loss, game.bet, game.bet*4)
 
-        if (style == "fam" or style == "777" or style == "333" or style == "21"):
+        if (style == "fam" or style == "ax" or style == "777" or style == "333" or style == "21"):
             pts_loss = user_lost(looser, style, game.nkap, game.bet)
             helpers.dm_information(
                 chat, looser, bot, "L", pts_loss, game.bet, game.bet)
