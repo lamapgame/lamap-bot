@@ -159,10 +159,17 @@ def win_game(bot, game, chat, style, w_extension=None):
         f"WIN GAME in {style} ({winner.id}) in {chat.id}")
 
 
-def lost_game(bot, game, chat, style):
+def lost_game(bot, game, chat, style, w_extension=None):
+
     loosers = [
         lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
     ]
+
+    if w_extension:
+        loosers = [
+            lost.user.id for lost in game.players if lost.user.id != w_extension.id
+        ]
+
     for looser in loosers:
         if style == "n":
             pts_loss = user_lost(looser, style, game.nkap, game.bet)
