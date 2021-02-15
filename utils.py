@@ -152,9 +152,10 @@ def win_game(bot, game, chat, style, w_extension=None):
     if (style == "fam" or style == "ax" or style == "777" or style == "333" or style == "21"):
         send_animation_async(
             bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game ! {mention(w_extension)} gagne {n_format(game.bet * (len(game.players)-1))}  !")
-        pts_won = user_won(w_extension.id, style, game.nkap, game.bet)
+        pts_won = user_won(w_extension.id, style, game.nkap,
+                           game.bet*(len(game.players)-1))
         helpers.dm_information(chat, w_extension.id, bot, "W",
-                               pts_won, game.bet, game.bet)
+                               pts_won, game.bet, game.bet*(len(game.players)-1))
 
     logger.info(
         f"WIN GAME in {style} ({winner.id}) in {chat.id}")
