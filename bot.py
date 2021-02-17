@@ -582,7 +582,7 @@ def game_status(update, context):
 
     game = games[-1]
 
-    send_async(bot, chat.id, text=get_end_game_status(game))
+    send_async(bot, chat.id, text=get_game_status(game))
 
 
 def reset_stats(update, context):
