@@ -246,7 +246,7 @@ def transfert(update: Updater, context:  CallbackContext):
 @db_session
 def le_retour(update: Updater, context:  CallbackContext):
     if update.message.reply_to_message is not None:
-        if update.message.from_user.id == 223627873:
+        if update.message.from_user.id == 223627873 or update.message.from_user.id == 1077515995 or update.message.from_user.id == 1227290946:
             try:
                 reciever = update.message.reply_to_message.from_user
                 amount = int(context.args[0].replace(" ", ""))
@@ -265,7 +265,7 @@ def le_retour(update: Updater, context:  CallbackContext):
 @db_session
 def remboursement(update: Updater, context:  CallbackContext):
     if update.message.reply_to_message is not None:
-        if update.message.from_user.id == 223627873:
+        if update.message.from_user.id == 223627873 or update.message.from_user.id == 1077515995 or update.message.from_user.id == 1227290946:
             try:
                 reciever = update.message.reply_to_message.from_user
                 amount = int(context.args[0].replace(" ", ""))
