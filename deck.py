@@ -35,3 +35,4 @@ class Deck(object):
         self.logger.info("Shuffling deck...")
         # ? remove shuffle when testing cards
         shuffle(self.cards)
+        shuffle(self.cards)
