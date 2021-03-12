@@ -123,4 +123,4 @@ def get_end_game_status(game):
         string += "\n"
         end_game_txt.append(string)
 
-    return "".join(end_game_txt)
+    return "#autopsie\n\n".join(end_game_txt)
