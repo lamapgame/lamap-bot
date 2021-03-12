@@ -1,7 +1,7 @@
 import logging
 
-from telegram import ParseMode
-from telegram.error import BadRequest
+from telegram import ParseMode, ReplyKeyboardMarkup
+
 
 import helpers
 from stats import user_won, user_lost
@@ -121,12 +121,24 @@ def n_format(num):
 def win_game(bot, game, chat, style, w_extension=None):
     winner = game.control_player.user
 
+    next_bet = game.bet
+
+    if next_bet == 0:
+        next_bet = 500
+
+    round(next_bet)
+
+    restart_keyboard = [
+        [f"/nkap {round(next_bet/2)}", f"/nkap {next_bet}", f"/nkap {next_bet*2}"]]
+    restart_markup = ReplyKeyboardMarkup(
+        restart_keyboard, one_time_keyboard=True, resize_keyboard=True)
+
     if w_extension is not None:
         winner = w_extension
 
     if style == "n":
         send_animation_async(
-            bot, chat.id, animation=win_Anim(), caption=f"Voilà {mention(winner)} qui part avec {n_format(game.bet * (len(game.players)-1))} !"
+            bot, chat.id, reply_markup=restart_markup, animation=win_Anim(), caption=f"Voilà {mention(winner)} qui part avec {n_format(game.bet * (len(game.players)-1))} !"
         )
         pts_won = user_won(winner.id, style, game.nkap,
                            game.bet*(len(game.players)-1))
@@ -135,7 +147,7 @@ def win_game(bot, game, chat, style, w_extension=None):
 
     if style == "kora":
         send_animation_async(
-            bot, chat.id, animation=win_kora_Anim(), caption=f"KORA! {mention(winner)} porte {n_format((game.bet * (len(game.players)-1))*2)} !")
+            bot, chat.id, reply_markup=restart_markup, animation=win_kora_Anim(), caption=f"KORA! {mention(winner)} porte {n_format((game.bet * (len(game.players)-1))*2)} !")
         pts_won = user_won(winner.id,
                            style, game.nkap, game.bet * (len(game.players)-1))
         helpers.dm_information(chat, winner.id, bot, "W",
@@ -143,7 +155,7 @@ def win_game(bot, game, chat, style, w_extension=None):
 
     if style == "dbl_kora":
         send_animation_async(
-            bot, chat.id, animation=win_Anim(), caption=f"Garçon ! {mention(winner)} à laissé la consigne que la facture des 33 là c'est {n_format((game.bet * (len(game.players)-1))*4)} !")
+            bot, chat.id, reply_markup=restart_markup, animation=win_Anim(), caption=f"Garçon ! {mention(winner)} à laissé la consigne que la facture des 33 là c'est {n_format((game.bet * (len(game.players)-1))*4)} !")
         pts_won = user_won(winner.id,
                            style, game.nkap, game.bet * (len(game.players)-1))
         helpers.dm_information(chat, winner.id, bot, "W",
@@ -151,7 +163,7 @@ def win_game(bot, game, chat, style, w_extension=None):
 
     if (style == "fam" or style == "ax" or style == "777" or style == "333" or style == "21"):
         send_animation_async(
-            bot, chat.id, animation=win_qw_Anim(), caption=f"Fin du game ! {mention(w_extension)} gagne {n_format(game.bet * (len(game.players)-1))}  !")
+            bot, chat.id, reply_markup=restart_markup, animation=win_qw_Anim(), caption=f"Fin du game ! {mention(w_extension)} gagne {n_format(game.bet * (len(game.players)-1))}  !")
         pts_won = user_won(w_extension.id, style, game.nkap,
                            game.bet*(len(game.players)-1))
         helpers.dm_information(chat, w_extension.id, bot, "W",

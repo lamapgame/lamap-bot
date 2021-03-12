@@ -4,7 +4,7 @@ import card as c
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from global_variables import gm, updater
+from global_variables import gm
 from utils import send_async, mention, win_game, lost_game
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
