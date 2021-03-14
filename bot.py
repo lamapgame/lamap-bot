@@ -1,8 +1,6 @@
 # python modules
-import datetime
 import logging
 import random
-from time import time
 
 # telegram api
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -28,7 +26,7 @@ from start_bot import start_bot
 from utils import (TIMEOUT, answer_async, delete_start_msgs, pin_game_message,
                    mention, send_animation_async, send_async, user_is_creator, win_game, lost_game,
                    user_is_creator_or_admin, n_format)
-from gifs import start_Anim, win_forfeit_Anim
+from gifs import start_Anim
 from interactions import (t_already_joined, t_already_started, t_count_down, t_joining, t_max_reached, t_no_game,
                           t_no_money, t_game_run, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back)
 
@@ -366,6 +364,7 @@ def quit_game(update, context):
     except NoGameInChatError:
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
                    reply_to_message_id=update.message.message_id)
+        return
 
     game = player.game
     user = update.message.from_user
@@ -412,35 +411,30 @@ def quit_game(update, context):
                 f"WIN GAME FOFEIT ({game.control_player.user.id}) in {chat.id}")
     '''
 
+    # TODO
+    # if you leave after game starts... you pay game bet
+    # if you leave on after 2nd round and there's kora, you pay kora
+
     if game.started:
-        # more logic to check on game status
-        #
-        send_async(bot, chat.id,
-                   text=f"{mention(user)} comme tu pars là, ne vient plus. Prochain joueur: {mention(game.current_player.user)}", reply_to_message_id=update.message.message_id)
+        quitter = [p for p in game.players if (
+            user.id == p.user['id'])][0]
+        rest_of_players = [p for p in game.players if not (
+            user.id == p.user['id'])][0]
         try:
             gm.leave_game(user, chat)
-            stats.user_quit(user.id)
-            stats.user_lost(user.id, "n", game.nkap, game.bet)
-
         except NotEnoughPlayersError:
-            if game.control_player is None:
-                send_async(
-                    bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
-            else:
-                send_animation_async(
-                    bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
             gm.end_game(chat, user)
-            stats.user_won(game.control_player.user.id,
-                           "n", game.nkap, game.bet)
+            win_game(bot, game, chat, "n", game_winner=rest_of_players)
+            lost_game(bot, game, chat, "n", game_loser=quitter)
     else:
         send_async(bot, chat.id, text=t_game_run(mention(user)),
                    to_delete=True)
         try:
             gm.leave_game(user, chat)
             stats.user_quit(user.id)
-
         except NotEnoughPlayersError:
             pass
+        return
 
 
 def kill_game(update, context):
