@@ -361,14 +361,14 @@ def quit_game(update, context):
     bot = context.bot
     player = None
 
-    try:
+    game = player.game
+    user = update.message.from_user
+
+    ''' try:
         player = gm.player_for_user_in_chat(user, chat)
     except NoGameInChatError:
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
                    reply_to_message_id=update.message.message_id)
-
-    game = player.game
-    user = update.message.from_user
 
     try:
         if game.control_player != None:
@@ -383,6 +383,7 @@ def quit_game(update, context):
             send_async(bot, chat.id, text=f"{mention(user)} a fui en voyant ses cartes.",
                        reply_to_message_id=update.message.message_id)
             gm.leave_game(user, chat)
+            # update game to match left
             stats.user_quit(user.id)
             stats.user_lost(user.id, "n", game.nkap, game.bet)
 
@@ -397,7 +398,7 @@ def quit_game(update, context):
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
                    reply_to_message_id=update.message.message_id)
 
-    except NotEnoughPlayersError:
+    except NotEnoughPlayersError: 
         gm.end_game(chat, user)
         if game.control_player is None:
             send_async(
@@ -408,44 +409,37 @@ def quit_game(update, context):
             win_game(bot, game, chat, "n")
             logger.info(
                 f"WIN GAME FOFEIT ({game.control_player.user.id}) in {chat.id}")
+    '''
 
+    if game.started:
+        # more logic to check on game status
+        #
+        send_async(bot, chat.id,
+                   text=f"{mention(user)} comme tu pars là, ne vient plus. Prochain joueur: {mention(game.current_player.user)}", reply_to_message_id=update.message.message_id)
+        try:
+            gm.leave_game(user, chat)
+            stats.user_quit(user.id)
+            stats.user_lost(user.id, "n", game.nkap, game.bet)
+
+        except NotEnoughPlayersError:
+            if game.control_player is None:
+                send_async(
+                    bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
+            else:
+                send_animation_async(
+                    bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
+            gm.end_game(chat, user)
+            stats.user_won(game.control_player.user.id,
+                           "n", game.nkap, game.bet)
     else:
-        if game.started:
-            send_async(bot, chat.id,
-                       text=f"{mention(user)} comme tu pars là, ne vient plus. Prochain joueur: {mention(game.current_player.user)}", reply_to_message_id=update.message.message_id)
-            try:
-                gm.leave_game(user, chat)
-                stats.user_quit(user.id)
-                stats.user_lost(user.id, "n", game.nkap, game.bet)
+        send_async(bot, chat.id, text=f"{mention(user)} a fui. Une place s'est libéré",
+                   reply_to_message_id=update.message.message_id)
+        try:
+            gm.leave_game(user, chat)
+            stats.user_quit(user.id)
 
-            except NotEnoughPlayersError:
-                if game.control_player is None:
-                    send_async(
-                        bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
-                else:
-                    send_animation_async(
-                        bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
-                gm.end_game(chat, user)
-                stats.user_won(game.control_player.user.id,
-                               "n", game.nkap, game.bet)
-        else:
-            send_async(bot, chat.id, text=f"{mention(user)} a fui.",
-                       reply_to_message_id=update.message.message_id)
-            try:
-                gm.leave_game(user, chat)
-                stats.user_quit(user.id)
-                stats.user_lost(user.id, "n", game.nkap, game.bet)
-
-            except NotEnoughPlayersError:
-                if game.control_player is None:
-                    send_async(
-                        bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
-                else:
-                    send_async(
-                        bot, chat.id, caption=f"Les gars ont tous fui?! ")
-                    win_game(game.control_player.user.id,
-                             "n", game.nkap, game.bet)
-                gm.end_game(chat, user)
+        except NotEnoughPlayersError:
+            pass
 
 
 def kill_game(update, context):
@@ -652,14 +646,13 @@ def main():
             fallbacks=[CommandHandler('ndem', stop_nkap_game)], conversation_timeout=10
         )
     )
-    # dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
+    dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('call_me_back', call_me_back))
     dispatcher.add_handler(CommandHandler('start_game', start_lamap))
     dispatcher.add_handler(CommandHandler('game_status', game_status))
     # muted commands
     dispatcher.add_handler(CommandHandler('join', join_game))
-    dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     # dispatcher.add_handler(CommandHandler('chasser', kick_player))
     dispatcher.add_handler(CommandHandler(
         'reset_stats', reset_stats, run_async=False))
