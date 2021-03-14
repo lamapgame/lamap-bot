@@ -138,7 +138,7 @@ def win_game(bot, game, chat, style, w_extension=None, game_winner=None):
     round(next_bet)
 
     restart_keyboard = [
-        [f"/nkap {round(next_bet/2)}", f"/nkap {next_bet}", f"/nkap {next_bet*2}"],["/join"]]
+        [f"/nkap {round(next_bet/2)}", f"/nkap {next_bet}", f"/nkap {next_bet*2}"]]
     restart_markup = ReplyKeyboardMarkup(
         restart_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
