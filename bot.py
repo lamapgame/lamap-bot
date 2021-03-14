@@ -30,7 +30,7 @@ from utils import (TIMEOUT, answer_async, delete_start_msgs, pin_game_message,
                    user_is_creator_or_admin, n_format)
 from gifs import start_Anim, win_forfeit_Anim
 from interactions import (t_already_joined, t_already_started, t_count_down, t_joining, t_max_reached, t_no_game,
-                          t_no_money, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back)
+                          t_no_money, t_game_run, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back)
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -433,8 +433,8 @@ def quit_game(update, context):
             stats.user_won(game.control_player.user.id,
                            "n", game.nkap, game.bet)
     else:
-        send_async(bot, chat.id, text=f"{mention(user)} a fui. Une place s'est libéré",
-                   to_delete=True, reply_to_message_id=update.message.message_id)
+        send_async(bot, chat.id, text=t_game_run(mention(user)),
+                   to_delete=True)
         try:
             gm.leave_game(user, chat)
             stats.user_quit(user.id)
