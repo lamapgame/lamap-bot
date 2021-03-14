@@ -361,15 +361,16 @@ def quit_game(update, context):
     bot = context.bot
     player = None
 
-    game = player.game
-    user = update.message.from_user
-
-    ''' try:
+    try:
         player = gm.player_for_user_in_chat(user, chat)
     except NoGameInChatError:
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
                    reply_to_message_id=update.message.message_id)
 
+    game = player.game
+    user = update.message.from_user
+
+    ''' 
     try:
         if game.control_player != None:
             if game.control_player.user.id != user.id:
@@ -433,7 +434,7 @@ def quit_game(update, context):
                            "n", game.nkap, game.bet)
     else:
         send_async(bot, chat.id, text=f"{mention(user)} a fui. Une place s'est libéré",
-                   reply_to_message_id=update.message.message_id)
+                   to_delete=True, reply_to_message_id=update.message.message_id)
         try:
             gm.leave_game(user, chat)
             stats.user_quit(user.id)
