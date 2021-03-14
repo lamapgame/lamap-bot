@@ -3,8 +3,6 @@ from datetime import datetime
 from config import ADMIN_LIST, OPEN_LOBBY, MAX_PLAYERS, WAITING_TIME
 from deck import Deck
 
-import global_variables
-
 
 class Game(object):
     """represents one game"""
@@ -64,6 +62,11 @@ class Game(object):
                             len(self.players)]
         return next
 
+    @property
+    def get_players_except_current(self):
+        return [p for p in self.players if not (
+                self.current_player.id == p.user['id'])]
+
     def turn(self):
         """ Change a turn and change the player """
         self.current_player = self.next_player
@@ -101,6 +104,10 @@ class Game(object):
         self.deck.fill_cards()
         self.started = True
         # self.job.run_once(self.end_turn_by_afk, WAITING_TIME)
+
+    def remove_player(self, player):
+        self.players.remove(player)
+        return
 
     def end_turn_by_afk(self, context):
         """ kill the turn and make the player afk """

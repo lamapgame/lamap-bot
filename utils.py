@@ -118,8 +118,17 @@ def n_format(num):
     return '{}{}'.format('{:f}'.format(num).rstrip('0').rstrip('.'), ['', ' kolos', ' bâtons', ' myondos', ' mitoumba'][magnitude])
 
 
-def win_game(bot, game, chat, style, w_extension=None):
-    winner = game.control_player.user
+def win_game(bot, game, chat, style, w_extension=None, game_winner=None):
+
+    if game_winner is not None:
+        winner = game_winner.user
+        other_players = 1
+    else:
+        winner = game.control_player.user
+        other_players = len(game.players)-1
+
+    if w_extension is not None:
+        winner = w_extension
 
     next_bet = game.bet
 
@@ -133,25 +142,22 @@ def win_game(bot, game, chat, style, w_extension=None):
     restart_markup = ReplyKeyboardMarkup(
         restart_keyboard, one_time_keyboard=True, resize_keyboard=True)
 
-    if w_extension is not None:
-        winner = w_extension
-
     if style == "n":
         send_animation_async(
-            bot, chat.id, reply_markup=restart_markup, animation=win_Anim(), caption=f"Voilà {mention(winner)} qui part avec {n_format(game.bet * (len(game.players)-1))} !"
+            bot, chat.id, reply_markup=restart_markup, animation=win_Anim(), caption=f"Voilà {mention(winner)} qui part avec {n_format(game.bet * other_players)} !"
         )
         pts_won = user_won(winner.id, style, game.nkap,
-                           game.bet*(len(game.players)-1))
+                           game.bet*other_players)
         helpers.dm_information(chat, winner.id, bot, "W", pts_won,
-                               game.bet, game.bet*(len(game.players)-1))
+                               game.bet, game.bet*other_players)
 
     if style == "kora":
         send_animation_async(
-            bot, chat.id, reply_markup=restart_markup, animation=win_kora_Anim(), caption=f"KORA! {mention(winner)} porte {n_format((game.bet * (len(game.players)-1))*2)} !")
+            bot, chat.id, reply_markup=restart_markup, animation=win_kora_Anim(), caption=f"KORA! {mention(winner)} porte {n_format((game.bet * other_players)*2)} !")
         pts_won = user_won(winner.id,
-                           style, game.nkap, game.bet * (len(game.players)-1))
+                           style, game.nkap, game.bet * other_players)
         helpers.dm_information(chat, winner.id, bot, "W",
-                               pts_won, game.bet, game.bet * (len(game.players)-1)*2)
+                               pts_won, game.bet, game.bet * other_players*2)
 
     if style == "dbl_kora":
         send_animation_async(
@@ -173,11 +179,16 @@ def win_game(bot, game, chat, style, w_extension=None):
         f"WIN GAME in {style} ({winner.id}) in {chat.id}")
 
 
-def lost_game(bot, game, chat, style, w_extension=None):
+def lost_game(bot, game, chat, style, w_extension=None, game_loser=None):
 
-    loosers = [
-        lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
-    ]
+    loosers = []
+
+    if game_loser is not None:
+        loosers.append(game_loser.id)
+    else:
+        loosers = [
+            lost.user.id for lost in game.players if lost.user.id != game.control_player.user.id
+        ]
 
     if w_extension:
         loosers = [
