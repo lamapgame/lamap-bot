@@ -1,3 +1,4 @@
+from stats import init_stats
 from telegram import ParseMode
 from telegram.ext import CommandHandler, CallbackContext, Updater
 
@@ -19,6 +20,8 @@ def help_handler(update, context):
 
 def start(update, context):
     """ Handler for /start command """
+    user = update.message.from_user
+    init_stats(user.id, user.first_name)
     start_txt = (
         "Ao !? \n\n1.Tchouk moi dans un groupe\n2. Mets moi ADMIN\n3. Lance /nkap et on se met bien."
     )
@@ -75,6 +78,9 @@ def stats(update, context):
         user = update.message.from_user
 
     u = UserDB.get(id=user.id)
+
+    # update name
+    u.name = user.first_name
 
     if not u:
         UserDB(id=user.id, name=user.name)
