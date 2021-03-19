@@ -256,7 +256,7 @@ def transfert(update: Updater, context:  CallbackContext):
                             update.message.chat_id, text="Molah, doucement !.")
                 else:
                     context.bot.send_message(
-                        update.message.chat_id, text="Fais attention à qui tu transfert tes dos, si je prends ça je garde.")
+                        update.message.chat_id, text="Fais attention à qui tu envoi tes dos, si je prends ça je garde.")
         except ValueError:
             context.bot.send_message(
                 update.message.chat_id, text="Je ne comprends pas le montant là, éssayes un vrai montant.")

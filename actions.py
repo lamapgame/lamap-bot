@@ -82,6 +82,8 @@ def do_play_card(bot, player, result_id, context, update):
         if card == 'x_5555':
             win_game(bot, game, chat, "ax", user)
             lost_game(bot, game, chat, "ax", user)
+
+        remove_job_if_exists(str(chat.id), context)
         gm.end_game(chat, user)
 
         return
