@@ -360,15 +360,20 @@ def quit_game(update, context):
     user = update.message.from_user
     bot = context.bot
     player = None
+    game = None
 
     try:
         player = gm.player_for_user_in_chat(user, chat)
+        game = player.game
     except NoGameInChatError:
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
                    reply_to_message_id=update.message.message_id)
         return
+    except AttributeError:
+        send_async(bot, chat.id, text=f"Tu veux fuir sans joindre ?",
+                   reply_to_message_id=update.message.message_id)
+        return
 
-    game = player.game
     user = update.message.from_user
 
     ''' 
@@ -418,19 +423,28 @@ def quit_game(update, context):
     # if you leave on after 2nd round and there's kora, you pay kora
 
     if game.started:
-        quitter = [p for p in game.players if (
-            user.id == p.user['id'])][0]
-        rest_of_players = [p for p in game.players if not (
-            user.id == p.user['id'])][0]
-        try:
-            gm.leave_game(user, chat)
-        except NotEnoughPlayersError:
-            gm.end_game(chat, user)
-            win_game(bot, game, chat, "n", game_winner=rest_of_players)
-            lost_game(bot, game, chat, "n", game_loser=quitter)
+        if len(game.players) < 3:
+            if len(game.game_info) < 4:
+                quitter = [p for p in game.players if (
+                    user.id == p.user['id'])][0]
+                rest_of_players = [p for p in game.players if not (
+                    user.id == p.user['id'])][0]
+                try:
+                    gm.leave_game(user, chat)
+                except NotEnoughPlayersError:
+                    remove_job_if_exists(str(chat.id), context)
+                    gm.end_game(chat, user)
+                    win_game(bot, game, chat, "n", game_winner=rest_of_players)
+                    lost_game(bot, game, chat, "n", game_loser=quitter)
+            else:
+                send_async(
+                    bot, chat.id, text="Tu ne fuis pas, tu vas jouer. Pars dire que j'ai réfusé", to_delete=True)
+        else:
+            send_async(
+                bot, chat.id, text="Tu ne peux pas fuir une partie à plus de 2. (Pour l'instant, on ne se banque que dans un FACE à FACE)", to_delete=True)
     else:
-        send_async(bot, chat.id, text=t_game_run(mention(user)),
-                   to_delete=True)
+        send_async(bot, chat.id, text=t_game_run(
+            mention(user)), to_delete=True)
         try:
             gm.leave_game(user, chat)
             stats.user_quit(user.id)

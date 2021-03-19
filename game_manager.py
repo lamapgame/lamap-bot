@@ -138,6 +138,9 @@ class GameManager(object):
 
         game.remove_player(player)
 
+        self.logger.info(
+            f"PLAYER LEFT - {user.id} on game in the group: {chat.id}")
+
         ''' if player:
             games = self.chatid_games[chat.id]
             for g in games:
