@@ -5,7 +5,7 @@ from telegram import ParseMode, ReplyKeyboardMarkup
 
 import helpers
 from stats import user_won, user_lost
-from gifs import win_Anim, win_kora_Anim, win_qw_Anim
+from gifs import win_Anim, win_forfeit_Anim, win_kora_Anim, win_qw_Anim
 
 from global_variables import gm
 from mwt import MWT
@@ -138,9 +138,9 @@ def win_game(bot, game, chat, style, w_extension=None, game_winner=None):
     round(next_bet)
 
     restart_keyboard = [
-        [f"/nkap {round(next_bet/2)}", f"/nkap {next_bet}", f"/nkap {next_bet*2}"]]
+        [f"/nkap {round(next_bet/2)}", f"/nkap {next_bet}", f"/join"]]
     restart_markup = ReplyKeyboardMarkup(
-        restart_keyboard, one_time_keyboard=True, resize_keyboard=True)
+        restart_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True)
 
     if style == "n":
         send_animation_async(
@@ -220,6 +220,28 @@ def lost_game(bot, game, chat, style, w_extension=None, game_loser=None):
 
         logger.info(
             f"LOSER(S) {style} ({looser}) in {chat.id}")
+
+
+def loss_by_afk(bot, game, chat, style):
+
+    loser = game.current_player.user
+
+    winners = [
+        winner for winner in game.players if winner.user.id != loser.id
+    ]
+
+    send_animation_async(
+        bot, chat.id, animation=win_forfeit_Anim(), caption=f"On a pas le temps pour ça !\n\n{mention(game.current_player.user)}, je te prélève {n_format(game.bet)} pour chacun des participants!"
+    )
+
+    pts_loss = user_lost(loser.id, style, game.nkap, game.bet * len(winners))
+    helpers.dm_information(
+        chat, loser.id, bot, "L", pts_loss, game.bet, game.bet * len(winners))
+
+    for winner in winners:
+        pts_won = user_won(winner.id, style, game.nkap, game.bet)
+        helpers.dm_information(chat, winner.id, bot, "W",
+                               pts_won, game.bet, game.bet)
 
 
 @MWT(timeout=60*60)

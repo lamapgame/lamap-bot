@@ -123,6 +123,7 @@ class GameManager(object):
         if not self.chatid_games[chat.id]:
             del self.chatid_games[chat.id]
 
+        game.end()
         self.logger.info("END GAME in chat " + str(chat.id))
 
     def leave_game(self, user, chat):

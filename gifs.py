@@ -15,7 +15,7 @@ win_double_kora_game_GIF = [
     "https://media.giphy.com/media/zrj0yPfw3kGTS/giphy.gif", "https://media.giphy.com/media/dxn6nOILy3OixVA1FY/giphy-downsized.gif", "https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif"]
 # won by forfeit
 win_forfeit_game_GIF = [
-    "https://media.giphy.com/media/dxn6nOILy3OixVA1FY/giphy-downsized.gif", "https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif"
+    "https://media.giphy.com/media/6iUwX2fnSIjl3mWEtl/giphy.gif", "https://media.giphy.com/media/iajRXLr6r1X6bJ7zjS/giphy.gif"
 ]
 
 
