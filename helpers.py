@@ -1,3 +1,6 @@
+import logging
+from config import SUPERMOD_LIST
+from stats import init_stats
 from telegram import ParseMode
 from telegram.ext import CommandHandler, CallbackContext, Updater
 
@@ -6,6 +9,12 @@ from user_db import UserDB
 
 from global_variables import dispatcher
 from utils import mention, n_format
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+BOTS = [1397177261, 1101987755]
 
 
 def help_handler(update, context):
@@ -19,6 +28,8 @@ def help_handler(update, context):
 
 def start(update, context):
     """ Handler for /start command """
+    user = update.message.from_user
+    init_stats(user.id, user.first_name)
     start_txt = (
         "Ao !? \n\n1.Tchouk moi dans un groupe\n2. Mets moi ADMIN\n3. Lance /nkap et on se met bien."
     )
@@ -77,11 +88,13 @@ def stats(update, context):
     u = UserDB.get(id=user.id)
 
     if not u:
-        UserDB(id=user.id, name=user.name)
+        UserDB(id=user.id, name=user.first_name)
         context.bot.send_message(
-            update.message.chat_id, text="Ok Mola, je te connais maintenant.")
+            update.message.chat_id, text=f"Ok {user.first_name}, je te connais maintenant.")
     else:
         ufinished = u.games_played - (u.wins + u.losses)
+        # update name
+        u.name = user.first_name
 
         if u.games_played != 0:
             w_pct = " (" + str(round(100 * float(u.wins) /
@@ -169,7 +182,7 @@ def top_pauvrards(update, context):
 @db_session
 def top_rich_players(update, context):
     top_10_rich = list(UserDB.select().order_by(
-        lambda u: desc(u.nkap))[:10])
+        lambda u: desc(u.nkap))[:15])
     top_txt = []
     for idx, user in enumerate(top_10_rich, start=1):
         string = f"`{idx}–` *{str(user.name)}* - {n_format(user.nkap)}\n"
@@ -182,6 +195,12 @@ def top_rich_players(update, context):
 
 @db_session
 def top_korateurs(update, context):
+    top_kora(update, context)
+    top_dbl_korateurs(update, context)
+
+
+@db_session
+def top_kora(update, context):
     top_10_korat = list(UserDB.select().order_by(
         lambda u: desc(u.wins_kora))[:10])
     top_txt = []
@@ -189,7 +208,7 @@ def top_korateurs(update, context):
         string = f"`{idx}–` *{str(user.name)}* - {user.wins_kora}\n"
         top_txt.append(string)
 
-    context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
+    context.bot.send_message(update.message.chat_id, text='TOP KORATEURS\n\n' + ''.join(top_txt),
                              parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
     return
 
@@ -203,7 +222,7 @@ def top_dbl_korateurs(update, context):
         string = f"`{idx}–` *{user.name}* - {user.wins_dbl_kora}\n"
         top_txt.append(string)
 
-    context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
+    context.bot.send_message(update.message.chat_id, text='DOUBLE KORATEURS\n\n' + ''.join(top_txt),
                              parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
 
 
@@ -224,14 +243,20 @@ def transfert(update: Updater, context:  CallbackContext):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne fais pas la magie, Il y a eu un problème pendant ce transfert.")
             else:
-                if s.nkap > amount:
-                    s.nkap -= amount
-                    r.nkap += amount
-                    context.bot.send_message(
-                        update.message.chat_id, text=f"Confiance ! Tu as envoyé {n_format(amount)} à {reciever.name}.")
+                if reciever.id not in BOTS:
+                    if s.nkap > amount:
+                        s.nkap -= amount
+                        r.nkap += amount
+                        context.bot.send_message(
+                            update.message.chat_id, text=f"Confiance ! Tu as envoyé {n_format(amount)} à {mention(reciever)}.")
+                        logger.info(
+                            f"TRANSFERT from {sender.id} to {reciever.id} of {amount}")
+                    else:
+                        context.bot.send_message(
+                            update.message.chat_id, text="Molah, doucement !.")
                 else:
                     context.bot.send_message(
-                        update.message.chat_id, text="Molah, doucement !.")
+                        update.message.chat_id, text="Fais attention à qui tu envoi tes dos, si je prends ça je garde.")
         except ValueError:
             context.bot.send_message(
                 update.message.chat_id, text="Je ne comprends pas le montant là, éssayes un vrai montant.")
@@ -246,7 +271,7 @@ def transfert(update: Updater, context:  CallbackContext):
 @db_session
 def le_retour(update: Updater, context:  CallbackContext):
     if update.message.reply_to_message is not None:
-        if update.message.from_user.id == 223627873 or update.message.from_user.id == 1077515995 or update.message.from_user.id == 1227290946:
+        if update.message.from_user.id in SUPERMOD_LIST:
             try:
                 reciever = update.message.reply_to_message.from_user
                 amount = int(context.args[0].replace(" ", ""))
@@ -254,6 +279,8 @@ def le_retour(update: Updater, context:  CallbackContext):
                 r.nkap -= amount
                 context.bot.send_message(
                     update.message.chat_id, text=f"C'est bon, le retour est géré.\n\n{mention(reciever)} a payé {n_format(amount)}")
+                logger.info(
+                    f"RETOUR from {reciever.id} of {amount}")
             except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
@@ -265,7 +292,7 @@ def le_retour(update: Updater, context:  CallbackContext):
 @db_session
 def remboursement(update: Updater, context:  CallbackContext):
     if update.message.reply_to_message is not None:
-        if update.message.from_user.id == 223627873 or update.message.from_user.id == 1077515995 or update.message.from_user.id == 1227290946:
+        if update.message.from_user.id in SUPERMOD_LIST:
             try:
                 reciever = update.message.reply_to_message.from_user
                 amount = int(context.args[0].replace(" ", ""))
@@ -273,6 +300,8 @@ def remboursement(update: Updater, context:  CallbackContext):
                 r.nkap += amount
                 context.bot.send_message(
                     update.message.chat_id, text=f"La paie a été éffectué.\n\n{mention(reciever)} est payé {n_format(amount)}")
+                logger.info(
+                    f"REMBOURSEMENT to {reciever.id} of {amount}")
 
             except (ValueError, IndexError):
                 context.bot.send_message(
@@ -289,17 +318,15 @@ def register():
     dispatcher.add_handler(CommandHandler(
         'top10', top_players))
     dispatcher.add_handler(CommandHandler(
-        'top10nkap', top_rich_players))
+        'top_nkap', top_rich_players))
     dispatcher.add_handler(CommandHandler(
-        'top10koras', top_korateurs))
+        'top_koras', top_korateurs))
     dispatcher.add_handler(CommandHandler(
-        'top10_2koras', top_dbl_korateurs))
-    dispatcher.add_handler(CommandHandler(
-        'top10_pauvrard', top_pauvrards))
+        'top_pauvrard', top_pauvrards))
     dispatcher.add_handler(CommandHandler(
         'transfert', transfert))
     dispatcher.add_handler(CommandHandler(
-        'le_retour', le_retour))
+        'retour', le_retour))
     dispatcher.add_handler(CommandHandler(
         'remboursement', remboursement))
     dispatcher.add_handler(CommandHandler('stats', stats))

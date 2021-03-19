@@ -75,6 +75,15 @@ game_interactions = {
         "{user} on ne joue pas le check-games içi",
         "{user} tu n'as rien. Tu pensais qu'on jouait avec les points ?",
     ],
+    "game_run": [
+        "Molah, {user}, ne joint pas pour fuir. J'ai une place libre",
+        "{user} est parti",
+        "{user} a abandonné ses fonctions, une place s'est libéré",
+        "{user}, comme tu fuis là, ne reviens plus",
+        "STP {user} prochainement ne joins pas.",
+        "{user} je n'aime pas faire l'atalaku pour rien",
+        "{user} a fui. Une place s'est libéré",
+    ],
     "max_reached": [
         "Désolé {user}, le terre est plein, tu ne peux pas joindre. /call\_me\_back pour être notifié lorsque une nouvelle partie sera lancée dans ce groupe."
         "{user}, nous sommes déjà 4, ce n'est pas le check games ici",
@@ -179,6 +188,10 @@ def t_not_enough():
 
 def t_no_money(user):
     return choice(game_interactions.get("no_money")).format(user=user)
+
+
+def t_game_run(user):
+    return choice(game_interactions.get("game_run")).format(user=user)
 
 
 def t_max_reached(user):

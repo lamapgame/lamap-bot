@@ -1,8 +1,7 @@
 # python modules
-import datetime
+
 import logging
 import random
-from time import time
 
 # telegram api
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, ParseMode, Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
@@ -16,7 +15,7 @@ import helpers
 import logger as loggero
 import stats
 from actions import do_play_card
-from config import MIN_PLAYERS, TIME_TO_START
+from config import MIN_PLAYERS, TIME_TO_PLAY, TIME_TO_START
 from errors import (AlreadyGameInChat, AlreadyJoinedError,
                     GameAlreadyStartedError, LobbyClosedError,
                     MaxPlayersReached, NoGameInChatError, NotEnoughNkap,
@@ -28,9 +27,10 @@ from start_bot import start_bot
 from utils import (TIMEOUT, answer_async, delete_start_msgs, pin_game_message,
                    mention, send_animation_async, send_async, user_is_creator, win_game, lost_game,
                    user_is_creator_or_admin, n_format)
-from gifs import start_Anim, win_forfeit_Anim
+from gifs import start_Anim
 from interactions import (t_already_joined, t_already_started, t_count_down, t_joining, t_max_reached, t_no_game,
-                          t_no_money, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back)
+                          t_no_money, t_game_run, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back)
+from jobs import remove_job_if_exists, set_job
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -61,7 +61,7 @@ def initiate_nkap(update: Update, context: CallbackContext):
                            text=t_already_started(), reply_to_message_id=update.message.message_id)
                 return ConversationHandler.END
     if not context.args:
-        send_async(context.bot, chat_id, text=t_tu_joue_combien(),
+        send_async(context.bot, chat_id, text=t_tu_joue_combien(), reply_markup=ReplyKeyboardRemove(),
                    reply_to_message_id=update.message.message_id)
         return 1
     else:
@@ -71,7 +71,7 @@ def initiate_nkap(update: Update, context: CallbackContext):
 
 def stop_nkap_game(update: Update, context: CallbackContext):
     send_async(context.bot, update.message.chat_id,
-               text=f'Ok c\'est free, Mboutman.',  reply_markup=ReplyKeyboardRemove())
+               text=f'Ok c\'est free.',  reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END
 
 
@@ -123,7 +123,7 @@ def new_nkap_game(update, context, montant=None):
 
             # start the game after TIME_TO_START secs
             context.job_queue.run_once(
-                start_the_game_soon, TIME_TO_START/2, context=update)
+                start_the_game_soon, TIME_TO_START/2, context=update, name=str(chat_id))
 
         except AlreadyGameInChat:
             send_async(context.bot, chat_id,
@@ -142,7 +142,7 @@ def start_the_game_soon(context):
         send_async(context.bot, chat.id,
                    text=t_count_down(int(TIME_TO_START/2)), to_delete=True)
         context.job_queue.run_once(
-            start_the_game, TIME_TO_START/2, context=context.job.context)
+            start_the_game, TIME_TO_START/2, context=context.job.context, name=str(chat.id))
 
 
 def start_the_game(context):
@@ -258,6 +258,7 @@ def start_lamap(update, context):
                 # Send the first card and player
                 bot.send_message(chat.id, text=f"La partie vient d'être lancée, {mention(game.first_player.user)}, Tu joues la première carte", reply_markup=InlineKeyboardMarkup(
                     choice), timeout=TIMEOUT, parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+                set_job(str(chat.id), context, update, game)
 
         else:
             send_async(
@@ -314,7 +315,6 @@ def process_result(update, context):
     """
     Handler for chosen inline results.
     """
-
     bot = context.bot
 
     user = update.chosen_inline_result.from_user
@@ -323,7 +323,7 @@ def process_result(update, context):
     result_id = update.chosen_inline_result.result_id
 
     try:
-        do_play_card(bot, player, result_id)
+        do_play_card(bot, player, result_id, context, update)
     except (KeyError, AttributeError, ValueError):
         # handle errors that occurs when players play wrong cards
         return
@@ -360,16 +360,23 @@ def quit_game(update, context):
     user = update.message.from_user
     bot = context.bot
     player = None
+    game = None
 
     try:
         player = gm.player_for_user_in_chat(user, chat)
+        game = player.game
     except NoGameInChatError:
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
                    reply_to_message_id=update.message.message_id)
+        return
+    except AttributeError:
+        send_async(bot, chat.id, text=f"Tu veux fuir sans joindre ?",
+                   reply_to_message_id=update.message.message_id)
+        return
 
-    game = player.game
     user = update.message.from_user
 
+    ''' 
     try:
         if game.control_player != None:
             if game.control_player.user.id != user.id:
@@ -383,6 +390,7 @@ def quit_game(update, context):
             send_async(bot, chat.id, text=f"{mention(user)} a fui en voyant ses cartes.",
                        reply_to_message_id=update.message.message_id)
             gm.leave_game(user, chat)
+            # update game to match left
             stats.user_quit(user.id)
             stats.user_lost(user.id, "n", game.nkap, game.bet)
 
@@ -397,7 +405,7 @@ def quit_game(update, context):
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
                    reply_to_message_id=update.message.message_id)
 
-    except NotEnoughPlayersError:
+    except NotEnoughPlayersError: 
         gm.end_game(chat, user)
         if game.control_player is None:
             send_async(
@@ -408,44 +416,41 @@ def quit_game(update, context):
             win_game(bot, game, chat, "n")
             logger.info(
                 f"WIN GAME FOFEIT ({game.control_player.user.id}) in {chat.id}")
+    '''
 
-    else:
-        if game.started:
-            send_async(bot, chat.id,
-                       text=f"{mention(user)} comme tu pars là, ne vient plus. Prochain joueur: {mention(game.current_player.user)}", reply_to_message_id=update.message.message_id)
-            try:
-                gm.leave_game(user, chat)
-                stats.user_quit(user.id)
-                stats.user_lost(user.id, "n", game.nkap, game.bet)
+    # TODO
+    # if you leave after game starts... you pay game bet
+    # if you leave on after 2nd round and there's kora, you pay kora
 
-            except NotEnoughPlayersError:
-                if game.control_player is None:
-                    send_async(
-                        bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
-                else:
-                    send_animation_async(
-                        bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Les gars ont tous fui?! Je considère que {mention(game.control_player.user)} a gagné")
-                gm.end_game(chat, user)
-                stats.user_won(game.control_player.user.id,
-                               "n", game.nkap, game.bet)
+    if game.started:
+        if len(game.players) < 3:
+            if len(game.game_info) < 4:
+                quitter = [p for p in game.players if (
+                    user.id == p.user['id'])][0]
+                rest_of_players = [p for p in game.players if not (
+                    user.id == p.user['id'])][0]
+                try:
+                    gm.leave_game(user, chat)
+                except NotEnoughPlayersError:
+                    remove_job_if_exists(str(chat.id), context)
+                    gm.end_game(chat, user)
+                    win_game(bot, game, chat, "n", game_winner=rest_of_players)
+                    lost_game(bot, game, chat, "n", game_loser=quitter)
+            else:
+                send_async(
+                    bot, chat.id, text="Tu ne fuis pas, tu vas jouer. Pars dire que j'ai réfusé", to_delete=True)
         else:
-            send_async(bot, chat.id, text=f"{mention(user)} a fui.",
-                       reply_to_message_id=update.message.message_id)
-            try:
-                gm.leave_game(user, chat)
-                stats.user_quit(user.id)
-                stats.user_lost(user.id, "n", game.nkap, game.bet)
-
-            except NotEnoughPlayersError:
-                if game.control_player is None:
-                    send_async(
-                        bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
-                else:
-                    send_async(
-                        bot, chat.id, caption=f"Les gars ont tous fui?! ")
-                    win_game(game.control_player.user.id,
-                             "n", game.nkap, game.bet)
-                gm.end_game(chat, user)
+            send_async(
+                bot, chat.id, text="Tu ne peux pas fuir une partie à plus de 2. (Pour l'instant, on ne se banque que dans un FACE à FACE)", to_delete=True)
+    else:
+        send_async(bot, chat.id, text=t_game_run(
+            mention(user)), to_delete=True)
+        try:
+            gm.leave_game(user, chat)
+            stats.user_quit(user.id)
+        except NotEnoughPlayersError:
+            pass
+        return
 
 
 def kill_game(update, context):
@@ -487,11 +492,11 @@ def kill_game(update, context):
             delete_start_msgs(bot, chat.id)
             gm.chatid_games[chat.id] = []
 
-        context.job_queue.stop()
+        remove_job_if_exists(str(chat.id), context)
 
     else:
         send_async(
-            bot, chat.id, text=f"Tu es qui pour tuer le way? Seul l'organisateur ({mention(game.starter)}) et un admin peuvent tuer le way.", reply_to_message_id=update.message.message_id)
+            bot, chat.id, text=f"Seul l'organisateur ({mention(game.starter)}) et un admin peuvent tuer le way.", reply_to_message_id=update.message.message_id)
 
 
 def kick_player(update, context):
@@ -641,7 +646,8 @@ def main():
 
     # Get the dispatcher to register handlers
     dispatcher.add_handler(InlineQueryHandler(reply_to_query))
-    dispatcher.add_handler(ChosenInlineResultHandler(process_result))
+    dispatcher.add_handler(ChosenInlineResultHandler(
+        process_result, run_async=False))
     dispatcher.add_handler(CommandHandler('close', close_game))
     dispatcher.add_handler(
         ConversationHandler(
@@ -652,14 +658,13 @@ def main():
             fallbacks=[CommandHandler('ndem', stop_nkap_game)], conversation_timeout=10
         )
     )
-    # dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
+    dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     dispatcher.add_handler(CommandHandler('tuer_le_way', kill_game))
     dispatcher.add_handler(CommandHandler('call_me_back', call_me_back))
     dispatcher.add_handler(CommandHandler('start_game', start_lamap))
     dispatcher.add_handler(CommandHandler('game_status', game_status))
     # muted commands
     dispatcher.add_handler(CommandHandler('join', join_game))
-    dispatcher.add_handler(CommandHandler('se_banquer', quit_game))
     # dispatcher.add_handler(CommandHandler('chasser', kick_player))
     dispatcher.add_handler(CommandHandler(
         'reset_stats', reset_stats, run_async=False))

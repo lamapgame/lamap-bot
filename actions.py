@@ -1,3 +1,4 @@
+from jobs import remove_job_if_exists, set_job
 import logging
 
 import card as c
@@ -21,7 +22,7 @@ class Countdown(object):
         self.job_queue = job_queue
 
 
-def do_play_card(bot, player, result_id):
+def do_play_card(bot, player, result_id, context, update):
     """Plays the selected card and sends an update to the group if needed"""
 
     card = c.from_str(result_id)
@@ -42,9 +43,6 @@ def do_play_card(bot, player, result_id):
     choice = [[InlineKeyboardButton(
         text=f"".join(c_list), switch_inline_query_current_chat='')]]
 
-    """ updater.job_queue.stop()
-    updater.job_queue.run_once(end_by_afk, game.waiting_time) """
-
     if game.control_player is not None:
         if game.play_round % len(game.players) == 0 and game.play_round < (len(game.players) * 5):
             # update game_info
@@ -60,6 +58,9 @@ def do_play_card(bot, player, result_id):
         if game.play_round != (len(game.players) * 5):
             send_async(
                 bot, chat.id, text=f"👑 {mention(game.control_player.user)} - {controller}\n〰️\n🤙🏾 {mention(game.current_player.user)} à toi.", reply_markup=InlineKeyboardMarkup(choice))
+
+            remove_job_if_exists(str(chat.id), context)
+            set_job(str(chat.id), context, update, game)
 
             # add this information to the game info list
             game.game_round += 1
@@ -81,11 +82,15 @@ def do_play_card(bot, player, result_id):
         if card == 'x_5555':
             win_game(bot, game, chat, "ax", user)
             lost_game(bot, game, chat, "ax", user)
+
+        remove_job_if_exists(str(chat.id), context)
         gm.end_game(chat, user)
 
         return
 
     if game.play_round == (len(game.players) * 5):
+        # END OF GAME
+        remove_job_if_exists(str(chat.id), context)
         # KORA
         if check_kora(game):
             # DOUBLE KORA - if the 4th round was controlled with 3 by the same player
@@ -114,7 +119,3 @@ def check_kora(game):
 def check_dbl_kora(game):
     """ Check if game is being won by double kora """
     return game.game_info[3]['control_card'].value == '3' and game.game_info[3]['control_player'].user.id == game.control_player.user.id
-
-
-def end_by_afk():
-    print("end by afk")

@@ -123,6 +123,7 @@ class GameManager(object):
         if not self.chatid_games[chat.id]:
             del self.chatid_games[chat.id]
 
+        game.end()
         self.logger.info("END GAME in chat " + str(chat.id))
 
     def leave_game(self, user, chat):
@@ -135,9 +136,12 @@ class GameManager(object):
         except (KeyError, IndexError):
             raise NoGameInChatError()
 
-        players = game.players
+        game.remove_player(player)
 
-        if not player:
+        self.logger.info(
+            f"PLAYER LEFT - {user.id} on game in the group: {chat.id}")
+
+        ''' if player:
             games = self.chatid_games[chat.id]
             for g in games:
                 for p in g.players:
@@ -145,20 +149,16 @@ class GameManager(object):
                         if p is g.current_player:
                             g.turn()
                         g.players.remove(p)
-                        return
-
-            raise NoGameInChatError()
+                        return '''
 
         if len(game.players) < 2:
             raise NotEnoughPlayersError()
 
-        if player is game.current_player:
+        ''' if player is game.current_player:
             if game.next_player == 0:
                 game.turn_to_controler()
             else:
-                game.turn()
-
-        players.remove(player)
+                game.turn() '''
 
     def player_for_user_in_chat(self, user, chat):
         try:

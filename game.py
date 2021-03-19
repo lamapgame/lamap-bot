@@ -1,9 +1,7 @@
 import logging
 from datetime import datetime
-from config import ADMIN_LIST, OPEN_LOBBY, MAX_PLAYERS, WAITING_TIME
+from config import ADMIN_LIST, OPEN_LOBBY, MAX_PLAYERS, TIME_TO_PLAY, WAITING_TIME
 from deck import Deck
-
-import global_variables
 
 
 class Game(object):
@@ -34,6 +32,7 @@ class Game(object):
         self.chat = chat
         self.last_card = None
         self.owner = ADMIN_LIST
+        self.play_time = TIME_TO_PLAY
         self.killer = None
         # self.job = global_variables.LMjobQueue
         self.deck = Deck()
@@ -64,6 +63,11 @@ class Game(object):
                             len(self.players)]
         return next
 
+    @property
+    def get_players_except_current(self):
+        return [p for p in self.players if not (
+                self.current_player.id == p.user['id'])]
+
     def turn(self):
         """ Change a turn and change the player """
         self.current_player = self.next_player
@@ -91,6 +95,7 @@ class Game(object):
             self.control_card = card
 
         self.last_card = card
+
         self.turn()
 
     def get_user_in_game(self, user):
@@ -101,6 +106,13 @@ class Game(object):
         self.deck.fill_cards()
         self.started = True
         # self.job.run_once(self.end_turn_by_afk, WAITING_TIME)
+
+    def end(self):
+        self.started = False
+
+    def remove_player(self, player):
+        self.players.remove(player)
+        return
 
     def end_turn_by_afk(self, context):
         """ kill the turn and make the player afk """
