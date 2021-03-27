@@ -34,6 +34,7 @@ def reminder(context: CallbackContext):
         game.chat.id, text=f"{mention(game.current_player.user)}. Tu as **{round(TIME_TO_PLAY/2)} secondes** pour jouer")
     context.bot.send_message(
         game.current_player.user.id, text=f"Tu as **{round(TIME_TO_PLAY/2)} secondes** pour jouer dans {game.chat.title}.\nFaute de quoi tu te feras prélèvé {n_format(bet * (len(players)-1))}.")
+    remove_job_if_exists(context.job.name, context)
     context.job_queue.run_once(
         end_of_play_time, TIME_TO_PLAY/2, context=job.context, name=context.job.name)
 

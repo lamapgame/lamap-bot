@@ -57,7 +57,8 @@ def do_play_card(bot, player, result_id, context, update):
         # 5 play_round = 1 game round
         if game.play_round != (len(game.players) * 5):
             send_async(
-                bot, chat.id, text=f"👑 {mention(game.control_player.user)} - {controller}\n〰️\n🤙🏾 {mention(game.current_player.user)} à toi.", reply_markup=InlineKeyboardMarkup(choice))
+                bot, chat.id, text=f"👑 {mention(game.control_player.user)} - {controller}\n〰️\n🤙🏾 {mention(game.current_player.user)} à toi.", reply_markup=InlineKeyboardMarkup(choice)
+            )
 
             remove_job_if_exists(str(chat.id), context)
             set_job(str(chat.id), context, update, game)
