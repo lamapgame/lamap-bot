@@ -35,6 +35,7 @@ from jobs import remove_job_if_exists, set_job
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def call_me_back(update, context):
@@ -82,6 +83,13 @@ def new_nkap_game(update, context, montant=None):
     title = update.message.chat.title
     bot = context.bot
     current_bet = 0
+
+    if (int(montant) < 0):
+        send_async(
+            bot, chat_id, text="Ta maman!\nJ'ai noté ton nom et tu vas perdre 15 batons pour tentative de fraude")
+        logger.info(
+            f"FRAUD BY {update.message.from_user.id} {update.message.from_user.name}")
+        return
 
     try:
         if montant is not None:
