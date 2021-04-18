@@ -1,4 +1,4 @@
-from utils import loss_by_afk, mention, n_format
+from utils import hard_loss_by_afk, loss_by_afk, mention, n_format
 from game import Game
 from config import TIME_TO_PLAY
 from global_variables import gm
@@ -21,7 +21,10 @@ def end_of_play_time(context: CallbackContext):
     job = context.job
     game: Game = job.context['game_ob']
     gm.end_game(game.chat, game.current_player.user)
-    loss_by_afk(context.bot, game, game.chat, "n")
+    if len(game.game_info) < 3:
+        hard_loss_by_afk(context.bot, game, game.chat, "n")
+    else:
+        loss_by_afk(context.bot, game, game.chat, "n")
 
 
 def reminder(context: CallbackContext):

@@ -432,7 +432,7 @@ def quit_game(update, context):
 
     if game.started:
         if len(game.players) < 3:
-            if len(game.game_info) < 4:
+            if len(game.game_info) < 1:
                 quitter = [p for p in game.players if (
                     user.id == p.user['id'])][0]
                 rest_of_players = [p for p in game.players if not (

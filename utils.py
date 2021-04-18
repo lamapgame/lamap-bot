@@ -244,6 +244,29 @@ def loss_by_afk(bot, game, chat, style):
                                pts_won, game.bet, game.bet)
 
 
+def hard_loss_by_afk(bot, game, chat, style):
+
+    loser = game.current_player.user
+
+    winners = [
+        winner for winner in game.players if winner.user.id != loser.id
+    ]
+
+    send_animation_async(
+        bot, chat.id, animation=win_forfeit_Anim(), caption=f"On a pas le temps pour ça !\n\n{mention(game.current_player.user)}, je te prélève {n_format(game.bet)*3} pour chacun des participants!"
+    )
+
+    pts_loss = user_lost(loser.id, style, game.nkap,
+                         game.bet * len(winners) * 3)
+    helpers.dm_information(
+        chat, loser.id, bot, "L", pts_loss, game.bet, game.bet * len(winners) * 3)
+
+    for winner in winners:
+        pts_won = user_won(winner.id, style, game.nkap, game.bet * 3)
+        helpers.dm_information(chat, winner.id, bot, "W",
+                               pts_won, game.bet, game.bet*3)
+
+
 @MWT(timeout=60*60)
 def get_admin_ids(bot, chat_id):
     """Returns a list of admin IDs for a given chat. Results are cached for 1 hour."""
