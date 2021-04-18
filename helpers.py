@@ -228,7 +228,7 @@ def top_dbl_korateurs(update, context):
 
 @db_session
 def transfert(update: Updater, context:  CallbackContext):
-
+    cheaters = list(UserDB.select(lambda u: u.verified == False))
     if update.message.reply_to_message is not None:
         try:
             amount = int(context.args[0].replace(" ", ""))
@@ -236,27 +236,31 @@ def transfert(update: Updater, context:  CallbackContext):
             sender = update.message.from_user
             reciever = update.message.reply_to_message.from_user
 
-            s = UserDB.get(id=sender.id)
-            r = UserDB.get(id=reciever.id)
+            if sender.id in cheaters or reciever.id in cheaters:
+                s = UserDB.get(id=sender.id)
+                r = UserDB.get(id=reciever.id)
 
-            if not s or not r or sender.id == reciever.id or amount < 0:
-                context.bot.send_message(
-                    update.message.chat_id, text="Je ne fais pas la magie, Il y a eu un problème pendant ce transfert.")
-            else:
-                if reciever.id not in BOTS:
-                    if s.nkap > amount:
-                        s.nkap -= amount
-                        r.nkap += amount
-                        context.bot.send_message(
-                            update.message.chat_id, text=f"Confiance ! Tu as envoyé {n_format(amount)} à {mention(reciever)}.")
-                        logger.info(
-                            f"TRANSFERT from {sender.id} to {reciever.id} of {amount}")
+                if not s or not r or sender.id == reciever.id or amount < 0:
+                    context.bot.send_message(
+                        update.message.chat_id, text="Je ne fais pas la magie, Il y a eu un problème pendant ce transfert.")
+                else:
+                    if reciever.id not in BOTS:
+                        if s.nkap > amount:
+                            s.nkap -= amount
+                            r.nkap += amount
+                            context.bot.send_message(
+                                update.message.chat_id, text=f"Confiance ! Tu as envoyé {n_format(amount)} à {mention(reciever)}.")
+                            logger.info(
+                                f"TRANSFERT from {sender.id} to {reciever.id} of {amount}")
+                        else:
+                            context.bot.send_message(
+                                update.message.chat_id, text="Molah, doucement !.")
                     else:
                         context.bot.send_message(
-                            update.message.chat_id, text="Molah, doucement !.")
-                else:
-                    context.bot.send_message(
-                        update.message.chat_id, text="Fais attention à qui tu envoi tes dos, si je prends ça je garde.")
+                            update.message.chat_id, text="Fais attention à qui tu envoi tes dos, si je prends ça je garde.")
+            else:
+                context.bot.send_message(
+                    update.message.chat_id, text="Désolé je ne peux pas gérer le transfert ci, il y a au moins un fraudeur parmis vous.\n\nSi vous pensez que cette affirmation est fausse, écrivez nous dans @lamapsupport")
         except ValueError:
             context.bot.send_message(
                 update.message.chat_id, text="Je ne comprends pas le montant là, éssayes un vrai montant.")
@@ -281,6 +285,63 @@ def le_retour(update: Updater, context:  CallbackContext):
                     update.message.chat_id, text=f"C'est bon, le retour est géré.\n\n{mention(reciever)} a payé {n_format(amount)}")
                 logger.info(
                     f"RETOUR from {reciever.id} of {amount}")
+            except (ValueError, IndexError):
+                context.bot.send_message(
+                    update.message.chat_id, text="Je ne comprends pas bien boss.")
+        else:
+            context.bot.send_message(
+                update.message.chat_id, text="Ca ne pourra jamais te concerner.")
+
+
+@db_session
+def verify(update: Updater, context:  CallbackContext):
+    if update.message.reply_to_message is not None:
+        if update.message.from_user.id in SUPERMOD_LIST:
+            try:
+                reciever = update.message.reply_to_message.from_user
+                r = UserDB.get(id=reciever.id)
+                r.verified = True
+                context.bot.send_message(
+                    update.message.chat_id, text=f"C'est bon, ta personne peut jouer dans mon terre")
+                logger.info(
+                    f"AUTH {reciever.id}")
+            except (ValueError, IndexError):
+                context.bot.send_message(
+                    update.message.chat_id, text="Je ne comprends pas bien boss.")
+        else:
+            context.bot.send_message(
+                update.message.chat_id, text="Ca ne pourra jamais te concerner.")
+
+
+@db_session
+def unverify(update: Updater, context:  CallbackContext):
+    if update.message.reply_to_message is not None:
+        if update.message.from_user.id in SUPERMOD_LIST:
+            try:
+                reciever = update.message.reply_to_message.from_user
+                r = UserDB.get(id=reciever.id)
+                r.verified = False
+                context.bot.send_message(
+                    update.message.chat_id, text=f"Ah bon? Il triche? Il va lire l'heure...")
+                logger.info(
+                    f"DE-AUTH {reciever.id}")
+            except (ValueError, IndexError):
+                context.bot.send_message(
+                    update.message.chat_id, text="Je ne comprends pas bien boss.")
+        else:
+            context.bot.send_message(
+                update.message.chat_id, text="Ca ne pourra jamais te concerner.")
+
+
+@db_session
+def status_check(update: Updater, context:  CallbackContext):
+    if update.message.reply_to_message is not None:
+        if update.message.from_user.id in SUPERMOD_LIST:
+            try:
+                reciever = update.message.reply_to_message.from_user
+                r = UserDB.get(id=reciever.id)
+                context.bot.send_message(
+                    update.message.chat_id, text=f"ID: {r.id}\nNM: {r.name}\nNK: {r.nkap}\nVF: {r.verified}")
             except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
@@ -327,6 +388,12 @@ def register():
         'transfert', transfert))
     dispatcher.add_handler(CommandHandler(
         'retour', le_retour))
+    dispatcher.add_handler(CommandHandler(
+        'verify', verify))
+    dispatcher.add_handler(CommandHandler(
+        'unverify', unverify))
+    dispatcher.add_handler(CommandHandler(
+        'deepcheck', status_check))
     dispatcher.add_handler(CommandHandler(
         'remboursement', remboursement))
     dispatcher.add_handler(CommandHandler('stats', stats))

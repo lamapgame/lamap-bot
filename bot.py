@@ -86,9 +86,9 @@ def new_nkap_game(update, context, montant=None):
 
     if (int(montant) < 0):
         send_async(
-            bot, chat_id, text="Ta maman!\nJ'ai noté ton nom et tu vas perdre 15 batons pour tentative de fraude")
+            bot, chat_id, text="Bien éssayé. Lance un vrai montant !")
         logger.info(
-            f"FRAUD BY {update.message.from_user.id} {update.message.from_user.name}")
+            f"NEGATIVE AMOUNT THROW {update.message.from_user.id} {update.message.from_user.name}")
         return
 
     try:

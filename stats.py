@@ -66,42 +66,44 @@ def user_won(id, style, nkap, bet):
     """ User win """
     pts_gains = 50
     u = UserDB.get(id=id)
-    if not u:
-        UserDB(id=id)
-    else:
-        u.wins += 1
-        u.wl_streak += 1
-        if nkap:
-            u.nkap += bet
-            pts_gains += 50
-        if style is "kora":
+    if u.verified:
+        if not u:
+            UserDB(id=id)
+        else:
+            u.wins += 1
+            u.wl_streak += 1
             if nkap:
                 u.nkap += bet
-            u.wins_kora += 1
-            pts_gains += pts_gains * 2
-        elif style is "dbl_kora":
-            if nkap:
-                u.nkap += bet*3
-            u.wins_dbl_kora += 1
-            pts_gains += pts_gains * 4
-        elif style is "333":
-            u.wins_333 += 1
-            pts_gains += 100
-        elif style is "777":
-            u.wins_777 += 1
-            pts_gains += 100
-        elif style is "21":
-            u.wins_21 += 1
-            pts_gains += 150
-        elif style is "fam":
-            u.wins_fam += 1
-            pts_gains += 150
-        elif style is "ax":
-            u.wins_fam += 1
-            pts_gains += 200
-        u.last_game_win = True
-        u.points += pts_gains
-    return pts_gains
+                pts_gains += 50
+            if style is "kora":
+                if nkap:
+                    u.nkap += bet
+                u.wins_kora += 1
+                pts_gains += pts_gains * 2
+            elif style is "dbl_kora":
+                if nkap:
+                    u.nkap += bet*3
+                u.wins_dbl_kora += 1
+                pts_gains += pts_gains * 4
+            elif style is "333":
+                u.wins_333 += 1
+                pts_gains += 100
+            elif style is "777":
+                u.wins_777 += 1
+                pts_gains += 100
+            elif style is "21":
+                u.wins_21 += 1
+                pts_gains += 150
+            elif style is "fam":
+                u.wins_fam += 1
+                pts_gains += 150
+            elif style is "ax":
+                u.wins_fam += 1
+                pts_gains += 200
+            u.last_game_win = True
+            u.points += pts_gains
+        return pts_gains
+    return 0
 
 
 @db_session
@@ -169,6 +171,7 @@ def reset_all_stats(id):
         u.wins_kora = 0
         u.wins_dbl_kora = 0
         u.wl_streak = 0
+        u.verified = True
     return
 
 
