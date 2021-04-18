@@ -236,7 +236,7 @@ def transfert(update: Updater, context:  CallbackContext):
             sender = update.message.from_user
             reciever = update.message.reply_to_message.from_user
 
-            if sender.id in cheaters or reciever.id in cheaters:
+            if sender.id not in cheaters or reciever.id not in cheaters:
                 s = UserDB.get(id=sender.id)
                 r = UserDB.get(id=reciever.id)
 
