@@ -235,10 +235,10 @@ def transfert(update: Updater, context:  CallbackContext):
             sender = update.message.from_user
             reciever = update.message.reply_to_message.from_user
 
-            if sender.verified and reciever.verified:
-                s = UserDB.get(id=sender.id)
-                r = UserDB.get(id=reciever.id)
+            s = UserDB.get(id=sender.id)
+            r = UserDB.get(id=reciever.id)
 
+            if s.verified and r.verified:
                 if not s or not r or sender.id == reciever.id or amount < 0:
                     context.bot.send_message(
                         update.message.chat_id, text="Je ne fais pas la magie, Il y a eu un problème pendant ce transfert.")
