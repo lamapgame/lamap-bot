@@ -228,7 +228,6 @@ def top_dbl_korateurs(update, context):
 
 @db_session
 def transfert(update: Updater, context:  CallbackContext):
-    cheaters = list(UserDB.select(lambda u: u.verified == False))
     if update.message.reply_to_message is not None:
         try:
             amount = int(context.args[0].replace(" ", ""))
@@ -236,7 +235,7 @@ def transfert(update: Updater, context:  CallbackContext):
             sender = update.message.from_user
             reciever = update.message.reply_to_message.from_user
 
-            if sender.id not in cheaters or reciever.id not in cheaters:
+            if sender.verified and reciever.verified:
                 s = UserDB.get(id=sender.id)
                 r = UserDB.get(id=reciever.id)
 
