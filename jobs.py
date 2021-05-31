@@ -1,4 +1,4 @@
-from utils import hard_loss_by_afk, loss_by_afk, mention, n_format
+from utils import hard_loss_by_afk, loss_by_afk, mention, n_format, send_async
 from game import Game
 from config import TIME_TO_PLAY
 from global_variables import gm
@@ -21,7 +21,7 @@ def end_of_play_time(context: CallbackContext):
     job = context.job
     game: Game = job.context['game_ob']
     gm.end_game(game.chat, game.current_player.user)
-    if len(game.game_info) > 3:
+    if len(game.game_info) < 3:
         hard_loss_by_afk(context.bot, game, game.chat, "n")
     else:
         loss_by_afk(context.bot, game, game.chat, "n")
@@ -33,10 +33,12 @@ def reminder(context: CallbackContext):
     game = job.context['game_ob']
     bet = game.bet
     players = game.players
-    context.bot.send_message(
-        game.chat.id, text=f"{mention(game.current_player.user)}. Tu as **{round(TIME_TO_PLAY/2)} secondes** pour jouer")
-    context.bot.send_message(
-        game.current_player.user.id, text=f"Tu as **{round(TIME_TO_PLAY/2)} secondes** pour jouer dans {game.chat.title}.\nFaute de quoi tu te feras prélèvé {n_format(bet * (len(players)-1))}.")
+
+    send_async(context.bot, game.chat.id,
+               text=f"{mention(game.current_player.user)}. Tu as **{round(TIME_TO_PLAY/2)} secondes** pour jouer")
+    send_async(context.bot, game.current_player.user.id,
+               text=f"Tu as **{round(TIME_TO_PLAY/2)} secondes** pour jouer dans {game.chat.title}.\nFaute de quoi tu te feras prélèvé {n_format(bet * (len(players)-1))}.")
+
     remove_job_if_exists(context.job.name, context)
     context.job_queue.run_once(
         end_of_play_time, TIME_TO_PLAY/2, context=job.context, name=context.job.name)
