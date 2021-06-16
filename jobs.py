@@ -22,9 +22,9 @@ def end_of_play_time(context: CallbackContext):
     game: Game = job.context['game_ob']
     gm.end_game(game.chat, game.current_player.user)
     if len(game.game_info) < 3:
-        hard_loss_by_afk(context.bot, game, game.chat, "n")
-    else:
         loss_by_afk(context.bot, game, game.chat, "n")
+    else:
+        hard_loss_by_afk(context.bot, game, game.chat, "n")
 
 
 def reminder(context: CallbackContext):
