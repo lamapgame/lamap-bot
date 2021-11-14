@@ -13,9 +13,7 @@ click==8.0.3
 colorama==0.4.3
 cryptography==2.8
 decorator==4.4.1
-fastapi==0.70.0
 future==0.18.2
-gunicorn==20.1.0
 h11==0.12.0
 httplib2==0.18.1
 httptools==0.2.0
@@ -52,9 +50,8 @@ tzlocal==2.1
 uritemplate==3.0.1
 urllib3==1.25.9
 uuid==1.30
-uvicorn==0.15.0
-uvloop
+uvloop==0.16.0
 watchgod==0.7
-wcwidth
-websockets
+wcwidth==0.1.8
+websockets==10.0
 zipp==3.0.0
