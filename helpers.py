@@ -152,45 +152,48 @@ def dm_information(chat, user, bot, result, points, bet, gains_losses):
 
 
 @db_session
-def top_players(update, context):
+def top_players(update=None, context=None):
     top_10_players = list(UserDB.select().order_by(
         lambda u: desc(u.points))[:10])
-    top_txt = []
-    for idx, user in enumerate(top_10_players, start=1):
-        string = f"`{idx}–` *{str(user.name)}* - {user.points} Points\n"
-        top_txt.append(string)
+    if (all([update, context])):
+        top_txt = []
+        for idx, user in enumerate(top_10_players, start=1):
+            string = f"`{idx}–` *{str(user.name)}* - {user.points} Points\n"
+            top_txt.append(string)
 
-    context.bot.send_message(update.message.chat_id, text=''.join(
-        top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-    return
+        context.bot.send_message(update.message.chat_id, text=''.join(
+            top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    return top_10_players
 
 
 @db_session
-def top_pauvrards(update, context):
+def top_pauvrards(update=None, context=None):
     top_10_poor = list(UserDB.select().order_by(
         lambda u: (u.nkap))[:10])
-    top_txt = []
-    for idx, user in enumerate(top_10_poor, start=1):
-        string = f"`{idx}–` *{str(user.name)}* - {n_format(user.nkap)}\n"
-        top_txt.append(string)
+    if (all([update, context])):
+        top_txt = []
+        for idx, user in enumerate(top_10_poor, start=1):
+            string = f"`{idx}–` *{str(user.name)}* - {n_format(user.nkap)}\n"
+            top_txt.append(string)
 
-    context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
-                             parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-    return
+        context.bot.send_message(update.message.chat_id, text=''.join(
+            top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    return top_10_poor
 
 
 @db_session
-def top_rich_players(update, context):
+def top_rich_players(update=None, context=None):
     top_10_rich = list(UserDB.select().order_by(
         lambda u: desc(u.nkap))[:15])
-    top_txt = []
-    for idx, user in enumerate(top_10_rich, start=1):
-        string = f"`{idx}–` *{str(user.name)}* - {n_format(user.nkap)}\n"
-        top_txt.append(string)
+    if (all([update, context])):
+        top_txt = []
+        for idx, user in enumerate(top_10_rich, start=1):
+            string = f"`{idx}–` *{str(user.name)}* - {n_format(user.nkap)}\n"
+            top_txt.append(string)
 
-    context.bot.send_message(update.message.chat_id, text=''.join(top_txt),
-                             parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-    return
+        context.bot.send_message(update.message.chat_id, text=''.join(
+            top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    return top_10_rich
 
 
 @db_session
@@ -256,7 +259,7 @@ def transfert(update: Updater, context:  CallbackContext):
                                 update.message.chat_id, text="Molah, doucement !.")
                     else:
                         context.bot.send_message(
-                            update.message.chat_id, text="Fais attention à qui tu envoi tes dos, si je prends ça je garde.")
+                            update.message.chat_id, text="à Fais attention qui tu envoi tes dos, si je prends ça garde. ")
             else:
                 context.bot.send_message(
                     update.message.chat_id, text="Désolé je ne peux pas gérer le transfert ci, il y a au moins un fraudeur parmis vous.\n\nSi vous pensez que cette affirmation est fausse, écrivez nous dans @lamapsupport")
@@ -268,7 +271,7 @@ def transfert(update: Updater, context:  CallbackContext):
                 update.message.chat_id, text="Je ne comprends pas désolé.")
     else:
         context.bot.send_message(
-            update.message.chat_id, text="Renvoi moi cette commande en repondant à un autre message.")
+            update.message.chat_id, text="à Renvoi moi cette commande en repondant un autre message.")
 
 
 @db_session
