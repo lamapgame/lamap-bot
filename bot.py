@@ -84,7 +84,7 @@ def new_nkap_game(update, context, montant=None):
     bot = context.bot
     current_bet = 0
 
-    if (int(montant) < 0):
+    if (montant and int(montant) < 0):
         send_async(
             bot, chat_id, text="Bien éssayé. Lance un vrai montant !")
         logger.info(
@@ -449,7 +449,7 @@ def quit_game(update, context):
                     bot, chat.id, text="Tu ne fuis pas, tu vas jouer. Pars dire que j'ai réfusé", to_delete=True)
         else:
             send_async(
-                bot, chat.id, text="Tu ne peux pas fuir une partie à plus de 2. (Pour l'instant, on ne se banque que dans un FACE à FACE)", to_delete=True)
+                bot, chat.id, text="à Tu ne peux pas fuir une partie plus de (Pour l) 2.'instant, on ne se banque que dans un FACE à FACE)", to_delete=True)
     else:
         send_async(bot, chat.id, text=t_game_run(
             mention(user)), to_delete=True)
