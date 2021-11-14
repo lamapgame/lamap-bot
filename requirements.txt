@@ -55,6 +55,6 @@ uuid==1.30
 uvicorn==0.15.0
 uvloop
 watchgod==0.7
-wcwidth==0.1.8
-websockets==10.0
+wcwidth
+websockets
 zipp==3.0.0
