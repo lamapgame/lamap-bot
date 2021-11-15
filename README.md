@@ -55,7 +55,7 @@ This software uses the following tech:
 
 - [Python Telegram Bot](https://python-telegram-bot.org/): Python framework to help build Telegram bots
 - [Telegram Messenger](https://telegram.org/): Base chat platform on which the bot functions
-- SQLite DB: Data persistence and management
+- Postgres: Data persistence and management
 
 ## Related
 
@@ -72,7 +72,6 @@ This software uses the following tech:
 
 ## You may also like
 
-@LaMapPrivateBot - A Telegram bot that let's you play La Map in private hosted parties
 
 ---
 
