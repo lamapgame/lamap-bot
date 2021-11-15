@@ -33,9 +33,17 @@ VSCode debuggers works well in this case, you may use it. To further ease debugg
 }
 ```
 
-## Running the bot
+## Env Variables
 
 The bot uses environment variables as token and reads two files, `.env.local` when in local dev and `.env.prod` when in prod. This helps the bot know what TOKEN to use and if it should poll or connect to the webhook.
 
+It should contain `DATABASE_URL` which is the url to your Postgres db for example: `DATABASE_URL=postgresql://user:password@localhost:5432/lamapbot`
+and `TOKEN` which is your telegram bot token
+
+## Running the bot
+
 1. Run `python bot.py prod` in prod.
 2. `python bot.py dev` in local (with your own TOKEN in your .env.local file).
+
+
+ping [@panachaud](https:t.me/panachaud) in case you need any help getting setup
