@@ -15,10 +15,10 @@ def share_nkap():
         SET nkap = (
             CASE
             WHEN (nkap < 25000) THEN 25000
-            WHEN (nkap > 25000) THEN nkap
+            WHEN (nkap < 0) THEN nkap + 25000
             END
         )
-        where nkap <= 25000
+        where nkap <= 25000 and verified = true
         """
     )
     print('time to share money')
