@@ -46,7 +46,7 @@ def user_plays(id):
         UserDB(id=id)
     else:
         u.games_played += 1
-        u.points += 10
+        u.points += 5
     return
 
 
