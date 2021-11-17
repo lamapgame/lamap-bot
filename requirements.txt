@@ -48,7 +48,7 @@ tornado==6.0.3
 typing-extensions==3.10.0.2
 tzlocal==2.1
 uritemplate==3.0.1
-urllib3==1.26.5
+urllib3
 uuid==1.30
 uvloop==0.16.0
 watchgod==0.7
