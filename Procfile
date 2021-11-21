@@ -1,2 +1,2 @@
 web: python3 bot.py prod
-clock: python scheduler.py
+clock: python3 scheduler.py prod
