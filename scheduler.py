@@ -3,7 +3,7 @@ import database
 sched = BlockingScheduler()
 
 
-@sched.scheduled_job('interval', seconds='30')
+@sched.scheduled_job('interval', seconds=30)
 def scheduled_job():
     database.db.execute(
         """UPDATE userdb
@@ -11,7 +11,7 @@ def scheduled_job():
         where nkap <= 100000 and verified = true
         """
     )
-    print('This job is run every weekday at 5pm.')
+    print('This job is run every 30 seconds')
 
 
 @sched.scheduled_job('cron', day_of_week='sun', hour=10)
