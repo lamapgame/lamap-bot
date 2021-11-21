@@ -27,7 +27,7 @@ TIME_TO_PLAY = config.get("TIME_TO_PLAY", 120)
 HEROKU_URL = ""
 HEROKU_PORT = int(os.environ.get('PORT', 5000))
 
-LOGGING_CHAT_ID = -781317438  # my admin group
+LOGGING_CHAT_ID = -1001200515870  # my admin group
 
 if sys.argv[1] == "prod":
     load_dotenv(prod_env_path)
