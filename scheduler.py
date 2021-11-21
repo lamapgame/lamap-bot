@@ -1,20 +1,15 @@
+from pony.orm import db_session
+from config import DB_URL
 from apscheduler.schedulers.blocking import BlockingScheduler
 import database
 sched = BlockingScheduler()
 
-
-@sched.scheduled_job('interval', seconds=30)
-def scheduled_job():
-    database.db.execute(
-        """UPDATE userdb
-        SET nkap = nkap + 10000
-        where nkap <= 100000 and verified = true
-        """
-    )
-    print('This job is run every 30 seconds')
+database.db.bind('postgres', DB_URL)
+database.db.generate_mapping(create_tables=True)
 
 
 @sched.scheduled_job('cron', day_of_week='sun', hour=10)
+@db_session
 def share_nkap():
     database.db.execute(
         """UPDATE userdb
