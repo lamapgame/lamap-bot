@@ -97,7 +97,7 @@ def new_nkap_game(update, context, montant=None):
         else:
             current_bet = int(update.message.text.replace(" ", ""))
     except ValueError:
-        reply_keyboard = [['50000', '25000', '10000', '5000'], [
+        reply_keyboard = [['25000', '15000', '10000', '5000'], [
             '2500', '1000', '500', '/ndem']]
         send_async(context.bot, chat_id,
                    text=t_i_do_not_understand(), reply_to_message_id=update.message.message_id, reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True))
