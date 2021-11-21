@@ -10,9 +10,12 @@ from user_db import UserDB
 from global_variables import dispatcher
 from utils import mention, n_format
 
+from bot_logger import log_to_admin
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
 
 BOTS = [1397177261, 1101987755]
 
@@ -253,7 +256,9 @@ def transfert(update: Updater, context:  CallbackContext):
                             context.bot.send_message(
                                 update.message.chat_id, text=f"Confiance ! Tu as envoyé {n_format(amount)} à {mention(reciever)}.")
                             logger.info(
-                                f"TRANSFERT from {sender.id} to {reciever.id} of {amount}")
+                                f"-ADMIN- TRANSFERT from {sender.id} ({mention(sender)}) to {reciever.id} ({mention(reciever)}) of {amount}")
+                            log_to_admin(
+                                update, context, f"#TRANSFERT de {mention(sender)} a {mention(reciever)} de {amount} dans [{update.message.chat.title}]({update.message.link})")
                         else:
                             context.bot.send_message(
                                 update.message.chat_id, text="Molah, doucement !.")
@@ -263,6 +268,10 @@ def transfert(update: Updater, context:  CallbackContext):
             else:
                 context.bot.send_message(
                     update.message.chat_id, text="Désolé je ne peux pas gérer le transfert ci, il y a au moins un fraudeur parmis vous.\n\nSi vous pensez que cette affirmation est fausse, écrivez nous dans @lamapsupport")
+                logger.info(
+                    f"-ADMIN- ATTEMPT_TRANSFER from {sender.id} ({mention(sender)}) to {reciever.id} ({mention(reciever)}) of {amount}")
+                log_to_admin(
+                    update, context, f"#TRANSFERT_FRAUDEUR de {mention(sender)} A {mention(reciever)} de {amount} bloque dans [{update.message.chat.title}]({update.message.link})")
         except ValueError:
             context.bot.send_message(
                 update.message.chat_id, text="Je ne comprends pas le montant là, éssayes un vrai montant.")
@@ -285,8 +294,11 @@ def le_retour(update: Updater, context:  CallbackContext):
                 r.nkap -= amount
                 context.bot.send_message(
                     update.message.chat_id, text=f"C'est bon, le retour est géré.\n\n{mention(reciever)} a payé {n_format(amount)}")
+                msg = f"#RETOUR from {reciever.id} ({mention(reciever)}) of {amount}"
                 logger.info(
-                    f"RETOUR from {reciever.id} of {amount}")
+                    f"-ADMIN- RETOUR FROM {reciever.id} ({mention(reciever)}) OF {amount}")
+                log_to_admin(
+                    update, context, f"#RETOUR sur {mention(reciever)} de {amount} dans [{update.message.chat.title}]({update.message.link})")
             except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
@@ -305,8 +317,11 @@ def verify(update: Updater, context:  CallbackContext):
                 r.verified = True
                 context.bot.send_message(
                     update.message.chat_id, text=f"C'est bon, ta personne peut jouer dans mon terre")
+                msg = f"#NEW_PLAYER {reciever.id}({mention(reciever)})"
                 logger.info(
-                    f"AUTH {reciever.id}")
+                    f"-ADMIN- NEW PLAYER {reciever.id}({mention(reciever)})")
+                log_to_admin(update, context,
+                             f"#NEW_PLAYER {mention(reciever)} dans [{update.message.chat.title}]({update.message.link})")
             except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
@@ -326,7 +341,9 @@ def unverify(update: Updater, context:  CallbackContext):
                 context.bot.send_message(
                     update.message.chat_id, text=f"Ah bon? Il triche? Il va lire l'heure...")
                 logger.info(
-                    f"DE-AUTH {reciever.id}")
+                    f"-ADMIN- BLOCKED {reciever.id}({mention(reciever)})")
+                log_to_admin(
+                    update, context, f"#BLOCKED {reciever.id}({mention(reciever)}) dans [{update.message.chat.title}]({update.message.link})")
             except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
@@ -364,7 +381,9 @@ def remboursement(update: Updater, context:  CallbackContext):
                 context.bot.send_message(
                     update.message.chat_id, text=f"La paie a été éffectué.\n\n{mention(reciever)} est payé {n_format(amount)}")
                 logger.info(
-                    f"REMBOURSEMENT to {reciever.id} of {amount}")
+                    f"-ADMIN- REMBOURSEMENT TO {reciever.id} ({mention(reciever)}) OF {amount} DANS {update.message.link}")
+                log_to_admin(
+                    update, context, f"#REM de ({mention(reciever)}) du montant {amount} dans [{update.message.chat.title}]({update.message.link})")
 
             except (ValueError, IndexError):
                 context.bot.send_message(

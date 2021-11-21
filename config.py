@@ -16,7 +16,7 @@ with open("config.json",
 WORKERS = config.get("WORKERS", 32)
 ADMIN_LIST = config.get("ADMIN_LIST", None)
 SUPERMOD_LIST = config.get(
-    "SUPERMOD_LIST", [223627873, 1077515995, 1227290946])
+    "SUPERMOD_LIST", [223627873, 1077515995, 1227290946, 1174795195])
 OPEN_LOBBY = config.get("OPEN_LOBBY", True)
 DEFAULT_GAMEMODE = config.get("DEFAULT_GAMEMODE", "classic")
 WAITING_TIME = config.get("WAITING_TIME", 100)
@@ -26,6 +26,8 @@ TIME_TO_START = config.get("TIME_TO_START", 30)
 TIME_TO_PLAY = config.get("TIME_TO_PLAY", 120)
 HEROKU_URL = ""
 HEROKU_PORT = int(os.environ.get('PORT', 5000))
+
+LOGGING_CHAT_ID = -781317438  # my admin group
 
 if sys.argv[1] == "prod":
     load_dotenv(prod_env_path)
