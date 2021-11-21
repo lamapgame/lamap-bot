@@ -8,7 +8,7 @@ from pony.orm import db_session, desc
 from user_db import UserDB
 
 from global_variables import dispatcher
-from utils import mention, n_format
+from utils import mention, mention_global, n_format
 
 from bot_logger import log_to_admin
 
@@ -258,7 +258,7 @@ def transfert(update: Updater, context:  CallbackContext):
                             logger.info(
                                 f"-ADMIN- TRANSFERT from {sender.id} ({mention(sender)}) to {reciever.id} ({mention(reciever)}) of {amount}")
                             log_to_admin(
-                                update, context, f"#TRANSFERT de {mention(sender)} a {mention(reciever)} de {amount} dans [{update.message.chat.title}]({update.message.link})")
+                                update, context, f"#TRANSFERT de {mention_global(sender)} a {mention_global(reciever)} de {amount} dans [{update.message.chat.title}]({update.message.link})")
                         else:
                             context.bot.send_message(
                                 update.message.chat_id, text="Molah, doucement !.")
@@ -271,7 +271,7 @@ def transfert(update: Updater, context:  CallbackContext):
                 logger.info(
                     f"-ADMIN- ATTEMPT_TRANSFER from {sender.id} ({mention(sender)}) to {reciever.id} ({mention(reciever)}) of {amount}")
                 log_to_admin(
-                    update, context, f"#TRANSFERT_FRAUDEUR de {mention(sender)} A {mention(reciever)} de {amount} bloque dans [{update.message.chat.title}]({update.message.link})")
+                    update, context, f"#TRANSFERT_FRAUDEUR de {mention_global(sender)} A {mention_global(reciever)} de {amount} bloque dans [{update.message.chat.title}]({update.message.link})")
         except ValueError:
             context.bot.send_message(
                 update.message.chat_id, text="Je ne comprends pas le montant là, éssayes un vrai montant.")
@@ -294,11 +294,10 @@ def le_retour(update: Updater, context:  CallbackContext):
                 r.nkap -= amount
                 context.bot.send_message(
                     update.message.chat_id, text=f"C'est bon, le retour est géré.\n\n{mention(reciever)} a payé {n_format(amount)}")
-                msg = f"#RETOUR from {reciever.id} ({mention(reciever)}) of {amount}"
                 logger.info(
                     f"-ADMIN- RETOUR FROM {reciever.id} ({mention(reciever)}) OF {amount}")
                 log_to_admin(
-                    update, context, f"#RETOUR sur {mention(reciever)} de {amount} dans [{update.message.chat.title}]({update.message.link})")
+                    update, context, f"#RETOUR sur {mention_global(reciever)} de {amount} dans [{update.message.chat.title}]({update.message.link})")
             except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
@@ -321,7 +320,7 @@ def verify(update: Updater, context:  CallbackContext):
                 logger.info(
                     f"-ADMIN- NEW PLAYER {reciever.id}({mention(reciever)})")
                 log_to_admin(update, context,
-                             f"#NEW_PLAYER {mention(reciever)} dans [{update.message.chat.title}]({update.message.link})")
+                             f"#NEW_PLAYER {mention_global(reciever)} dans [{update.message.chat.title}]({update.message.link})")
             except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
@@ -343,7 +342,7 @@ def unverify(update: Updater, context:  CallbackContext):
                 logger.info(
                     f"-ADMIN- BLOCKED {reciever.id}({mention(reciever)})")
                 log_to_admin(
-                    update, context, f"#BLOCKED {reciever.id}({mention(reciever)}) dans [{update.message.chat.title}]({update.message.link})")
+                    update, context, f"#BLOCKED {reciever.id}({mention_global(reciever)}) dans [{update.message.chat.title}]({update.message.link})")
             except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
@@ -383,7 +382,7 @@ def remboursement(update: Updater, context:  CallbackContext):
                 logger.info(
                     f"-ADMIN- REMBOURSEMENT TO {reciever.id} ({mention(reciever)}) OF {amount} DANS {update.message.link}")
                 log_to_admin(
-                    update, context, f"#REM de ({mention(reciever)}) du montant {amount} dans [{update.message.chat.title}]({update.message.link})")
+                    update, context, f"#REM de ({mention_global(reciever)}) du montant {amount} dans [{update.message.chat.title}]({update.message.link})")
 
             except (ValueError, IndexError):
                 context.bot.send_message(

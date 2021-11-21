@@ -105,6 +105,10 @@ def user_is_creator_or_admin(user, game, bot, chat):
     return user_is_creator(user, game) or user_is_admin(user, bot, chat)
 
 
+def mention_global(user):
+    return f'[{user.first_name}](t.me/{user.username})'
+
+
 def mention(user):
     return f'[{user.first_name}](tg://user?id={user.id})'
 
