@@ -404,7 +404,7 @@ def register():
         'apprendre', apprendre))
     dispatcher.add_handler(CommandHandler('tchoko', tchoko))
     dispatcher.add_handler(CommandHandler(
-        'top10', top_players))
+        'top_tournoi', top_players))
     dispatcher.add_handler(CommandHandler(
         'top_nkap', top_rich_players))
     dispatcher.add_handler(CommandHandler(
