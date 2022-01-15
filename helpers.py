@@ -156,17 +156,24 @@ def dm_information(chat, user, bot, result, points, bet, gains_losses):
 
 @db_session
 def top_players(update=None, context=None):
-    top_10_players = list(UserDB.select().order_by(
-        lambda u: desc(u.points))[:10])
+    top_players = list(UserDB.select().order_by(lambda u: desc(u.points))[:25])
     if (all([update, context])):
         top_txt = []
-        for idx, user in enumerate(top_10_players, start=1):
+        top_txt2 = []
+        for idx, user in enumerate(top_players, start=1 ):
             string = f"`{idx}–` *{str(user.name)}* - {user.points} Points\n"
             top_txt.append(string)
+            if idx === 15: break
+        
+        for idx, user in enumerate(top_players, start=15 ):
+            string = f"`{idx}–` *{str(user.name)}* - {user.points} Points\n"
+            top_txt2.append(string)
 
         context.bot.send_message(update.message.chat_id, text=''.join(
             top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
-    return top_10_players
+        context.bot.send_message(update.message.chat_id, text=''.join(
+            top_txt2), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    return top_players
 
 
 @db_session
@@ -397,7 +404,7 @@ def register():
         'apprendre', apprendre))
     dispatcher.add_handler(CommandHandler('tchoko', tchoko))
     dispatcher.add_handler(CommandHandler(
-        'top10', top_players))
+        'top_tournoi', top_players))
     dispatcher.add_handler(CommandHandler(
         'top_nkap', top_rich_players))
     dispatcher.add_handler(CommandHandler(
