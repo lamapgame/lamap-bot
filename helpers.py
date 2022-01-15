@@ -165,7 +165,7 @@ def top_players(update=None, context=None):
             top_txt.append(string)
             if idx == 15: break
         
-        for idx, user in enumerate(top_players, start=15 ):
+        for idx, user in enumerate(top_players[16:], start=16 ):
             string = f"`{idx}–` *{str(user.name)}* - {user.points} Points\n"
             top_txt2.append(string)
 
