@@ -160,12 +160,13 @@ def top_players(update=None, context=None):
     if (all([update, context])):
         top_txt = []
         top_txt2 = []
-        for idx, user in enumerate(top_players, start=1 ):
+        for idx, user in enumerate(top_players, start=1):
             string = f"`{idx}–` *{str(user.name)}* - {user.points} Points\n"
             top_txt.append(string)
-            if idx == 15: break
-        
-        for idx, user in enumerate(top_players[16:], start=16 ):
+            if idx == 15:
+                break
+
+        for idx, user in enumerate(top_players[16:], start=16):
             string = f"`{idx}–` *{str(user.name)}* - {user.points} Points\n"
             top_txt2.append(string)
 
@@ -399,12 +400,49 @@ def remboursement(update: Updater, context:  CallbackContext):
                 update.message.chat_id, text="Ca ne pourra jamais te concerner.")
 
 
+@db_session
+def invite_all_tournoi(update: Updater, context:  CallbackContext):
+    if update.message.reply_to_message is not None:
+        if update.message.from_user.id in SUPERMOD_LIST:
+            try:
+                link = int(context.args[0].replace(" ", ""))
+                top_players = list(UserDB.select().order_by(
+                    lambda u: desc(u.points))[:25])
+                if (all([update, context])):
+                    for idx, user in enumerate(top_players):
+                        context.bot.send_message(
+                            update.message.chat_id, text=f"Bienvenu au [tournoi]({link})", parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+                logger.info(f"-ADMIN- ENVOI DE TOURNOI A TOUT LE MONDE {link}")
+
+            except (ValueError, IndexError):
+                context.bot.send_message(
+                    update.message.chat_id, text="Je ne comprends pas bien boss.")
+        else:
+            context.bot.send_message(
+                update.message.chat_id, text="Ca ne pourra jamais te concerner.")
+
+
+def get_tournoi_players(update: Updater, context: CallbackContext):
+    top_players = list(UserDB.select().order_by(lambda u: desc(u.points))[:25])
+    if (all([update, context])):
+        top_txt = []
+        for idx, user in enumerate(top_players):
+            string = f"`{idx} – `{mention(user)}\n"
+            top_txt.append(string)
+        context.bot.send_message(update.message.chat_id, text=''.join(
+            top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    return top_players
+
+
 def register():
     dispatcher.add_handler(CommandHandler(
         'apprendre', apprendre))
     dispatcher.add_handler(CommandHandler('tchoko', tchoko))
+    dispatcher.add_handler(CommandHandler('top_tournoi', top_players))
     dispatcher.add_handler(CommandHandler(
-        'top_tournoi', top_players))
+        'get_top_tournoi', get_tournoi_players))
+    dispatcher.add_handler(CommandHandler(
+        'TT', invite_all_tournoi))
     dispatcher.add_handler(CommandHandler(
         'top_nkap', top_rich_players))
     dispatcher.add_handler(CommandHandler(
