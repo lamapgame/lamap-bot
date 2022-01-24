@@ -438,6 +438,8 @@ def get_tournoi_players(update: Updater, context: CallbackContext):
             top_txt2.append(string)
         context.bot.send_message(update.message.chat_id, text=''.join(
             top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+        context.bot.send_message(update.message.chat_id, text=''.join(
+            top_txt2), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
     return top_players
 
 
