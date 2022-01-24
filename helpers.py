@@ -422,6 +422,7 @@ def invite_all_tournoi(update: Updater, context:  CallbackContext):
                 update.message.chat_id, text="Ca ne pourra jamais te concerner.")
 
 
+@db_session
 def get_tournoi_players(update: Updater, context: CallbackContext):
     top_players = list(UserDB.select().order_by(lambda u: desc(u.points))[:25])
     if (all([update, context])):
