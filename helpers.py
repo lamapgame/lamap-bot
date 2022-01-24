@@ -428,7 +428,7 @@ def get_tournoi_players(update: Updater, context: CallbackContext):
     if (all([update, context])):
         top_txt = []
         for idx, user in enumerate(top_players):
-            string = f"`{idx} – `{mention(user)}\n"
+            string = f"`{idx} – [{user.name}](tg://user?id={user.id})\n"
             top_txt.append(string)
         context.bot.send_message(update.message.chat_id, text=''.join(
             top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
