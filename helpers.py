@@ -166,7 +166,7 @@ def top_players(update=None, context=None):
             if idx == 15:
                 break
 
-        for idx, user in enumerate(top_players[16:], start=16):
+        for idx, user in enumerate(top_players[15:], start=16):
             string = f"`{idx}–` *{str(user.name)}* - {user.points} Points\n"
             top_txt2.append(string)
 
@@ -427,9 +427,15 @@ def get_tournoi_players(update: Updater, context: CallbackContext):
     top_players = list(UserDB.select().order_by(lambda u: desc(u.points))[:25])
     if (all([update, context])):
         top_txt = []
+        top_txt2 = []
         for idx, user in enumerate(top_players):
-            string = f"`{idx} – [{user.name}](tg://user?id={user.id})\n"
+            string = f"{idx} – [{user.name}](tg://user?id={user.id})\n"
             top_txt.append(string)
+            if idx == 15:
+                break
+        for idx, user in enumerate(top_players[15:], start=16):
+            string = f"{idx} – [{user.name}](tg://user?id={user.id})\n"
+            top_txt2.append(string)
         context.bot.send_message(update.message.chat_id, text=''.join(
             top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
     return top_players
