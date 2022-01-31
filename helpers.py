@@ -325,11 +325,10 @@ def verify(update: Updater, context:  CallbackContext):
                 r.verified = True
                 context.bot.send_message(
                     update.message.chat_id, text=f"C'est bon, ta personne peut jouer dans mon terre")
-                msg = f"#NEW_PLAYER {reciever.id}({mention(reciever)})"
                 logger.info(
-                    f"-ADMIN- NEW PLAYER {reciever.id}({mention(reciever)})")
-                log_to_admin(update, context,
-                             f"#NEW_PLAYER {mention_global(reciever)} dans [{update.message.chat.title}]({update.message.link})")
+                    f"-ADMIN- UNBLOCKED {reciever.id}({mention(reciever)})")
+                log_to_admin(
+                    update, context, f"#UNBLOCKED {reciever.id}({mention_global(reciever)}) dans [{update.message.chat.title}]({update.message.link})")
             except (ValueError, IndexError):
                 context.bot.send_message(
                     update.message.chat_id, text="Je ne comprends pas bien boss.")
