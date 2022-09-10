@@ -9,8 +9,7 @@ local_env_path = Path('.') / '.env.local'
 prod_env_path = Path('.') / '.env.prod'
 
 # read the config.json file
-with open("config.json",
-          "r") as f:
+with open("config.json", "r") as f:
     config = json.loads(f.read())
 
 WORKERS = config.get("WORKERS", 32)
@@ -24,17 +23,15 @@ MIN_PLAYERS = config.get("MIN_PLAYERS", 2)
 MAX_PLAYERS = config.get("MAX_PLAYERS", 4)
 TIME_TO_START = config.get("TIME_TO_START", 30)
 TIME_TO_PLAY = config.get("TIME_TO_PLAY", 120)
-HEROKU_URL = ""
-HEROKU_PORT = int(os.environ.get('PORT', 5000))
-
-LOGGING_CHAT_ID = -1001200515870  # my admin group
+PORT = int(os.environ.get('PORT', 5000))
+LOGGING_CHAT_ID = int(config.get("LOGGING_CHAT_ID", -1001200515870))  # my admin group
 
 if sys.argv[1] == "prod":
     load_dotenv(prod_env_path)
     TOKEN = os.getenv("TOKEN")
     DB_URL = os.getenv("DATABASE_URL")
-    HEROKU_URL = os.getenv("HEROKU_URL")
-    print("prod", TOKEN)
+    RAILWAY_STATIC_URL = os.getenv("RAILWAY_STATIC_URL")
+    print("production", TOKEN, RAILWAY_STATIC_URL)
 else:
     load_dotenv(local_env_path)
     TOKEN = os.getenv("TOKEN")

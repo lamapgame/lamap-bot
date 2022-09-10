@@ -104,5 +104,3 @@ ENV/
 
 # config.json
 var_holder.json
-pyrightconfig.json
-config.json

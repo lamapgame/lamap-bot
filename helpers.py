@@ -1,5 +1,4 @@
 import logging
-import string
 from config import SUPERMOD_LIST
 from stats import init_stats
 from telegram import ParseMode
@@ -223,8 +222,7 @@ def top_kora(update, context):
         string = f"`{idx}–` *{str(user.name)}* - {user.wins_kora}\n"
         top_txt.append(string)
 
-    context.bot.send_message(update.message.chat_id, text='TOP KORATEURS\n\n' + ''.join(top_txt),
-                             parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
+    context.bot.send_message(update.message.chat_id, text='TOP KORATEURS\n\n' + ''.join(top_txt), parse_mode=ParseMode.MARKDOWN, disable_web_page_preview=True)
     return
 
 
