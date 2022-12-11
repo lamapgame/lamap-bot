@@ -104,3 +104,5 @@ ENV/
 
 # config.json
 var_holder.json
+
+data/

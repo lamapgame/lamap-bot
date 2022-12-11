@@ -193,6 +193,13 @@ def has_enough_nkap(id, bet):
 
 
 @db_session
+def is_verified(id):
+    ''' Check if the player is verified '''
+    u = UserDB.get(id=id)
+    return u.verified
+
+
+@db_session
 def get_points(id):
     u = UserDB.get(id=id)
     if not u:
