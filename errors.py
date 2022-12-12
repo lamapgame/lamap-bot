@@ -21,6 +21,9 @@ class AlreadyGameInChat(Exception):
 class NotEnoughNkap(Exception):
     pass
 
+class NotVerifiedError(Exception):
+    pass
+
 
 class LobbyClosedError(Exception):
     pass

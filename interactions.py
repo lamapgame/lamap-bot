@@ -152,6 +152,9 @@ game_interactions = {
         "{user}, ton nom est déjà dans le cahier, tu bouffes le prémier",
         "{user}, j'ai déjà coupé tes 5 cartes, calme toi",
     ],
+    "unverified": [
+        "{user}, non tu ne joues pas.",
+    ],
     "joining": [
         "{user} a réjoint la partie !"
         "{user} mon korateur préféré a réjoint !",
@@ -205,57 +208,61 @@ game_interactions = {
 }
 
 
-def t_tu_joue_combien():
+def t_tu_joue_combien() -> str:
     return choice(game_interactions.get('how_much'))
 
 
-def t_i_do_not_understand():
+def t_i_do_not_understand() -> str:
     return choice(game_interactions.get('no_understand'))
 
 
-def t_just_launched(first_name, bet):
+def t_just_launched(first_name, bet) -> str:
     return choice(game_interactions.get('just_launched')).format(first_name=first_name, bet=bet)
 
 
-def t_reminder(title, link, bet):
+def t_reminder(title, link, bet) -> str:
     return choice(game_interactions.get('reminder')).format(title=title, link=link, bet=bet)
 
 
-def t_call_me_back():
+def t_call_me_back() -> str:
     return choice(game_interactions.get('call_me_back'))
 
 
-def t_already_started():
+def t_already_started() -> str:
     return choice(game_interactions.get('already_started'))
 
 
-def t_count_down(time):
+def t_count_down(time) -> str:
     return choice(game_interactions.get('count_down')).format(time=time)
 
 
-def t_not_enough():
+def t_not_enough() -> str:
     return choice(game_interactions.get('not_enough'))
 
 
-def t_no_money(user):
+def t_no_money(user) -> str:
     return choice(game_interactions.get("no_money")).format(user=user)
 
 
-def t_game_run(user):
+def t_unverified(user) -> str:
+    return choice(game_interactions.get("unverified")).format(user=user)
+
+
+def t_game_run(user) -> str:
     return choice(game_interactions.get("game_run")).format(user=user)
 
 
-def t_max_reached(user):
+def t_max_reached(user) -> str:
     return choice(game_interactions.get("max_reached")).format(user=user)
 
 
-def t_already_joined(user):
+def t_already_joined(user) -> str:
     return choice(game_interactions.get("already_joined")).format(user=user)
 
 
-def t_joining(user):
+def t_joining(user) -> str:
     return choice(game_interactions.get("joining")).format(user=user)
 
 
-def t_no_game():
+def t_no_game() -> str:
     return choice(game_interactions.get('no_game'))

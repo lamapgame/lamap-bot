@@ -19,7 +19,7 @@ from config import MIN_PLAYERS, TIME_TO_PLAY, TIME_TO_START
 from errors import (AlreadyGameInChat, AlreadyJoinedError,
                     GameAlreadyStartedError, LobbyClosedError,
                     MaxPlayersReached, NoGameInChatError, NotEnoughNkap,
-                    NotEnoughPlayersError)
+                    NotEnoughPlayersError, NotVerifiedError)
 from global_variables import dispatcher, gm, updater
 from results import (add_card, add_no_game, add_not_started, add_special_card,
                      check_quick_win, get_end_game_status, get_game_status)
@@ -29,7 +29,7 @@ from utils import (TIMEOUT, answer_async, delete_start_msgs, pin_game_message,
                    user_is_creator_or_admin, n_format)
 from gifs import start_Anim
 from interactions import (t_already_joined, t_already_started, t_count_down, t_joining, t_max_reached, t_no_game,
-                          t_no_money, t_game_run, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back)
+                          t_no_money, t_game_run, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back, t_unverified)
 from jobs import remove_job_if_exists, set_job
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -100,7 +100,7 @@ def new_nkap_game(update, context, montant=None):
         reply_keyboard = [['25000', '15000', '10000', '5000'], [
             '2500', '1000', '500', '/ndem']]
         send_async(context.bot, chat_id,
-                   text=t_i_do_not_understand(), reply_to_message_id=update.message.message_id, reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True))
+                text=t_i_do_not_understand(), reply_to_message_id=update.message.message_id, reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True))
         return 1
 
     if update.message.chat.type == 'private':
@@ -193,6 +193,10 @@ def join_game(update, context):
     except NotEnoughNkap:
         send_async(
             bot, chat.id, text=t_no_money(mention(user)), to_delete=True)
+
+    except NotVerifiedError:
+        send_async(
+            bot, chat.id, text=t_unverified(mention(user)), to_delete=True)
 
     except LobbyClosedError:
         send_async(bot, chat.id, text="La partie est fermée", to_delete=True)
@@ -384,7 +388,7 @@ def quit_game(update, context):
 
     user = update.message.from_user
 
-    ''' 
+    '''
     try:
         if game.control_player != None:
             if game.control_player.user.id != user.id:
@@ -413,7 +417,7 @@ def quit_game(update, context):
         send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
                    reply_to_message_id=update.message.message_id)
 
-    except NotEnoughPlayersError: 
+    except NotEnoughPlayersError:
         gm.end_game(chat, user)
         if game.control_player is None:
             send_async(
