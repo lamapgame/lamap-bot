@@ -15,7 +15,7 @@ with open("config.json", "r") as f:
 WORKERS = config.get("WORKERS", 32)
 ADMIN_LIST = config.get("ADMIN_LIST", None)
 SUPERMOD_LIST = config.get(
-    "SUPERMOD_LIST", [223627873, 1077515995, 1227290946, 1174795195])
+    "SUPERMOD_LIST", [223627873, 1077515995, 995607742])
 OPEN_LOBBY = config.get("OPEN_LOBBY", True)
 DEFAULT_GAMEMODE = config.get("DEFAULT_GAMEMODE", "classic")
 WAITING_TIME = config.get("WAITING_TIME", 100)
