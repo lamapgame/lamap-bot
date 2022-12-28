@@ -10,7 +10,7 @@ defaults = Defaults(parse_mode=ParseMode.MARKDOWN)
 db.bind('postgres', DB_URL)
 db.generate_mapping(create_tables=True)
 
-updater = Updater(token=TOKEN, workers=WORKERS, defaults=defaults)
+updater = Updater(token=str(TOKEN), workers=WORKERS, defaults=defaults)
 # LMjobQueue = updater.job_queue
 
 gm = GameManager()

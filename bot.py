@@ -16,20 +16,24 @@ import logger as loggero
 import stats
 from actions import do_play_card
 from config import MIN_PLAYERS, TIME_TO_PLAY, TIME_TO_START
+
 from errors import (AlreadyGameInChat, AlreadyJoinedError,
                     GameAlreadyStartedError, LobbyClosedError,
                     MaxPlayersReached, NoGameInChatError, NotEnoughNkap,
-                    NotEnoughPlayersError)
+                    NotEnoughPlayersError, NotVerifiedError)
+
 from global_variables import dispatcher, gm, updater
 from results import (add_card, add_no_game, add_not_started, add_special_card,
-                     check_quick_win, get_end_game_status, get_game_status)
-from start_bot import start_bot
+check_quick_win, get_end_game_status, get_game_status)
+
 from utils import (TIMEOUT, answer_async, delete_start_msgs, pin_game_message,
-                   mention, send_animation_async, send_async, user_is_creator, win_game, lost_game,
-                   user_is_creator_or_admin, n_format)
+mention, send_animation_async, send_async, user_is_creator, win_game, lost_game, user_is_creator_or_admin, n_format)
+
 from gifs import start_Anim
-from interactions import (t_already_joined, t_already_started, t_count_down, t_joining, t_max_reached, t_no_game,
-                          t_no_money, t_game_run, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back)
+
+from interactions import (t_already_joined, t_already_started, t_count_down, t_joining, t_max_reached, t_no_game, t_no_money, t_game_run, t_not_enough, t_reminder, t_tu_joue_combien, t_i_do_not_understand, t_just_launched, t_call_me_back, t_unverified)
+
+
 from jobs import remove_job_if_exists, set_job
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -122,8 +126,8 @@ def new_nkap_game(update, context, montant=None):
 
             join_btn = [[InlineKeyboardButton(
                 "🖐🏽 - Rejoindre", callback_data="join_game"), InlineKeyboardButton(
-                    "Lancer - 🚀", callback_data="start_game")], [InlineKeyboardButton(
-                        "Notifier - 🔔", callback_data="notify")]]
+                "Lancer - 🚀", callback_data="start_game")], [InlineKeyboardButton(
+                    "Notifier - 🔔", callback_data="notify")]]
 
             # Reply to inform the start of game
             send_animation_async(
@@ -193,6 +197,10 @@ def join_game(update, context):
     except NotEnoughNkap:
         send_async(
             bot, chat.id, text=t_no_money(mention(user)), to_delete=True)
+
+    except NotVerifiedError:
+        send_async(
+            bot, chat.id, text=t_unverified(mention(user)), to_delete=True)
 
     except LobbyClosedError:
         send_async(bot, chat.id, text="La partie est fermée", to_delete=True)
@@ -315,8 +323,8 @@ def reply_to_query(update, context):
             for card in sorted(player.cards):
                 add_card(game, card, results, can_play=False)
 
-    answer_async(bot, update.inline_query.id, results, cache_time=0,
-                 switch_pm_parameter='select')
+    answer_async(bot, update.inline_query.id, results,
+                 cache_time=0, switch_pm_parameter='select')
 
 
 def process_result(update, context):
@@ -373,58 +381,17 @@ def quit_game(update, context):
     try:
         player = gm.player_for_user_in_chat(user, chat)
         game = player.game
+
+
     except NoGameInChatError:
-        send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
-                   reply_to_message_id=update.message.message_id)
+        send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.", reply_to_message_id=update.message.message_id)
         return
+
     except AttributeError:
-        send_async(bot, chat.id, text=f"Tu veux fuir sans joindre ?",
-                   reply_to_message_id=update.message.message_id)
+        send_async(bot, chat.id, text=f"Tu veux fuir sans avoir joint ?", reply_to_message_id=update.message.message_id)
         return
 
     user = update.message.from_user
-
-    ''' 
-    try:
-        if game.control_player != None:
-            if game.control_player.user.id != user.id:
-                gm.leave_game(user, chat)
-            else:
-                send_async(bot, chat.id, text=f"Molah, Tu pars où alors que tu as le contrôle ?",
-                           reply_to_message_id=update.message.message_id)
-                return
-
-        elif game.current_player.user.id == user.id:
-            send_async(bot, chat.id, text=f"{mention(user)} a fui en voyant ses cartes.",
-                       reply_to_message_id=update.message.message_id)
-            gm.leave_game(user, chat)
-            # update game to match left
-            stats.user_quit(user.id)
-            stats.user_lost(user.id, "n", game.nkap, game.bet)
-
-        else:
-            send_async(bot, chat.id, text=f"{mention(user)} a fui sans voir ses cartes.",
-                       reply_to_message_id=update.message.message_id)
-            gm.leave_game(user, chat)
-            stats.user_quit(user.id)
-            stats.user_lost(user.id, "n", game.nkap, game.bet)
-
-    except NoGameInChatError:
-        send_async(bot, chat.id, text=f"Il n'y a aucune partie en cours dans groupe, crée une nouvelle avec /nkap.",
-                   reply_to_message_id=update.message.message_id)
-
-    except NotEnoughPlayersError: 
-        gm.end_game(chat, user)
-        if game.control_player is None:
-            send_async(
-                bot, chat.id, text=f"Comment vous partez tous?! Fin de partie !")
-        else:
-            send_animation_async(
-                bot, chat.id, animation="https://media.giphy.com/media/NG6dWJC9wFX2/giphy.gif", caption=f"Je considère que {mention(game.control_player.user)} a gagné")
-            win_game(bot, game, chat, "n")
-            logger.info(
-                f"WIN GAME FOFEIT ({game.control_player.user.id}) in {chat.id}")
-    '''
 
     # TODO
     # if you leave after game starts... you pay game bet
@@ -463,21 +430,25 @@ def quit_game(update, context):
 
 def kill_game(update, context):
     """Handler for the /kill game"""
-    chat = update.message.chat
-    user = update.message.from_user
-    games = gm.chatid_games.get(chat.id)
     bot = context.bot
 
+    # command unavailable in private chat
     if update.message.chat.type == 'private':
         helpers.help_handler(bot, update)
         return
 
+    chat = update.message.chat
+    user = update.message.from_user
+    games = gm.chatid_games.get(chat.id)
+
+
     if not games:
-        send_async(
-            bot, chat.id, text=t_no_game())
+        send_async(bot, chat.id, text=t_no_game())
         return ConversationHandler.END
 
     game = games[-1]
+
+
     game.killer = user
 
     if user_is_creator_or_admin(user, game, bot, chat):
@@ -680,7 +651,8 @@ def main():
     # callback queries handler
     dispatcher.add_handler(CallbackQueryHandler(cbhandler))
 
-    # all handler (use ONLY for infoging!)
+
+    # all handler (use ONLY for debugging!)
     # dispatcher.add_handler(MessageHandler(Filters.all, mes))
 
     dispatcher.add_error_handler(loggero.error)
@@ -688,10 +660,7 @@ def main():
     helpers.register()
 
     # Start the Bot
-    start_bot(updater)
-    # Run job queue
-    ''' LMjobQueue.run_daily(stats.refill, time=datetime.time(
-        6, 00, 00, 000000), days=(2, 6)) '''
+    updater.start_polling()
 
     # Run the bot until the user presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT

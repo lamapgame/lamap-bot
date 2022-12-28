@@ -4,8 +4,8 @@ game manager
 import logging
 from game import Game
 from player import Player
-from errors import AlreadyJoinedError, LobbyClosedError, NoGameInChatError, NotEnoughPlayersError, GameAlreadyStartedError, MaxPlayersReached, AlreadyGameInChat, NotEnoughNkap
-from stats import has_enough_nkap
+from errors import AlreadyJoinedError, LobbyClosedError, NoGameInChatError, NotEnoughPlayersError, GameAlreadyStartedError, MaxPlayersReached, AlreadyGameInChat, NotEnoughNkap, NotVerifiedError
+from stats import has_enough_nkap, is_verified
 
 
 class GameManager(object):
@@ -49,8 +49,12 @@ class GameManager(object):
         if not has_enough_nkap(user.id, game.bet):
             raise NotEnoughNkap()
 
+        if not is_verified(user.id):
+            raise NotVerifiedError()
+
         if not game.open:
             raise LobbyClosedError()
+
         if game.started:
             raise GameAlreadyStartedError()
 

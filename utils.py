@@ -270,7 +270,6 @@ def hard_loss_by_afk(bot, game, chat, style):
         helpers.dm_information(chat, winner.id, bot, "W",
                                pts_won, game.bet, game.bet*3)
 
-
 @MWT(timeout=60*60)
 def get_admin_ids(bot, chat_id):
     """Returns a list of admin IDs for a given chat. Results are cached for 1 hour."""

@@ -7,7 +7,6 @@
 	"editor.tabSize": 4,
 	"editor.fontSize": 15,
 	"editor.lineHeight": 34,
-	"editor.fontWeight": "500",
 	"editor.minimap.size": "proportional",
 	"editor.fontLigatures": true,
 	"python.testing.unittestArgs": ["-v", "-s", "./test", "-p", "test_*.py"],
@@ -18,5 +17,6 @@
 	"python.analysis.extraPaths": [
 		"./test"
 	],
-	"editor.fontFamily": "MonoLisa, Monaco, 'Courier New', monospace"
+	"editor.fontFamily": "MonoLisa, Monaco, 'Courier New', monospace",
+	"python.analysis.typeCheckingMode": "basic"
 }
