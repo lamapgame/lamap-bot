@@ -91,7 +91,7 @@ def stats(update, context):
     u = UserDB.get(id=user.id)
 
     if not u.verified:
-        context.bot.send_message(update.message.chat_id, text=f"{user.first_name}, tu es ban du bot, contact @panachaud.")
+        context.bot.send_message(update.message.chat_id, text=f"{user.first_name}, tu es ban du bot, contact @lamapsupport.")
         return
 
     if not u:
