@@ -7,6 +7,8 @@ from telegram.ext import CommandHandler, CallbackContext, Updater
 from pony.orm import db_session, desc
 from user_db import UserDB
 
+from database import db
+
 from global_variables import dispatcher
 from utils import mention, mention_global, n_format
 
@@ -318,6 +320,30 @@ def le_retour(update: Updater, context:  CallbackContext):
 
 
 @db_session
+def le_refresh(update: Updater, context:  CallbackContext):
+    if update.message.from_user.id in SUPERMOD_LIST:
+        try:
+            reciever = update.message.from_user
+            amount = int(context.args[0].replace(" ", ""))
+            db.execute("""UPDATE userdb
+                       SET nkap=$amount
+                       WHERE verified=true
+                       """, {'amount': amount})
+            context.bot.send_message(
+                update.message.chat_id, text=f"C'est bon, on a refresh tout le monde à {n_format(amount)}")
+            logger.info(
+                f"-ADMIN- REFRESH FROM {reciever.id} ({mention(reciever)}) OF {amount}")
+            # log_to_admin(
+            #    update, context, f"#REFRESH de {amount} dans [{update.message.chat.title}]({update.message.link})")
+        except (ValueError, IndexError):
+            context.bot.send_message(update.message.chat_id, text="Je ne comprends pas bien boss.")
+    else:
+        context.bot.send_message(
+            update.message.chat_id, text="Ca ne pourra jamais te concerner.")
+
+
+
+@db_session
 def verify(update: Updater, context:  CallbackContext):
     if update.message.reply_to_message is not None:
         if update.message.from_user.id in SUPERMOD_LIST:
@@ -464,6 +490,8 @@ def register():
         'transfert', transfert))
     dispatcher.add_handler(CommandHandler(
         'retour', le_retour))
+    dispatcher.add_handler(CommandHandler(
+        'refresh', le_refresh))
     dispatcher.add_handler(CommandHandler(
         'verify', verify))
     dispatcher.add_handler(CommandHandler(
