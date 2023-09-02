@@ -320,7 +320,7 @@ def le_retour(update: Updater, context:  CallbackContext):
 
 
 @db_session
-def le_refresh(update: Updater, context:  CallbackContext):
+def le_refresh_nkap(update: Updater, context:  CallbackContext):
     if update.message.from_user.id in SUPERMOD_LIST:
         try:
             reciever = update.message.from_user
@@ -337,6 +337,27 @@ def le_refresh(update: Updater, context:  CallbackContext):
             #    update, context, f"#REFRESH de {amount} dans [{update.message.chat.title}]({update.message.link})")
         except (ValueError, IndexError):
             context.bot.send_message(update.message.chat_id, text="Je ne comprends pas bien boss.")
+    else:
+        context.bot.send_message(
+            update.message.chat_id, text="Ca ne pourra jamais te concerner.")
+
+
+@db_session
+def le_refresh_points(update: Updater, context:  CallbackContext):
+    if update.message.from_user.id in SUPERMOD_LIST:
+        try:
+            reciever = update.message.from_user
+            amount = int(context.args[0].replace(" ", ""))
+            db.execute("""UPDATE userdb
+                       SET points=$amount
+                       """, {'amount': amount})
+            context.bot.send_message(
+                update.message.chat_id, text=f"C'est bon, on a refresh les points {n_format(amount)}")
+            logger.info(
+                f"-ADMIN- REFRESH POINTS FROM {reciever.id} ({mention(reciever)}) OF {amount}")
+        except (ValueError, IndexError):
+            context.bot.send_message(
+                update.message.chat_id, text="Je ne comprends pas bien boss.")
     else:
         context.bot.send_message(
             update.message.chat_id, text="Ca ne pourra jamais te concerner.")
@@ -491,7 +512,9 @@ def register():
     dispatcher.add_handler(CommandHandler(
         'retour', le_retour))
     dispatcher.add_handler(CommandHandler(
-        'refresh', le_refresh))
+        'refresh_nkap', le_refresh_nkap))
+    dispatcher.add_handler(CommandHandler(
+        'refresh_points', le_refresh_points))
     dispatcher.add_handler(CommandHandler(
         'verify', verify))
     dispatcher.add_handler(CommandHandler(
