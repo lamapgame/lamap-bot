@@ -1,0 +1,102 @@
+version: '3.4'
+
+services:
+
+  db:
+    image: postgres
+    container_name: postgres_container
+    restart: always
+    ports:
+      - 2345:5432
+    command: ["postgres", "-c", "log_statement=all"]
+    environment:
+      BOT_APP_USER: ${BOT_APP_USER}
+      BOT_APP_PASSWORD: ${BOT_APP_PASSWORD}
+      BOT_APP_DATABASE: ${BOT_APP_DATABASE}
+      BOT_ADMIN_USER: ${BOT_ADMIN_USER}
+      BOT_ADMIN_PASSWORD: ${BOT_ADMIN_PASSWORD}
+      BOT_SCHEMA: ${BOT_SCHEMA}
+      POSTGRES_PASSWORD: "admin" # postgres admin password
+    volumes:
+      - ./scripts/initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "psql", "postgresql://${BOT_APP_USER}:${BOT_APP_PASSWORD}@localhost/${BOT_APP_DATABASE}"]
+      interval: 0.5s
+      timeout: 1s
+      retries: 4
+      start_period: 1s
+    networks:
+      - lamap-stack
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - lamap-stack
+
+  bot_service:
+    image: bot-service-local
+    container_name: bot_service
+    build:
+      context: .
+    ports:
+      - "5003:80"
+    entrypoint: ["/bin/sh", "-c"]
+    command: "'update-ca-certificates && gunicorn -c /config/gunicorn.conf.py'"
+    environment:
+      DB_HOST: db
+      BOT_APP_USER: ${BOT_APP_USER}
+      BOT_APP_PASSWORD: ${BOT_APP_PASSWORD}
+      BOT_APP_DATABASE: ${BOT_APP_DATABASE}
+      BOT_ADMIN_USER: ${BOT_ADMIN_USER}
+      BOT_ADMIN_PASSWORD: ${BOT_ADMIN_PASSWORD}
+      BOT_SCHEMA: ${BOT_SCHEMA}
+      # DB and port overriden here so that we can have "localhost" as the db host in the local config
+      DATABASE_URL: "${BOT_APP_USER}:${BOT_APP_PASSWORD}@db:5432/${BOT_APP_DATABASE}"
+      DATABASE_URL_ADMIN: "${BOT_ADMIN_USER}:${BOT_ADMIN_PASSWORD}@db:5432/${BOT_APP_DATABASE}"
+      # FIXME: adapt once we have curity "for real"
+      JWKS_URI: 'https://auth.lamap.local/2814c680-afb1-4d64-95f2-c271b6a9a3e4/oauth/oauth-anonymous/jwks'
+      JWK_AUDIENCES: '["workspace-lamap", "lamap-infra-admin-client", "lamap-embed-client"]'
+      JWK_ALGORITHMS: '["RS512"]'
+      TESTING: ${TESTING}
+      AUTH_DISABLED: ${AUTH_DISABLED}
+      # Specify the CA bundle for httpx
+      SSL_CERT_FILE: "/etc/ssl/certs/ca-certificates.crt"
+
+    volumes:
+      - ${MKCERT_DIR}/rootCA.pem:/usr/local/share/ca-certificates/rootCA.crt
+      - ./docker_configs/:/config/:ro
+
+    healthcheck:
+      test: ["CMD" ,"python", "-c", "from urllib import request; resp = request.urlopen('http://localhost:80'); assert resp.status == 200"]
+      interval: 5s
+      timeout: 1s
+      retries: 4
+      start_period: 1s
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      lamap-stack:
+        aliases:
+          - bot_service
+
+volumes:
+  pgadmin-data:
+
+networks:
+  lamap-stack:
+    name: lamap-stack
+    # NOTE: Uncomment this to run the bot-service with local-dev-env (curity & co)
+    # external: true

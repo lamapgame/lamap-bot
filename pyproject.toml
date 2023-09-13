@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "lamap-bot"
+version = "0.1.0"
+description = "Python Telegram bot to play Lamap card game."
+authors = ["Dylan Tientcheu <dylantientcheu@gmail.com>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pony = ">=0.7.16"
+pydantic = ">=1.8.2"
+python-telegram-bot = ">=20.5"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=5.3.5"
+ruff = "^0.0.287"
+mypy = "^1.5.1"
+black = "^23.7.0"
+pony-stubs = "^0.5.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
