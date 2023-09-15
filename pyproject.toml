@@ -11,6 +11,7 @@ python = "^3.11"
 pony = ">=0.7.16"
 pydantic = ">=1.8.2"
 python-telegram-bot = ">=20.5"
+python-dotenv = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=5.3.5"
