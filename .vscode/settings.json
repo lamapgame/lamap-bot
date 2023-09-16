@@ -1,0 +1,5 @@
+{
+	"editor.formatOnSave": true,
+	"python.terminal.activateEnvInCurrentTerminal": true,
+	"python.analysis.autoFormatStrings": true
+}
