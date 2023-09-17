@@ -6,7 +6,7 @@ from deck import Deck
 class Game:
   def __init__(self, chat_id: str):
     self.chat_id = chat_id
-    self.startedDate = datetime.now()
+    self.started_date = datetime.now()
     self.players = []
     self.deck = Deck() # TODO: implement deck of cards (see deck.py) -> dylantientcheu/lamap-bot/deck.py and dylantientcheu/lamap-bot/card.py
 
