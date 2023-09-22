@@ -9,7 +9,9 @@ MYPY=mypy app tests
 
 install: ## install poetry and pip + all deps for the project
 	pip install -U pip poetry
+	# Tell poetry to not install stuff on its virtualenv
 	poetry install
+	poetry config virtualenvs.create false
 
 format: ## Reformat project code.
 	${RUFF} --fix
