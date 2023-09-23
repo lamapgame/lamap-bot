@@ -11,6 +11,7 @@ python = "^3.11"
 pony = ">=0.7.16"
 pydantic = ">=1.8.2"
 python-telegram-bot = ">=20.5"
+python-dotenv = "^1.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=5.3.5"
@@ -24,3 +25,15 @@ pytest-xdist = "*"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+python_version = "3.11"
+plugins = "pydantic.mypy"
+follow_imports = "silent"
+ignore_missing_imports = true
+allow_redefinition = true
+# exclude = "test"
+show_error_codes = true
+warn_no_return = true
+warn_unused_configs = true
+warn_unused_ignores = true

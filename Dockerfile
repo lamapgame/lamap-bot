@@ -1,16 +1,12 @@
 FROM python:3.11.4-slim
 
-RUN apt update && apt-get install -y libpq-dev postgresql-client --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/* \
-  && apt-get clean \
-  && apt-get autoremove
-
+RUN apt-get install -y libpq-dev
 WORKDIR /app
 
 COPY poetry.lock pyproject.toml ./
 RUN pip install -U pip poetry
-RUN poetry install
+RUN poetry install --no-root --only main
 
-COPY ./app ./app
+COPY ./ ./
 
 CMD ["python", "bot.py", "prod"]
