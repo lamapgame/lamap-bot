@@ -1,8 +1,0 @@
-{
-	"editor.formatOnSave": true,
-	"python.terminal.activateEnvInCurrentTerminal": true,
-	"python.analysis.autoFormatStrings": true,
-	"python.testing.pytestArgs": ["test"],
-	"python.testing.unittestEnabled": false,
-	"python.testing.pytestEnabled": true
-}
