@@ -31,10 +31,13 @@ async def start_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
       await send_reply_message(update, f"Une partie est déjà en cours dans ce groupe.")
 
 
-if (TOKEN):
-  app = ApplicationBuilder().token(TOKEN).build()
-else:
-  raise Exception("No token provided")
+
+try:
+    if not TOKEN:
+        raise Exception("No token provided")
+    app = ApplicationBuilder().token(TOKEN).build()
+except RuntimeError as excp:
+    raise Exception("No token provided") from excp
 
 # Bot command handlers
 app.add_handler(CommandHandler("start", start))

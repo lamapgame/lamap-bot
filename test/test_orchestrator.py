@@ -2,6 +2,7 @@ import pytest
 from game import Game
 from orchestrator import Orchestrator, GameAlreadyExistError
 
+
 class TestOrchestrator:
     def setup_method(self):
         self.orchestrator = Orchestrator()
