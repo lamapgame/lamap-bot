@@ -1,10 +1,10 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
-from exceptions import GameAlreadyExistError
+from common.exceptions import GameAlreadyExistError
 
-import interactions
+import common.interactions as interactions
 from config import TOKEN
-from tlgrm.utils import send_reply_message
+from common.utils import send_reply_message
 from orchestrator import Orchestrator
 
 

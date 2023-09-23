@@ -1,6 +1,6 @@
 from typing import Dict
 from game import Game
-from exceptions import GameAlreadyExistError
+from common.exceptions import GameAlreadyExistError
 
 class Orchestrator:
   """
@@ -14,9 +14,9 @@ class Orchestrator:
   """
   def __init__(self):
     # dict of games, key = chat_id, value = Game object
-    self.games: Dict[str, Game] = {}
+    self.games: Dict[int, Game] = {}
 
-  def new_game(self, chat_id):
+  def new_game(self, chat_id: int):
     """ initializes a new game in a chat """
 
     # do not start another if there's already one going on
@@ -25,7 +25,7 @@ class Orchestrator:
 
     self.games[chat_id] = Game(chat_id)
 
-  def end_game(self, chat_id):
+  def end_game(self, chat_id: int):
     """ ends a game in a chat """
 
     if chat_id not in self.games:

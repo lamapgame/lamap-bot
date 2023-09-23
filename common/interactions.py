@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.constants import ParseMode
-from tlgrm.utils import send_reply_message
+from common.utils import send_reply_message
 
 async def INIT_USER (update: Update) -> None:
   if (update.message and update.message.chat.type == 'private'):

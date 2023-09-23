@@ -6,7 +6,7 @@ from player import Player
 
 
 class Game:
-  def __init__(self, chat_id: str):
+  def __init__(self, chat_id: int):
     self.chat_id = chat_id
     self.started_date = datetime.now()
     self.players: List[Player] = []

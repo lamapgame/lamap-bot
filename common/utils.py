@@ -1,3 +1,7 @@
+"""
+Some utils shared amoung the app module
+"""
+
 from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 
