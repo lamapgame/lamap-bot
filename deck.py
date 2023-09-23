@@ -1,6 +1,4 @@
-from datetime import datetime
 
-from telegram import User
 from random import shuffle
 
 
