@@ -5,7 +5,7 @@ SHELL := /bin/bash # Use bash syntax
 # dev aliases format and lint
 RUFF=poetry run ruff app test
 BLACK=poetry run black app test
-MYPY=poetry run mypy app test --check-untyped-defs
+MYPY=poetry run mypy app test
 
 install: ## install poetry and pip + all deps for the project
 	pip install -U pip poetry

@@ -25,3 +25,15 @@ pytest-xdist = "*"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+python_version = "3.11"
+plugins = "pydantic.mypy"
+follow_imports = "silent"
+ignore_missing_imports = true
+allow_redefinition = true
+# exclude = "test"
+show_error_codes = true
+warn_no_return = true
+warn_unused_configs = true
+warn_unused_ignores = true
