@@ -1,4 +1,3 @@
-from typing import Dict
 from game import Game
 from common.exceptions import GameAlreadyExistError
 
@@ -14,7 +13,7 @@ class Orchestrator:
   """
   def __init__(self):
     # dict of games, key = chat_id, value = Game object
-    self.games: Dict[int, Game] = {}
+    self.games: dict[int, Game] = {}
 
   def new_game(self, chat_id: int):
     """ initializes a new game in a chat """

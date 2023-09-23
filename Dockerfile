@@ -5,12 +5,12 @@ RUN apt update && apt-get install -y libpq-dev postgresql-client --no-install-re
   && apt-get clean \
   && apt-get autoremove
 
-WORKDIR /app
+WORKDIR /
 
 COPY poetry.lock pyproject.toml ./
 RUN pip install -U pip poetry
 RUN poetry install
 
-COPY ./app ./app
+COPY ./ ./app
 
 CMD ["python", "bot.py", "prod"]
