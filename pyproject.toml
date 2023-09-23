@@ -18,6 +18,8 @@ ruff = "^0.0.287"
 mypy = "^1.5.1"
 black = "^23.7.0"
 pony-stubs = "^0.5.2"
+pytest-cov = "*"
+pytest-xdist = "*"
 
 [build-system]
 requires = ["poetry-core"]
