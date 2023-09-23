@@ -9,9 +9,12 @@ class Game:
     self.chat_id = chat_id
     self.started_date = datetime.now()
     self.players: list[Player] = []
-    self.deck = Deck() # TODO: implement deck of cards (see deck.py) -> dylantientcheu/lamap-bot/deck.py and dylantientcheu/lamap-bot/card.py
+    # TODO: implement deck of cards (see deck.py) ->
+    # dylantientcheu/lamap-bot/deck.py and dylantientcheu/lamap-bot/card.py
+    self.deck = Deck()
 
-    # add various game options here (number of players, koras, or more configuration options)
+    # add various game options here
+    # (number of players, koras, or more configuration options)
     self.max_player_number = 4
     self.has_quick_wins = True
     self.has_koras = True
