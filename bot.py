@@ -3,7 +3,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 from exceptions import GameAlreadyExistError
 
 import interactions
-from config import token
+from config import TOKEN
 from tlgrm.utils import send_reply_message
 from orchestrator import Orchestrator
 
@@ -31,7 +31,10 @@ async def start_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
       await send_reply_message(update, f"Une partie est déjà en cours dans ce groupe.")
 
 
-app = ApplicationBuilder().token(token).build()
+if (TOKEN):
+  app = ApplicationBuilder().token(TOKEN).build()
+else:
+  raise Exception("No token provided")
 
 # Bot command handlers
 app.add_handler(CommandHandler("start", start))

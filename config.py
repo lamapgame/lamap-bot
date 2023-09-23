@@ -5,5 +5,5 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get the values
-token = str(os.getenv("TOKEN"))
-database_url = os.getenv("DATABASE_URL")
+TOKEN = os.getenv("TOKEN")
+DATABASE_URL = os.getenv("DATABASE_URL")
