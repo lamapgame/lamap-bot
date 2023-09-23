@@ -1,13 +1,15 @@
 from datetime import datetime
+from typing import List
 
 from deck import Deck
+from player import Player
 
 
 class Game:
   def __init__(self, chat_id: str):
     self.chat_id = chat_id
     self.started_date = datetime.now()
-    self.players = []
+    self.players: List[Player] = []
     self.deck = Deck() # TODO: implement deck of cards (see deck.py) -> dylantientcheu/lamap-bot/deck.py and dylantientcheu/lamap-bot/card.py
 
     # add various game options here (number of players, koras, or more configuration options)
