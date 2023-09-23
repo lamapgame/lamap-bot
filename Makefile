@@ -3,9 +3,9 @@ PYTEST_CMD=TESTING=true poetry run pytest test -n 4 -vv
 SHELL := /bin/bash # Use bash syntax
 
 # dev aliases format and lint
-RUFF=poetry run ruff app test
-BLACK=poetry run black app test
-MYPY=poetry run mypy app test
+RUFF=poetry run ruff *.py test
+BLACK=poetry run black *.py test
+MYPY=poetry run mypy *.py test
 
 install: ## install poetry and pip + all deps for the project
 	pip install -U pip poetry

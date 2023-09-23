@@ -7,7 +7,7 @@ async def INIT_USER (update: Update) -> None:
       if (update.effective_user and update.message):
         await update.message.reply_text(f"Ao {update.effective_user.first_name}.\nBienvenue sur Lamap Bot. c'est en 3 étapes! \n\n1. Tchouk moi dans un groupe\n2. Mets moi ADMIN\n3. Lance /play et on se met bien. \n\nSi tu souhaites apprendre à jouer, lance /learn et je t'explique tout!")
   else:
-    await send_reply_message(update, f"Ca s'envoi en DM ça!")
+    await send_reply_message(update, "Ca s'envoi en DM ça!")
 
 
 async def LEARN (update: Update) -> None:

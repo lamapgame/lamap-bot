@@ -28,7 +28,7 @@ async def start_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     try:
       orchestrator.new_game(update.message.chat.id)
     except GameAlreadyExistError:
-      await send_reply_message(update, f"Une partie est déjà en cours dans ce groupe.")
+      await send_reply_message(update, "Une partie est déjà en cours dans ce groupe.")
 
 
 
