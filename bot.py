@@ -11,7 +11,7 @@ from common.callback_handler import handle_query
 from common.exceptions import GameAlreadyExistError
 
 import common.interactions as interactions
-from common.utils import mention, send_reply_message
+from common.utils import mention
 from orchestrator import Orchestrator
 from validator import Validator
 from config import TOKEN
@@ -49,8 +49,10 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         except GameAlreadyExistError:
             await context.bot.send_message(
                 user.id,
-                ("Il y a déjà une partie en cours dans"
-                f" {mention(update.effective_chat.title, update.message.link)}"),
+                (
+                    "Il y a déjà une partie en cours dans"
+                    f" {mention(update.effective_chat.title, update.message.link)}"
+                ),
                 ParseMode.MARKDOWN,
                 disable_web_page_preview=True,
             )

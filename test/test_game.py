@@ -1,9 +1,8 @@
 import pytest
 from telegram import User
-from game import Game, MIN_PLAYER_NUMBER, MAX_PLAYER_NUMBER
+from game import Game
 from player import Player
 from common.exceptions import (
-    CannotRemoveControllerError,
     NotEnoughPlayersError,
     TooManyPlayersError,
     PlayerAlreadyInGameError,
