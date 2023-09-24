@@ -49,7 +49,8 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         except GameAlreadyExistError:
             await context.bot.send_message(
                 user.id,
-                f"Il y a déjà une partie en cours dans {mention(update.effective_chat.title, update.message.link)}",
+                ("Il y a déjà une partie en cours dans"
+                f" {mention(update.effective_chat.title, update.message.link)}"),
                 ParseMode.MARKDOWN,
                 disable_web_page_preview=True,
             )
