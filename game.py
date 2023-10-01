@@ -1,5 +1,6 @@
 from datetime import datetime
 from random import shuffle
+from typing import Any
 
 from telegram import User
 from common.exceptions import (
@@ -37,6 +38,7 @@ class Game:
         self.current_player = None
         self.bet = 0
         self.round = 0
+        self.history: list[Any] = []
 
         # messages to delete when the game starts
         self.messages_to_delete: list[int] = []

@@ -1,6 +1,9 @@
-from telegram import User
+from telegram import Update, User
+from telegram.ext import ContextTypes
+from common import interactions
+from config import GAME_START_TIMEOUT
 from game import Game
-from common.exceptions import GameAlreadyExistError
+from common.exceptions import GameAlreadyExistError, NotEnoughPlayersError
 
 
 class Orchestrator:
@@ -24,6 +27,8 @@ class Orchestrator:
         self,
         chat_id: int,
         game_creator: User,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE,
         max_player_number: int = 4,
         has_quick_wins: bool = True,
         has_koras: bool = True,
@@ -45,6 +50,25 @@ class Orchestrator:
             has_dbl_koras,
             time_to_play,
         )
+
+        if context.job_queue:
+            passed_data = {
+                "chat_id": chat_id,
+                "game": self.games[chat_id],
+                "update": update,
+            }
+            # start warning timer
+            context.job_queue.run_once(
+                interactions.WARN_GAME_START,
+                int(GAME_START_TIMEOUT / 2),
+                passed_data,
+                name=str(chat_id),
+            )
+            # start game timer
+            context.job_queue.run_once(
+                self.start_game_on_timeout, GAME_START_TIMEOUT, passed_data, name=str(chat_id)
+            )
+
         return self.games[chat_id]
 
     def end_game(self, chat_id: int):
@@ -54,3 +78,35 @@ class Orchestrator:
             raise GameAlreadyExistError()
 
         del self.games[chat_id]
+
+    async def start_game_on_timeout(self, context: ContextTypes.DEFAULT_TYPE):
+        """starts the game when start time is elapsed"""
+        job = context.job
+        if job:
+            chat_id = job.data["chat_id"]  # type: ignore
+            game = context.job.data["game"]  # type: ignore
+            update = context.job.data["update"]  # type: ignore
+
+            try:
+                game.start_game()
+                await self.delete_game_messages(chat_id, context)
+                await interactions.FIRST_CARD(update, game)
+            except NotEnoughPlayersError:
+                await interactions.NOT_ENOUGH_PLAYERS(chat_id, context=context)
+                await self.delete_game_messages(chat_id, context)
+                self.end_game(chat_id)
+            # can't add delete_game_messages in finally
+            # because the game is already ended in the except
+
+
+    async def delete_game_messages(self, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
+        """deletes all messages from a game"""
+        if chat_id in self.games:
+            game = self.games[chat_id]
+            for message_id in game.messages_to_delete:
+                try:
+                    await context.bot.delete_message(chat_id, message_id)
+                except:
+                    # can't delete message
+                    # bot might not be admin or the message is already deleted
+                    pass

@@ -1,10 +1,14 @@
 from telegram import (
+    CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     Update,
 )
 from telegram.constants import ParseMode
+from telegram.ext import ContextTypes
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from common.utils import send_reply_message
+from config import GAME_START_TIMEOUT
 from game import Game
 
 
@@ -37,9 +41,6 @@ async def LEARN(update: Update) -> None:
             )
 
 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
-
 async def NEW_GAME(update, game: Game):
     keyboard = [
         [
@@ -62,7 +63,7 @@ async def FIRST_CARD(update, game: Game):
             [
                 InlineKeyboardButton(
                     text=f"Dégager",
-                    switch_inline_query_current_chat="",
+                    switch_inline_query_current_chat=str(game.chat_id),
                 )
             ]
         ]
@@ -73,3 +74,23 @@ async def FIRST_CARD(update, game: Game):
         return message
     else:
         raise Exception("No current player")
+
+
+async def WARN_GAME_START(context: ContextTypes.DEFAULT_TYPE) -> None:
+    job = context.job
+
+    if job:
+        chat_id: int = job.data["chat_id"]  # type: ignore
+        game: Game = job.data["game"]  # type: ignore
+        msg = await context.bot.send_message(
+            chat_id, f"On lance dans {GAME_START_TIMEOUT/2} secondes"
+        )
+        game.add_message_to_delete(msg.message_id)
+
+
+async def NOT_ENOUGH_PLAYERS(chat_id: int, context: ContextTypes.DEFAULT_TYPE | None = None, query: CallbackQuery | None = None) -> None:
+    text = "Pas assez de joueurs pour lancer.\nInvite les autres à rejoindre avant de lancer"
+    if (context):
+        await context.bot.send_message(chat_id, text)
+    if query:
+        await query.answer(text, show_alert=True)
