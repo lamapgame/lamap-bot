@@ -7,11 +7,16 @@ from telegram.ext import (
     ContextTypes,
     CallbackQueryHandler,
     ChosenInlineResultHandler,
-    InlineQueryHandler
+    InlineQueryHandler,
+    MessageHandler, filters
 )
 from telegram.constants import ParseMode
 
-from common.callback_handler import handle_inline_query, handle_query, process_inline_query_result
+from common.callback_handler import (
+    handle_inline_query,
+    handle_query,
+    process_inline_query_result,
+)
 from common.exceptions import GameAlreadyExistError
 
 import common.interactions as interactions
@@ -77,11 +82,20 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 async def callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await handle_query(orchestrator, update, context)
 
+
 async def process_result(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await process_inline_query_result(orchestrator, update, context)
 
-async def reply_inline_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+
+async def reply_inline_query(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> None:
     await handle_inline_query(orchestrator, update, context)
+
+async def grab_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    ...
+
+
 
 # launch bot
 try:
@@ -103,7 +117,6 @@ app.add_handler(CallbackQueryHandler(callback_query))
 
 # Inline results handling
 app.add_handler(InlineQueryHandler(reply_inline_query))
-app.add_handler(ChosenInlineResultHandler(
-        process_result, block=False))
+app.add_handler(ChosenInlineResultHandler(process_result, block=False))
 
 app.run_polling(allowed_updates=Update.ALL_TYPES)

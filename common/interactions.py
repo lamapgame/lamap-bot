@@ -88,9 +88,13 @@ async def WARN_GAME_START(context: ContextTypes.DEFAULT_TYPE) -> None:
         game.add_message_to_delete(msg.message_id)
 
 
-async def NOT_ENOUGH_PLAYERS(chat_id: int, context: ContextTypes.DEFAULT_TYPE | None = None, query: CallbackQuery | None = None) -> None:
+async def NOT_ENOUGH_PLAYERS(
+    chat_id: int,
+    context: ContextTypes.DEFAULT_TYPE | None = None,
+    query: CallbackQuery | None = None,
+) -> None:
     text = "Pas assez de joueurs pour lancer.\nInvite les autres à rejoindre avant de lancer"
-    if (context):
+    if context:
         await context.bot.send_message(chat_id, text)
     if query:
         await query.answer(text, show_alert=True)

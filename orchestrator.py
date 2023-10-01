@@ -66,7 +66,10 @@ class Orchestrator:
             )
             # start game timer
             context.job_queue.run_once(
-                self.start_game_on_timeout, GAME_START_TIMEOUT, passed_data, name=str(chat_id)
+                self.start_game_on_timeout,
+                GAME_START_TIMEOUT,
+                passed_data,
+                name=str(chat_id),
             )
 
         return self.games[chat_id]
@@ -98,8 +101,9 @@ class Orchestrator:
             # can't add delete_game_messages in finally
             # because the game is already ended in the except
 
-
-    async def delete_game_messages(self, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
+    async def delete_game_messages(
+        self, chat_id: int, context: ContextTypes.DEFAULT_TYPE
+    ):
         """deletes all messages from a game"""
         if chat_id in self.games:
             game = self.games[chat_id]

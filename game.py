@@ -1,11 +1,12 @@
 from datetime import datetime
 from random import shuffle
-from typing import Any
+from typing import Any, Literal
 
 from telegram import User
 from common.exceptions import (
     CannotRemoveControllerError,
     NotEnoughPlayersError,
+    PlayerNotInGameError,
     TooManyPlayersError,
     PlayerAlreadyInGameError,
 )
@@ -16,6 +17,8 @@ from player import Player
 
 MIN_PLAYER_NUMBER = 2
 MAX_PLAYER_NUMBER = 4
+
+CARDS_DESIGNS = ["DEFAULT", "GALATIC", "LUXURY"]
 
 
 class Game:
@@ -32,7 +35,7 @@ class Game:
         self.chat_id = chat_id
         self.started_date = None
         self.players: list[Player] = []
-        self.deck = Deck()
+        self.deck = Deck("OLD")
         self.started = False
         self.creator = user
         self.current_player = None
@@ -49,6 +52,7 @@ class Game:
         self.has_koras = has_koras
         self.has_dbl_koras = has_dbl_koras
         self.time_to_play = time_to_play
+        self.cards_design: Literal["DEFAULT", "GALATIC", "LUXURY"] = "DEFAULT"
 
     def add_player(self, player: Player) -> None:
         # todo: [db] check if the player is banned
@@ -61,8 +65,15 @@ class Game:
         # check if the game is full
         if len(self.players) < self.max_player_number:
             self.players.append(player)
+            self.deck.cut_cards(player)
         else:
             raise TooManyPlayersError()
+
+    def get_player(self, player_id: int) -> Player:
+        for player in self.players:
+            if player.id == player_id:
+                return player
+        raise PlayerNotInGameError()
 
     def remove_player(self, player: Player) -> None:
         self.players.remove(player)

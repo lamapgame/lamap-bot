@@ -1,4 +1,10 @@
-from telegram import InlineQueryResultsButton, Update, InlineQueryResultArticle, InputTextMessageContent
+from telegram import (
+    InlineQueryResultsButton,
+    Update,
+    InlineQueryResultArticle,
+    InputTextMessageContent,
+    InlineQueryResultCachedSticker as Sticker,
+)
 from telegram.ext import ContextTypes
 from common import interactions
 from common.exceptions import (
@@ -9,8 +15,6 @@ from common.exceptions import (
 
 from orchestrator import Orchestrator
 from player import Player
-
-
 
 
 async def handle_query(
@@ -69,14 +73,18 @@ async def start_game(update, context, query, chat_id, game, user):
         )
 
 
-async def process_inline_query_result(orchestrator: Orchestrator, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def process_inline_query_result(
+    orchestrator: Orchestrator, update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> None:
     """
     Handles a selected inline query result.
     This is usually when a player picks a card
     """
-    print(context)
 
-async def handle_inline_query(orchestrator: Orchestrator, update: Update, context: ContextTypes.DEFAULT_TYPE ):
+
+async def handle_inline_query(
+    orchestrator: Orchestrator, update: Update, context: ContextTypes.DEFAULT_TYPE
+):
     """
     Handles all inline queries.
     Is triggered when a user attempts an inline query
@@ -84,24 +92,28 @@ async def handle_inline_query(orchestrator: Orchestrator, update: Update, contex
     or let them know that they can't play
     """
     query_results = list()
-    if (update.inline_query):
+    if update.inline_query:
         try:
             chat_id = int(update.inline_query.query or 0)
             game = orchestrator.games[chat_id]
-            query_results.append(
-                InlineQueryResultArticle(
-                    "yes",
-                    title="On se mets bien",
-                    input_message_content=InputTextMessageContent("Toujours chaud!"))
-                )
+            player = game.get_player(update.inline_query.from_user.id)
+            if game.started:
+                for card in player.hand_of_cards:
+                    query_results.append(Sticker(str(card), card.sticker))
+
+            # show nothing if the game is not started
 
         except KeyError:
             query_results.append(
                 InlineQueryResultArticle(
                     "nogame",
                     title="Pas de partie dans ce groupe",
-                    input_message_content=InputTextMessageContent("Aucune partie n'est lancé ici, commence une nouvelle avec /play."))
+                    input_message_content=InputTextMessageContent(
+                        "Aucune partie n'est lancé ici, commence une nouvelle avec /play."
+                    ),
                 )
+            )
         finally:
-            await update.inline_query.answer(query_results, cache_time=0, is_personal=True)
-
+            await update.inline_query.answer(
+                query_results, cache_time=0, is_personal=True
+            )

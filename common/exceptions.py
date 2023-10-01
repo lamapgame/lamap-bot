@@ -26,6 +26,12 @@ class PlayerAlreadyInGameError(Exception):
     pass
 
 
+class PlayerNotInGameError(Exception):
+    """is thrown when a player is not in a game"""
+
+    pass
+
+
 class TooManyPlayersError(Exception):
     """is thrown when the number of players exceeds the max number of players"""
 
