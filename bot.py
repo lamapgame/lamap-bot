@@ -8,7 +8,8 @@ from telegram.ext import (
     CallbackQueryHandler,
     ChosenInlineResultHandler,
     InlineQueryHandler,
-    MessageHandler, filters
+    MessageHandler,
+    filters,
 )
 from telegram.constants import ParseMode
 
@@ -92,9 +93,9 @@ async def reply_inline_query(
 ) -> None:
     await handle_inline_query(orchestrator, update, context)
 
+
 async def grab_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     ...
-
 
 
 # launch bot
