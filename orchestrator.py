@@ -1,6 +1,6 @@
 from telegram import Update, User
 from telegram.ext import ContextTypes
-from common import interactions
+from common import interactions, jobs
 from config import GAME_START_TIMEOUT
 from game import Game
 from common.exceptions import GameAlreadyExistError, NotEnoughPlayersError
@@ -74,12 +74,13 @@ class Orchestrator:
 
         return self.games[chat_id]
 
-    def end_game(self, chat_id: int):
+    def end_game(self, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
         """ends a game in a chat"""
 
         if chat_id not in self.games:
             raise GameAlreadyExistError()
 
+        jobs.remove_job_if_exists(str(chat_id), context)
         del self.games[chat_id]
 
     async def start_game_on_timeout(self, context: ContextTypes.DEFAULT_TYPE):
@@ -93,11 +94,12 @@ class Orchestrator:
             try:
                 game.start_game()
                 await self.delete_game_messages(chat_id, context)
+                jobs.remove_job_if_exists(str(chat_id), context)
                 await interactions.FIRST_CARD(update, game)
             except NotEnoughPlayersError:
                 await interactions.NOT_ENOUGH_PLAYERS(chat_id, context=context)
                 await self.delete_game_messages(chat_id, context)
-                self.end_game(chat_id)
+                self.end_game(chat_id, context)
             # can't add delete_game_messages in finally
             # because the game is already ended in the except
 

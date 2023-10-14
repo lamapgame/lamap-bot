@@ -14,4 +14,4 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # Gameplay values
 # ----------------
 # time to start game after being initiated
-GAME_START_TIMEOUT = int(os.getenv("GAME_START_TIMEOUT") or 10)
+GAME_START_TIMEOUT = int(os.getenv("GAME_START_TIMEOUT") or 40)

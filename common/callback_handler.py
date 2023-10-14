@@ -6,12 +6,15 @@ from telegram import (
     InlineQueryResultCachedSticker as Sticker,
 )
 from telegram.ext import ContextTypes
-from common import interactions
+from common import interactions, jobs
 from common.exceptions import (
     NotEnoughPlayersError,
     PlayerAlreadyInGameError,
+    PlayerNotInGameError,
     TooManyPlayersError,
 )
+from common.utils import mention
+from deck import Card
 
 from orchestrator import Orchestrator
 from player import Player
@@ -59,6 +62,7 @@ async def start_game(update, context, query, chat_id, game, user):
     if game.creator.id == user.id:
         try:
             game.start_game()
+            jobs.remove_job_if_exists(str(chat_id), context)
             await interactions.FIRST_CARD(update, game)
             # delete the game messages
             for message_id in game.messages_to_delete:
@@ -80,6 +84,30 @@ async def process_inline_query_result(
     Handles a selected inline query result.
     This is usually when a player picks a card
     """
+    if update.chosen_inline_result:
+        try:
+            chat_id = int(update.chosen_inline_result.query or 0)
+            game = orchestrator.games[chat_id]
+            player = game.get_player(update.chosen_inline_result.from_user.id)
+            if game.started and game.current_player:
+                card = Card.from_id(update.chosen_inline_result.result_id)
+                # play the card
+                card_played, card_correctly_played = game.play_card(player, card)
+                if card_played and card_correctly_played:
+                    # if the game ends after playing the card register it
+                    if not game.started:
+                        await interactions.END_GAME(context, chat_id, game)
+                        orchestrator.end_game(chat_id, context)
+                        return
+
+                    await interactions.PLAY_CARD(context, chat_id, game, card)
+
+                elif card_played and not card_correctly_played:
+                    await interactions.WRONG_CARD(context, chat_id, game, card)
+        except KeyError:
+            ...
+        finally:
+            ...
 
 
 async def handle_inline_query(
@@ -97,19 +125,39 @@ async def handle_inline_query(
             chat_id = int(update.inline_query.query or 0)
             game = orchestrator.games[chat_id]
             player = game.get_player(update.inline_query.from_user.id)
-            if game.started:
-                for card in player.hand_of_cards:
-                    query_results.append(Sticker(str(card), card.sticker))
-
-            # show nothing if the game is not started
+            if game.started and game.current_player:
+                for card in sorted(player.hand_of_cards):
+                    if game.is_playable_card(card, player.hand_of_cards):
+                        query_results.append(Sticker(str(card), card.sticker))
+                    else:
+                        query_results.append(
+                            Sticker(
+                                str(card),
+                                card.sticker,
+                                input_message_content=InputTextMessageContent(f""),
+                            )
+                        )
+            else:
+                raise KeyError
 
         except KeyError:
+            # show nothing if the game is not started
             query_results.append(
                 InlineQueryResultArticle(
                     "nogame",
                     title="Pas de partie dans ce groupe",
                     input_message_content=InputTextMessageContent(
                         "Aucune partie n'est lancé ici, commence une nouvelle avec /play."
+                    ),
+                )
+            )
+        except PlayerNotInGameError:
+            query_results.append(
+                InlineQueryResultArticle(
+                    "notplaying",
+                    title="Tu ne joues pas dans ce groupe",
+                    input_message_content=InputTextMessageContent(
+                        "J'attends la fin de la partie, faites moi savoir quand je peux jouer"
                     ),
                 )
             )

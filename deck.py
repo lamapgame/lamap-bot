@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from random import shuffle
 from typing import Literal
 
@@ -92,7 +94,7 @@ class Card:
         design: Literal["DEFAULT", "GALATIC", "LUXURY", "OLD"] = "DEFAULT",
     ) -> None:
         self.suit: Literal["h", "s", "c", "d", "x"] = suit
-        self.icon: Literal["♥️", "♠️", "♣️", "♦️", "🃏"] = (
+        self.icon: Literal["♥️", "♠️", "♣️", "♦️", "*"] = (
             "♥️"
             if suit == "h"
             else "♠️"
@@ -101,14 +103,11 @@ class Card:
             if suit == "c"
             else "♦️"
             if suit == "d"
-            else "🃏"
+            else "*"
         )
         self.value: Literal[3, 4, 5, 6, 7, 8, 9, 10, 21, 333, 777, 7734, 16] = value
         self.sticker: str = STICKERS[design][f"{self.suit}_{self.value}"]
-
-    def card_from_string(self, card_string: str):
-        self.suit = card_string[0]  # type: ignore
-        self.value = int(card_string[1:])  # type: ignore
+        self.id = f"{self.suit}_{self.value}"
 
     def pretty(self) -> str:
         return f"{self.icon}{self.value}"
@@ -121,17 +120,19 @@ class Card:
             return card1.value > card2.value
         return False
 
-    """ def __repr__(self) -> str:
-        return f"{self.suit}_{self.value}" """
+    @staticmethod
+    def from_id(card_string: str):
+        suit, value = card_string.split("_")
+        return Card(suit, int(value))  # type: ignore
 
     def __str__(self) -> str:
         return f"{self.suit}_{self.value}"
 
-    def __eq__(self, o: object) -> bool:
-        return str(object=self) == str(other)  # type: ignore
+    def __eq__(self, c: Card) -> bool:
+        return str(object=self.id) == str(c.id)
 
-    def __lt__(self, o: object) -> bool:
-        return self.value < other.value  # type: ignore
+    def __lt__(self, c: Card) -> bool:
+        return self.value < c.value
 
 
 # ? Test cards - input any set to test with only that set
@@ -153,6 +154,22 @@ class Deck:
         self, design: Literal["DEFAULT", "GALATIC", "LUXURY", "OLD"] = "DEFAULT"
     ):
         self.cards: list[Card] = [
+            Card("h", 3, design),
+            Card("d", 7, design),
+            Card("d", 6, design),
+            Card("d", 8, design),
+            Card("d", 4, design),
+            Card("d", 3, design),
+            Card("h", 8, design),
+            Card("h", 9, design),
+            Card("h", 10, design),
+            Card("s", 3, design),
+            Card("c", 3, design),
+            Card("c", 4, design),
+            Card("c", 5, design),
+            Card("c", 10, design),
+        ]
+        """ [
             Card("h", 3, design),
             Card("h", 4, design),
             Card("h", 5, design),
@@ -184,7 +201,7 @@ class Deck:
             Card("s", 7, design),
             Card("s", 8, design),
             Card("s", 9, design),
-        ].copy()
+        ].copy() """
         self.design = design
 
     def shuffle_cards(self):

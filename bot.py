@@ -8,6 +8,7 @@ from telegram.ext import (
     CallbackQueryHandler,
     ChosenInlineResultHandler,
     InlineQueryHandler,
+    Defaults,
     MessageHandler,
     filters,
 )
@@ -102,7 +103,9 @@ async def grab_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
 try:
     if not TOKEN:
         raise Exception("No token provided")
-    app = ApplicationBuilder().token(TOKEN).build()
+    app = (
+        ApplicationBuilder().defaults(Defaults(ParseMode.MARKDOWN)).token(TOKEN).build()
+    )
 except RuntimeError as excp:
     raise Exception("No token provided") from excp
 

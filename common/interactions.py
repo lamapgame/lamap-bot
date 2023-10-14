@@ -7,8 +7,9 @@ from telegram import (
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from common.utils import send_reply_message
+from common.utils import mention, send_reply_message
 from config import GAME_START_TIMEOUT
+from deck import Card
 from game import Game
 
 
@@ -57,6 +58,16 @@ async def NEW_GAME(update, game: Game):
     return message
 
 
+async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game):
+    if game.controlling_player:
+        message = await context.bot.send_animation(
+            chat_id,
+            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
+            caption=f"{game.controlling_player.user.first_name} Nous a allumé comme il faut. On remet ça?",
+        )
+        return message
+
+
 async def FIRST_CARD(update, game: Game):
     if game.current_player:
         choice = [
@@ -76,6 +87,48 @@ async def FIRST_CARD(update, game: Game):
         raise Exception("No current player")
 
 
+async def PLAY_CARD(
+    context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game, card: Card
+):
+    if game.current_player and game.prev_controlling_card and game.controlling_player:
+        c_list = []
+        game_round_from_0 = game.round - 1
+        for _ in range(game_round_from_0):
+            c_list.append("🎴")
+        for _ in range(5 - game_round_from_0):
+            c_list.append("🃏")
+
+        choice = [
+            [
+                InlineKeyboardButton(
+                    text=f"".join(c_list),
+                    switch_inline_query_current_chat=str(game.chat_id),
+                )
+            ]
+        ]
+
+        controlling_player = game.controlling_player.user
+        current_player = game.current_player.user
+        message = await context.bot.send_message(
+            chat_id,
+            f"👑 {mention(controlling_player.first_name, f'tg://user?id={current_player.id}')} - {game.prev_controlling_card.icon}{game.prev_controlling_card.value}\n〰️\n🤙🏾 {mention(current_player.first_name, f'tg://user?id={current_player.id}')} à toi.",
+            reply_markup=InlineKeyboardMarkup(choice),
+        )
+        return message
+    else:
+        raise Exception("error in computing player and controlling card")
+
+
+async def WRONG_CARD(
+    context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game, card: Card
+):
+    message = await context.bot.send_message(
+        chat_id,
+        f"Ok tara, on a vu tes cartes, tu peux attendre de jouer les bonnes cartes au bon moment stp ?",
+    )
+    return message
+
+
 async def WARN_GAME_START(context: ContextTypes.DEFAULT_TYPE) -> None:
     job = context.job
 
@@ -83,7 +136,7 @@ async def WARN_GAME_START(context: ContextTypes.DEFAULT_TYPE) -> None:
         chat_id: int = job.data["chat_id"]  # type: ignore
         game: Game = job.data["game"]  # type: ignore
         msg = await context.bot.send_message(
-            chat_id, f"On lance dans {GAME_START_TIMEOUT/2} secondes"
+            chat_id, f"On lance dans {int(GAME_START_TIMEOUT/2)} secondes"
         )
         game.add_message_to_delete(msg.message_id)
 
