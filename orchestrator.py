@@ -112,7 +112,7 @@ class Orchestrator:
             for message_id in game.messages_to_delete:
                 try:
                     await context.bot.delete_message(chat_id, message_id)
-                # noqa: E722
+                # ruff: noqa: E722
                 except:
                     # can't delete message
                     # bot might not be admin or the message is already deleted
