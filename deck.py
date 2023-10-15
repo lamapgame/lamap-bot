@@ -5,6 +5,8 @@ from typing import Literal
 
 from player import Player
 
+# pylint: disable=line-too-long  # noqa: E501
+
 STICKERS = {
     "DEFAULT": {
         "h_3": "CAACAgQAAxkBAAIDgmUZ2eeA0OjKd2r2oaEiq1R0h56kAALIDwAC67XQUEkQSivH_ZX9MAQ",
