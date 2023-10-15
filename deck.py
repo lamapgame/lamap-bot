@@ -5,7 +5,7 @@ from typing import Literal
 
 from player import Player
 
-# pylint: disable=line-too-long  # ruff: noqa: E501
+# ruff: noqa: E501
 
 STICKERS = {
     "DEFAULT": {
