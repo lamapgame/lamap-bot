@@ -15,9 +15,7 @@ def test_new_game():
     chat_id = 12345
     game_creator = mocked_user
 
-    game = orchestrator.new_game(
-        chat_id, game_creator, mocked_message_update, mocked_context
-    )
+    orchestrator.new_game(chat_id, game_creator, mocked_message_update, mocked_context)
     assert chat_id in orchestrator.games
 
     # Test trying to create another game for the same chat
@@ -32,9 +30,7 @@ def test_end_game():
     chat_id = 12345
     game_creator = mocked_user
 
-    game = orchestrator.new_game(
-        chat_id, game_creator, mocked_message_update, mocked_context
-    )
+    orchestrator.new_game(chat_id, game_creator, mocked_message_update, mocked_context)
     assert chat_id in orchestrator.games
 
     orchestrator.end_game(chat_id, mocked_context)

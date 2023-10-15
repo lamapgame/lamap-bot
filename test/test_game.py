@@ -3,13 +3,12 @@ from game import Game
 from deck import Card
 from player import Player
 from common.exceptions import (
-    CannotRemoveControllerError,
     NotEnoughPlayersError,
     PlayerNotInGameError,
     TooManyPlayersError,
     PlayerAlreadyInGameError,
 )
-from test.mock_objects import user1, user2, user3, user4, player1, player2
+from test.mock_objects import user1, user4, player1, player2
 
 
 def test_initialize_game():

@@ -58,14 +58,14 @@ class Orchestrator:
                 "update": update,
             }
             # start warning timer
-            context.job_queue.run_once(
+            context.job_queue.run_once(  # type: ignore
                 interactions.WARN_GAME_START,
                 int(GAME_START_TIMEOUT / 2),
                 passed_data,
                 name=str(chat_id),
             )
             # start game timer
-            context.job_queue.run_once(
+            context.job_queue.run_once(  # type: ignore
                 self.start_game_on_timeout,
                 GAME_START_TIMEOUT,
                 passed_data,

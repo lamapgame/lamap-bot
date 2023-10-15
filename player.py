@@ -16,5 +16,7 @@ class Player:
         self.hand_of_cards: list[Any] = []
         self.turn_started_time = datetime.now()
 
-    def __eq__(self, p: Player) -> bool:
+    def __eq__(self, p: object) -> bool:
+        if not isinstance(p, Player):
+            return NotImplemented
         return str(object=self.id) == str(p.id)

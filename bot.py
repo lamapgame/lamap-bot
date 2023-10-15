@@ -9,8 +9,6 @@ from telegram.ext import (
     ChosenInlineResultHandler,
     InlineQueryHandler,
     Defaults,
-    MessageHandler,
-    filters,
 )
 from telegram.constants import ParseMode
 

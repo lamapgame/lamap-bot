@@ -1,6 +1,6 @@
 from datetime import datetime
 from random import shuffle
-from typing import Any, Literal, Tuple, NamedTuple
+from typing import Literal, NamedTuple
 
 from telegram import User
 from common.exceptions import (
@@ -109,7 +109,7 @@ class Game:
 
     def remove_player(self, player: Player) -> None:
         self.players.remove(player)
-        if self.current_player == player:
+        if self.current_player and self.current_player == player:
             raise CannotRemoveControllerError()
         if len(self.players) == 1:
             self.end_game()

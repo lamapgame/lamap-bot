@@ -130,7 +130,9 @@ class Card:
     def __str__(self) -> str:
         return f"{self.suit}_{self.value}"
 
-    def __eq__(self, c: Card) -> bool:
+    def __eq__(self, c: object) -> bool:
+        if not isinstance(c, Card):
+            return NotImplemented
         return str(object=self.id) == str(c.id)
 
     def __lt__(self, c: Card) -> bool:
