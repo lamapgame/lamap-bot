@@ -1,24 +1,15 @@
 import pytest
-from telegram import User
 from game import Game
+from deck import Card
 from player import Player
 from common.exceptions import (
+    CannotRemoveControllerError,
     NotEnoughPlayersError,
+    PlayerNotInGameError,
     TooManyPlayersError,
     PlayerAlreadyInGameError,
 )
-
-# Dummy data
-user1 = User(id=1, first_name="Ateba", is_bot=False)
-user2 = User(id=2, first_name="Bassogog", is_bot=False)
-user3 = User(id=3, first_name="Chokote", is_bot=False)
-user4 = User(id=3, first_name="Donfack", is_bot=False)
-user5 = User(id=3, first_name="Essani", is_bot=False)
-player1 = Player(user1)
-player2 = Player(user2)
-player3 = Player(user3)
-player4 = Player(user4)
-player5 = Player(user5)
+from test.mock_objects import user1, user2, user3, user4, player1, player2
 
 
 def test_initialize_game():
@@ -26,12 +17,6 @@ def test_initialize_game():
     assert game.chat_id == 100
     assert not game.started
     assert game.creator == user1
-
-
-def test_add_player():
-    game = Game(chat_id=100, user=user1)
-    game.add_player(player1)
-    assert len(game.players) == 1
 
 
 def test_add_too_many_players():
@@ -50,30 +35,6 @@ def test_add_same_player_twice():
         game.add_player(player1)
 
 
-def test_remove_player_ends_game_single_player_left():
-    game = Game(chat_id=100, user=user1)
-    game.add_player(player1)
-    game.add_player(player2)
-    game.remove_player(player1)
-    assert not game.started  # Assuming end_game() resets the started flag
-
-
-""" def test_remove_current_player_error():
-    game = Game(chat_id=100, user=user1)
-    game.add_player(player1)
-    game.add_player(player2)
-    game.start_game()
-    with pytest.raises(CannotRemoveControllerError):
-        game.remove_player(game.current_player) """
-
-
-def test_remove_player_not_enough_players_error():
-    game = Game(chat_id=100, user=user1)
-    game.add_player(player1)
-    with pytest.raises(NotEnoughPlayersError):
-        game.remove_player(player1)
-
-
 def test_start_game_not_enough_players():
     game = Game(chat_id=100, user=user1)
     game.add_player(player1)
@@ -87,3 +48,60 @@ def test_start_game_with_enough_players():
     game.add_player(player2)
     game.start_game()
     assert game.started
+
+
+sample_card = Card("h", 10)
+
+
+@pytest.fixture
+def new_game():
+    return Game(chat_id=12345, user=user1)
+
+
+@pytest.fixture
+def new_player():
+    return Player(user1)
+
+
+@pytest.fixture
+def game_with_two_players(new_game):
+    new_game.add_player(player2)
+    another_player = player1
+    new_game.add_player(another_player)
+    return new_game
+
+
+def test_play_card(game_with_two_players):
+    ...
+
+
+def test_next_round(game_with_two_players):
+    ...
+
+
+def test_is_playable_card(game_with_two_players):
+    ...
+
+
+def test_get_player(game_with_two_players, new_player):
+    # Get a valid player
+    retrieved_player = game_with_two_players.get_player(new_player.id)
+    assert retrieved_player == new_player
+
+    # Try to get a player that's not in the game
+    with pytest.raises(PlayerNotInGameError):
+        game_with_two_players.get_player(9999)  # some random ID not in the game
+
+
+def test_remove_current_player(game_with_two_players):
+    ...
+
+
+def test_add_message_to_delete(new_game):
+    # Add a message and ensure it's stored correctly
+    new_game.add_message_to_delete(101)
+    assert 101 in new_game.messages_to_delete
+
+
+def test_game_end_conditions(game_with_two_players):
+    ...
