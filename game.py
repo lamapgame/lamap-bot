@@ -141,7 +141,8 @@ class Game:
         Plays the specified card from the player,
         ! returns a boolean tuple (card_played, card_correctly_played)
         ! card_played is True if the card was played, False otherwise
-        ! card_correctly_played is True only if the card meets conditions to play the round
+        ! card_correctly_played is True only
+        ! if the card meets conditions to play the round
         False otherwise
         """
         rest_of_cards = [c for c in player.hand_of_cards if c.id != card.id]
