@@ -159,22 +159,6 @@ class Deck:
     ):
         self.cards: list[Card] = [
             Card("h", 3, design),
-            Card("d", 7, design),
-            Card("d", 6, design),
-            Card("d", 8, design),
-            Card("d", 4, design),
-            Card("d", 3, design),
-            Card("h", 8, design),
-            Card("h", 9, design),
-            Card("h", 10, design),
-            Card("s", 3, design),
-            Card("c", 3, design),
-            Card("c", 4, design),
-            Card("c", 5, design),
-            Card("c", 10, design),
-        ]
-        """ [
-            Card("h", 3, design),
             Card("h", 4, design),
             Card("h", 5, design),
             Card("h", 6, design),
@@ -205,7 +189,27 @@ class Deck:
             Card("s", 7, design),
             Card("s", 8, design),
             Card("s", 9, design),
-        ].copy() """
+        ].copy()
+        """
+        Test suit
+        [
+            Card("h", 3, design),
+            Card("d", 7, design),
+            Card("d", 6, design),
+            Card("d", 8, design),
+            Card("d", 4, design),
+            Card("d", 3, design),
+            Card("h", 8, design),
+            Card("h", 9, design),
+            Card("h", 10, design),
+            Card("s", 3, design),
+            Card("c", 3, design),
+            Card("c", 4, design),
+            Card("c", 5, design),
+            Card("c", 10, design),
+        ]
+        """
+
         self.design = design
 
     def shuffle_cards(self):
