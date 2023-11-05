@@ -44,7 +44,7 @@ requests==2.24.0
 rsa==4.7
 six==1.14.0
 sniffio==1.2.0
-starlette==0.16.0
+starlette==0.27.0
 tomli==2.0.1
 tornado==6.1
 typing_extensions==4.4.0
