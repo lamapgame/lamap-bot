@@ -14,6 +14,30 @@ class NotEnoughNkapError(Exception):
     pass
 
 
+class NotEnoughPlayersError(Exception):
+    """is thrown when the number of players is less than the max number of players"""
+
+    pass
+
+
+class PlayerAlreadyInGameError(Exception):
+    """is thrown when a player is already in a game"""
+
+    pass
+
+
+class PlayerNotInGameError(Exception):
+    """is thrown when a player is not in a game"""
+
+    pass
+
+
+class TooManyPlayersError(Exception):
+    """is thrown when the number of players exceeds the max number of players"""
+
+    pass
+
+
 class NotVerifiedError(Exception):
     """is thrown when a user is not verified or banned"""
 
@@ -26,12 +50,6 @@ class LobbyClosedError(Exception):
     pass
 
 
-class NotEnoughPlayersError(Exception):
-    """is thrown when a game is about to start but there's not enough players"""
-
-    pass
-
-
 class DeckEmptyError(Exception):
     """a rare issue where the deck is empty"""
 
@@ -40,5 +58,17 @@ class DeckEmptyError(Exception):
 
 class DifferentSuitError(Exception):
     """is thrown when a player tries to play a card of a different suit"""
+
+    pass
+
+
+class CannotRemoveControllerError(Exception):
+    """is thrown when a player tries to remove the current controller"""
+
+    pass
+
+
+class CannotRemoveLastPlayer(Exception):
+    """is thrown when a player tries to remove the current controller"""
 
     pass
