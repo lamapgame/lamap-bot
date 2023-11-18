@@ -1,9 +1,12 @@
 from telegram import Update, User
+from telegram.error import TelegramError
 from telegram.ext import ContextTypes
+
 from common import interactions, jobs
+from common.exceptions import GameAlreadyExistError, NotEnoughPlayersError
+
 from config import GAME_START_TIMEOUT
 from game import Game
-from common.exceptions import GameAlreadyExistError, NotEnoughPlayersError
 
 
 class Orchestrator:
@@ -112,8 +115,6 @@ class Orchestrator:
             for message_id in game.messages_to_delete:
                 try:
                     await context.bot.delete_message(chat_id, message_id)
-                # ruff: noqa: E722
-                except:
-                    # can't delete message
+                except TelegramError:
                     # bot might not be admin or the message is already deleted
                     pass

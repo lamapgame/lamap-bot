@@ -1,3 +1,8 @@
+"""
+Bot's entry point.
+It declares the bot's handlers and starts the bot.
+"""
+
 import logging
 
 from telegram import Update
@@ -39,11 +44,13 @@ orchestrator = Orchestrator()
 
 
 @Validator.check_message_is_group
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def start(update: Update) -> None:
+    """/start command handler"""
     await interactions.INIT_USER(update)
 
 
-async def learn(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def learn(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
+    """/learn command handler"""
     await interactions.LEARN(update)
 
 
@@ -80,32 +87,31 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 async def callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """collects a callback query"""
     await handle_query(orchestrator, update, context)
 
 
 async def process_result(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """process the result from an inline query"""
     await process_inline_query_result(orchestrator, update, context)
 
 
 async def reply_inline_query(
     update: Update, context: ContextTypes.DEFAULT_TYPE
 ) -> None:
+    """process a reply to an inline query"""
     await handle_inline_query(orchestrator, update, context)
-
-
-async def grab_sticker(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    ...
 
 
 # launch bot
 try:
     if not TOKEN:
-        raise Exception("No token provided")
+        raise ValueError("No token provided")
     app = (
         ApplicationBuilder().defaults(Defaults(ParseMode.MARKDOWN)).token(TOKEN).build()
     )
 except RuntimeError as excp:
-    raise Exception("No token provided") from excp
+    raise ValueError("No token provided") from excp
 
 # Bot command handlers
 app.add_handler(CommandHandler("start", start))

@@ -6,6 +6,7 @@ from telegram import Update
 
 
 async def send_reply_message(update: Update, message: str):
+    """util function way to reply to a user"""
     if update.message:
         await update.message.reply_text(
             message, reply_to_message_id=update.message.message_id
@@ -13,6 +14,7 @@ async def send_reply_message(update: Update, message: str):
 
 
 def mention(title, link):
+    """mention (tag) a telegram user"""
     if link:
         return f"[{title}]({link})"
     else:
@@ -20,6 +22,7 @@ def mention(title, link):
 
 
 def n_format(num):
+    """transform numbers to n format (3k = 3 kolos, 1M = baton... and so on)"""
     num = float("{:.3g}".format(num))
     magnitude = 0
     while abs(num) >= 1000:

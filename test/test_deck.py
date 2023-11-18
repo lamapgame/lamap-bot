@@ -1,10 +1,10 @@
-import pytest
+from test import mock_objects
 from deck import Deck, Card
 from player import Player
-from test import mock_objects
 
 
 def test_deck_initialization():
+    """tests that the deck is initialized with the correct number of cards"""
     deck = Deck()
     assert isinstance(deck.cards, list)
     assert len(deck.cards) >= 31
@@ -12,6 +12,7 @@ def test_deck_initialization():
 
 
 def test_deck_shuffle():
+    """test deck shuffling"""
     deck = Deck()
     original_cards = deck.cards.copy()
     deck.shuffle_cards()
@@ -19,6 +20,7 @@ def test_deck_shuffle():
 
 
 def test_deck_cut():
+    """test deck cutting cards"""
     deck = Deck()
     player = Player(mock_objects.user1)
     deck.cut_cards(player)
