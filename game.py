@@ -73,7 +73,7 @@ class Game:
     @property
     def current_player_index(self) -> int:
         if self.current_player is None:
-            raise Exception("No current player")
+            raise ValueError("No current player")
         return self.players.index(self.current_player)
 
     @property
@@ -103,7 +103,7 @@ class Game:
 
     def get_next_player(self) -> Player:
         if self.current_player is None:
-            raise Exception("No current player")
+            raise ValueError("No current player")
         next_player_index = (self.current_player_index + 1) % len(self.players)
         return self.players[next_player_index]
 
@@ -120,7 +120,6 @@ class Game:
     def end_game(self) -> None:
         """Compute the score and end the game"""
         self.started = False
-        pass
 
     def add_message_to_delete(self, message_id: int) -> None:
         self.messages_to_delete.append(message_id)

@@ -96,7 +96,7 @@ async def FIRST_CARD(update, game: Game):
         )
         return message
     else:
-        raise Exception("No current player")
+        raise ValueError("No current player")
 
 
 async def WARN_AFK(context: ContextTypes.DEFAULT_TYPE) -> None:
