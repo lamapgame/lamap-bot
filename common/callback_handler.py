@@ -1,5 +1,8 @@
+"""
+Handles all the callbacks from the bot
+"""
+
 from telegram import (
-    InlineQueryResultsButton,
     Update,
     InlineQueryResultArticle,
     InputTextMessageContent,
@@ -13,7 +16,7 @@ from common.exceptions import (
     PlayerNotInGameError,
     TooManyPlayersError,
 )
-from common.utils import mention
+
 from deck import Card
 
 from orchestrator import Orchestrator
@@ -100,19 +103,15 @@ async def process_inline_query_result(
                         orchestrator.end_game(chat_id, context)
                         return
 
-                    await interactions.PLAY_CARD(context, chat_id, game, card)
+                    await interactions.PLAY_CARD(context, chat_id, game, orchestrator)
 
                 elif card_played and not card_correctly_played:
                     await interactions.WRONG_CARD(context, chat_id, game, card)
         except KeyError:
             ...
-        finally:
-            ...
 
 
-async def handle_inline_query(
-    orchestrator: Orchestrator, update: Update, context: ContextTypes.DEFAULT_TYPE
-):
+async def handle_inline_query(orchestrator: Orchestrator, update: Update):
     """
     Handles all inline queries.
     Is triggered when a user attempts an inline query
@@ -134,7 +133,7 @@ async def handle_inline_query(
                             Sticker(
                                 str(card),
                                 card.sticker,
-                                input_message_content=InputTextMessageContent(f""),
+                                input_message_content=InputTextMessageContent(""),
                             )
                         )
             else:

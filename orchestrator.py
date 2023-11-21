@@ -106,6 +106,20 @@ class Orchestrator:
             # can't add delete_game_messages in finally
             # because the game is already ended in the except
 
+    async def end_game_from_afk(self, context: ContextTypes.DEFAULT_TYPE) -> None:
+        """ends a game from afk"""
+        job = context.job
+
+        if job:
+            chat_id: int = job.data["chat_id"]  # type: ignore
+            game: Game = job.data["game"]  # type: ignore
+            orchestrator: Orchestrator = job.data["orchestrator"]  # type: ignore
+
+            game.end_game()
+            orchestrator.end_game(chat_id, context)
+            jobs.remove_job_if_exists(str(chat_id), context)
+            await interactions.END_GAME(context, chat_id, game)
+
     async def delete_game_messages(
         self, chat_id: int, context: ContextTypes.DEFAULT_TYPE
     ):

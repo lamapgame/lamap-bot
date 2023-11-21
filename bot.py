@@ -97,10 +97,10 @@ async def process_result(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
 
 async def reply_inline_query(
-    update: Update, context: ContextTypes.DEFAULT_TYPE
+    update: Update, _context: ContextTypes.DEFAULT_TYPE
 ) -> None:
     """process a reply to an inline query"""
-    await handle_inline_query(orchestrator, update, context)
+    await handle_inline_query(orchestrator, update)
 
 
 # launch bot
