@@ -167,7 +167,7 @@ class Game:
             raise NotEnoughPlayersError()
 
         self.started = True
-        self.deck.shuffle_cards()  # shuffle cards
+        # a deck is shuffled by default
         shuffle(self.players)  # randomize list of players
         self.current_player = self.players[0]  # set the first player
         self.started_date = datetime.now()
@@ -245,16 +245,11 @@ class Game:
 
         # if the last card played was a special card, the round is over
         if self.play_history and self.play_history[-1].move.suit == "x":
-            self.end_game()
+            self.end_game("SPECIAL")
             return
 
         # if both players played, move to the next
         if len(self.play_history) == len(self.players):
-            if self.round == 5:
-                self.end_game()
-                return
-
-            self.round += 1
             self.current_player = self.controlling_player
             self.round_history.append(
                 RoundInfo(
@@ -264,10 +259,14 @@ class Game:
                     self.controlling_card,
                 )
             )
-
             self.play_history = []
             self.prev_controlling_card = self.controlling_card
             self.controlling_card = None
+            if self.round == 5:
+                self.end_game()
+                return
+
+            self.round += 1
             return
 
         self.current_player = self.get_next_player()

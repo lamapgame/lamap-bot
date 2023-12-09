@@ -11,14 +11,6 @@ def test_deck_initialization():
     assert all(isinstance(card, Card) for card in deck.cards)
 
 
-def test_deck_shuffle():
-    """test deck shuffling"""
-    deck = Deck()
-    original_cards = deck.cards.copy()
-    deck.shuffle_cards()
-    assert deck.cards != original_cards
-
-
 def test_deck_cut():
     """test deck cutting cards"""
     deck = Deck()
