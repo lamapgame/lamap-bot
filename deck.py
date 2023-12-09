@@ -142,13 +142,11 @@ class Card:
 # ? Test cards - input any set to test with only that set
 # ? Do not forget to remove shuffle and
 # ? remember the cards are shared from the right to the left
-"""
-[
+""" [
     Card(h,3, design), Card(d,7, design), Card(d,6, design), Card(d,8, design),
     Card(d,4, design), Card(d,3, design), Card(h,8, design), Card(h,9, design), Card(h,10, design),
     Card(s,3, design), Card(c,3, design), Card(c,4, design), Card(c,5, design), Card(c,10, design)
-]
-"""
+] """
 
 
 class Deck:
@@ -190,6 +188,7 @@ class Deck:
             Card("s", 8, design),
             Card("s", 9, design),
         ].copy()
+
         """
         Test suit
         [
@@ -210,10 +209,10 @@ class Deck:
         ]
         """
 
-        self.design = design
-
-    def shuffle_cards(self):
+        # a deck is shuffled by default
         shuffle(self.cards)
+
+        self.design = design
 
     def cut_cards(self, player: Player):
         player.hand_of_cards = self.cards[:5]
