@@ -147,6 +147,8 @@ class Game:
             self.end_reason = "AFK"
             self.losers = [self.current_player]
             self.winners = [p for p in self.players if p.id != self.current_player.id]
+            # todo: [db] update scores and currency
+            return self.winners, self.losers, "AFK"
 
         if (self.controlling_player is None) or (self.controlling_card is None):
             return [], [], "NORMAL"
@@ -154,7 +156,6 @@ class Game:
         # the winner is the player who controls the last round
         self.winners.append(self.controlling_player)
         self.losers = [p for p in self.players if p.id != self.controlling_player.id]
-
         # todo: [db] update scores and currency
 
         return self.winners, self.losers, "NORMAL"
