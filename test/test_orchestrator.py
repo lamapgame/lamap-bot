@@ -1,7 +1,8 @@
+from test.mock_objects import mocked_message_update, mocked_context, mocked_user
+
 import pytest
 from orchestrator import Orchestrator
 from common.exceptions import GameAlreadyExistError
-from test.mock_objects import mocked_message_update, mocked_context, mocked_user
 
 
 def test_orchestrator_initialization():

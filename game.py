@@ -20,6 +20,8 @@ MAX_PLAYER_NUMBER = 4
 
 CARDS_DESIGNS = ["DEFAULT", "GALATIC", "LUXURY"]
 
+ReasonType = Literal["NORMAL", "AFK", "SPECIAL"]
+
 
 class Play(NamedTuple):
     player: Player | None
@@ -59,6 +61,11 @@ class Game:
         self.controlling_card = None
         self.prev_controlling_card = None
 
+        # end of game computation
+        self.winners: list[Player] = []
+        self.losers: list[Player] = []
+        self.end_reason: ReasonType = "NORMAL"
+
         # messages to delete when the game starts
         self.messages_to_delete: list[int] = []
 
@@ -73,7 +80,7 @@ class Game:
     @property
     def current_player_index(self) -> int:
         if self.current_player is None:
-            raise Exception("No current player")
+            raise ValueError("No current player")
         return self.players.index(self.current_player)
 
     @property
@@ -103,7 +110,7 @@ class Game:
 
     def get_next_player(self) -> Player:
         if self.current_player is None:
-            raise Exception("No current player")
+            raise ValueError("No current player")
         next_player_index = (self.current_player_index + 1) % len(self.players)
         return self.players[next_player_index]
 
@@ -117,10 +124,40 @@ class Game:
         if len(self.players) < MIN_PLAYER_NUMBER:
             raise NotEnoughPlayersError()
 
-    def end_game(self) -> None:
-        """Compute the score and end the game"""
+    def kick_player(self, player: Player) -> None:
+        self.players.remove(player)
+        if self.current_player and self.current_player == player:
+            raise CannotRemoveControllerError()
+        if len(self.players) == 1:
+            self.end_game()
+            return
+        if len(self.players) < MIN_PLAYER_NUMBER:
+            raise NotEnoughPlayersError()
+
+    def end_game(
+        self, reason: ReasonType = "NORMAL"
+    ) -> tuple[list[Player], list[Player], ReasonType]:
+        """Compute the score and end the game by setting the winners and losers"""
         self.started = False
-        pass
+
+        # if the game ends by afk
+        if reason == "AFK":
+            if self.current_player is None:
+                raise ValueError("No current player: cannot end game properly")
+            self.end_reason = "AFK"
+            self.losers = [self.current_player]
+            self.winners = [p for p in self.players if p.id != self.current_player.id]
+
+        if (self.controlling_player is None) or (self.controlling_card is None):
+            return [], [], "NORMAL"
+
+        # the winner is the player who controls the last round
+        self.winners.append(self.controlling_player)
+        self.losers = [p for p in self.players if p.id != self.controlling_player.id]
+
+        # todo: [db] update scores and currency
+
+        return self.winners, self.losers, "NORMAL"
 
     def add_message_to_delete(self, message_id: int) -> None:
         self.messages_to_delete.append(message_id)

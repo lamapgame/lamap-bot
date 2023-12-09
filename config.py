@@ -15,4 +15,5 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # ----------------
 # time to start game after being initiated
 GAME_START_TIMEOUT = int(os.getenv("GAME_START_TIMEOUT") or 40)
+TIME_TO_AFK = int(os.getenv("TIME_TO_AFK") or 50)
 LOGGING_CHAT_ID = os.getenv("LOGGING_CHAT_ID")

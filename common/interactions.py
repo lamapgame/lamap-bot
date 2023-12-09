@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from telegram import (
     CallbackQuery,
     InlineKeyboardButton,
@@ -6,11 +9,15 @@ from telegram import (
 )
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from common.jobs import remove_job_if_exists
 from common.utils import mention, send_reply_message
-from config import GAME_START_TIMEOUT
-from deck import Card
-from game import Game
+from config import GAME_START_TIMEOUT, TIME_TO_AFK
+
+if TYPE_CHECKING:
+    from deck import Card
+    from game import Game
+    from orchestrator import Orchestrator
+    from player import Player
 
 
 async def INIT_USER(update: Update) -> None:
@@ -68,12 +75,22 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
         return message
 
 
+async def END_GAME_BY_AFK(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game):
+    if game.controlling_player:
+        message = await context.bot.send_animation(
+            chat_id,
+            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
+            caption=f"{game.controlling_player.user.first_name} a gagné par forfait. On remet ça ?",
+        )
+        return message
+
+
 async def FIRST_CARD(update, game: Game):
     if game.current_player:
         choice = [
             [
                 InlineKeyboardButton(
-                    text=f"Dégager",
+                    text="Dégager",
                     switch_inline_query_current_chat=str(game.chat_id),
                 )
             ]
@@ -84,12 +101,32 @@ async def FIRST_CARD(update, game: Game):
         )
         return message
     else:
-        raise Exception("No current player")
+        raise ValueError("No current player")
+
+
+async def WARN_AFK(context: ContextTypes.DEFAULT_TYPE) -> None:
+    job = context.job
+
+    if job:
+        chat_id: int = job.data["chat_id"]  # type: ignore
+        game: Game = job.data["game"]  # type: ignore
+        player: Player = job.data["player"]  # type: ignore
+        msg = await context.bot.send_message(
+            chat_id,
+            f"{mention(player.user.first_name, f'tg://user?id={player.id}')} Si tu joue pas dans {int(TIME_TO_AFK/2)} secondes tu perds",
+        )
+        game.add_message_to_delete(msg.message_id)
 
 
 async def PLAY_CARD(
-    context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game, card: Card
+    context: ContextTypes.DEFAULT_TYPE,
+    chat_id: int,
+    game: Game,
+    orchestrator: Orchestrator,
 ):
+    # clear the previous turn afk job
+    remove_job_if_exists(str(chat_id), context)
+
     if game.current_player and game.prev_controlling_card and game.controlling_player:
         c_list = []
         game_round_from_0 = game.round - 1
@@ -114,6 +151,26 @@ async def PLAY_CARD(
             f"👑 {mention(controlling_player.first_name, f'tg://user?id={current_player.id}')} - {game.prev_controlling_card.icon}{game.prev_controlling_card.value}\n〰️\n🤙🏾 {mention(current_player.first_name, f'tg://user?id={current_player.id}')} à toi.",
             reply_markup=InlineKeyboardMarkup(choice),
         )
+
+        passed_data = {
+            "chat_id": chat_id,
+            "game": game,
+            "player": game.current_player,
+            "orchestrator": orchestrator,
+        }
+
+        context.job_queue.run_once(  # type: ignore
+            WARN_AFK,
+            int(TIME_TO_AFK / 2),
+            passed_data,
+            name=str(object=chat_id),
+        )
+        context.job_queue.run_once(  # type: ignore
+            orchestrator.end_game_from_afk,
+            int(TIME_TO_AFK),
+            passed_data,
+            name=str(chat_id),
+        )
         return message
     else:
         raise Exception("error in computing player and controlling card")
@@ -124,7 +181,7 @@ async def WRONG_CARD(
 ):
     message = await context.bot.send_message(
         chat_id,
-        f"Ok tara, on a vu tes cartes, tu peux attendre de jouer les bonnes cartes au bon moment stp ?",
+        "Ok tara, on a vu tes cartes, tu peux attendre de jouer les bonnes cartes au bon moment stp ?",
     )
     return message
 
