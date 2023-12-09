@@ -20,6 +20,12 @@ if TYPE_CHECKING:
     from player import Player
 
 
+# remove the linter warning for the snake case
+# :p this is my chosen interaction notation, I like it.
+
+# pylint: disable=invalid-name
+
+
 async def INIT_USER(update: Update) -> None:
     if update.message and update.message.chat.type == "private":
         if update.effective_user and update.message:
@@ -66,11 +72,25 @@ async def NEW_GAME(update, game: Game):
 
 
 async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game):
+    # get the names of all losers separated by a comma
+    losers = ", ".join(
+        [
+            mention(player.user.first_name, f"tg://user?id={player.id}")
+            for player in game.losers
+        ]
+    )
+    winners = ", ".join(
+        [
+            mention(player.user.first_name, f"tg://user?id={player.id}")
+            for player in game.winners
+        ]
+    )
+
     if game.controlling_player:
         message = await context.bot.send_animation(
             chat_id,
             "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
-            caption=f"{game.controlling_player.user.first_name} Nous a allumé comme il faut. On remet ça?",
+            caption=f"{winners} nous a allumé comme il faut et comme d'habitude {losers} perds. On remet ça?",
         )
         return message
 
@@ -113,7 +133,7 @@ async def WARN_AFK(context: ContextTypes.DEFAULT_TYPE) -> None:
         player: Player = job.data["player"]  # type: ignore
         msg = await context.bot.send_message(
             chat_id,
-            f"{mention(player.user.first_name, f'tg://user?id={player.id}')} Si tu joue pas dans {int(TIME_TO_AFK/2)} secondes tu perds",
+            f"{mention(player.user.first_name, f'tg://user?id={player.id}')} si tu ne joue pas dans les prochaines {int(TIME_TO_AFK/2)} secondes tu perds",
         )
         game.add_message_to_delete(msg.message_id)
 
@@ -177,12 +197,34 @@ async def PLAY_CARD(
 
 
 async def WRONG_CARD(
-    context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game, card: Card
+    context: ContextTypes.DEFAULT_TYPE,
+    chat_id: int,
+    game: Game,
+    card: Card,
+    player: Player,
 ):
-    message = await context.bot.send_message(
-        chat_id,
-        "Ok tara, on a vu tes cartes, tu peux attendre de jouer les bonnes cartes au bon moment stp ?",
-    )
+    current_controlling_card = game.controlling_card
+    if not game.controlling_card:
+        current_controlling_card = game.prev_controlling_card
+
+    if not current_controlling_card:
+        message = await context.bot.send_message(
+            chat_id,
+            f"🤦🏾‍♂️ {mention(player.user.first_name, f'tg://user?id={player.id}')}Merci on a vu!\n Mais ce n'est pas ton tour de jouer",
+        )
+        return message
+
+    if (game.current_player != player) and game.started:
+        message = await context.bot.send_message(
+            chat_id,
+            f"🤦🏾‍♂️ {mention(player.user.first_name, f'tg://user?id={player.id}')}, merci on a vu!\n Mais ce n'est pas ton tour de jouer",
+        )
+    else:
+        message = await context.bot.send_message(
+            chat_id,
+            f"Ok tara, on a vu, mais ce n'est pas le {card.icon} qui contrôle ce tour. C'est le {current_controlling_card.value}{current_controlling_card.icon} \n\nJe sais que tu a la carte, joue la!",
+        )
+
     return message
 
 

@@ -106,7 +106,7 @@ async def process_inline_query_result(
                     await interactions.PLAY_CARD(context, chat_id, game, orchestrator)
 
                 elif card_played and not card_correctly_played:
-                    await interactions.WRONG_CARD(context, chat_id, game, card)
+                    await interactions.WRONG_CARD(context, chat_id, game, card, player)
         except KeyError:
             ...
 
