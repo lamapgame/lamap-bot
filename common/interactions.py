@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from telegram import (
     CallbackQuery,
     InlineKeyboardButton,
@@ -9,10 +12,12 @@ from telegram.ext import ContextTypes
 from common.jobs import remove_job_if_exists
 from common.utils import mention, send_reply_message
 from config import GAME_START_TIMEOUT, TIME_TO_AFK
-from deck import Card
-from game import Game
-from orchestrator import Orchestrator
-from player import Player
+
+if TYPE_CHECKING:
+    from deck import Card
+    from game import Game
+    from orchestrator import Orchestrator
+    from player import Player
 
 
 async def INIT_USER(update: Update) -> None:
