@@ -115,7 +115,7 @@ class Orchestrator:
             game: Game = job.data["game"]  # type: ignore
             orchestrator: Orchestrator = job.data["orchestrator"]  # type: ignore
 
-            game.end_game()
+            game.end_game("AFK")
             orchestrator.end_game(chat_id, context)
             jobs.remove_job_if_exists(str(chat_id), context)
             await interactions.END_GAME(context, chat_id, game)
