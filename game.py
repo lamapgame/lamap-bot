@@ -36,6 +36,8 @@ class RoundInfo(NamedTuple):
 
 
 class Game:
+    """An instance of the game"""
+
     def __init__(
         self,
         chat_id: int,
@@ -45,6 +47,7 @@ class Game:
         has_koras: bool = True,
         has_dbl_koras: bool = True,
         time_to_play: int = 60,
+        nkap: int = 0,
     ):
         self.chat_id = chat_id
         self.started_date = None
@@ -53,7 +56,7 @@ class Game:
         self.started = False
         self.creator = user
         self.current_player = None
-        self.bet = 0
+        self.nkap = nkap
         self.round = 1
         self.play_history: list[Play] = []
         self.round_history: list[RoundInfo] = []

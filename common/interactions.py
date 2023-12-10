@@ -1,5 +1,6 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from re import L
+from typing import TYPE_CHECKING, Literal
 
 from telegram import (
     CallbackQuery,
@@ -10,7 +11,7 @@ from telegram import (
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 from common.jobs import remove_job_if_exists
-from common.utils import mention, send_reply_message
+from common.utils import mention, n_format, send_reply_message
 from config import GAME_START_TIMEOUT, TIME_TO_AFK
 
 if TYPE_CHECKING:
@@ -63,12 +64,27 @@ async def NEW_GAME(update, game: Game):
         ],
     ]
 
-    message = await update.effective_chat.send_animation(
+    if game.nkap > 0:
+        return await update.effective_chat.send_animation(
+            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
+            caption=f"{game.creator.first_name} veut nous mettre bien."
+            f" Il a déposé {n_format(game.nkap)}."
+            "\nQui est chaud?",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+
+    return await update.effective_chat.send_animation(
         "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
         caption=f"{game.creator.first_name} veut nous mettre bien. Qui est chaud?",
         reply_markup=InlineKeyboardMarkup(keyboard),
     )
-    return message
+
+
+async def CANNOT_START_GAME(update, reason: Literal["neg"]):
+    if reason == "neg":
+        await update.effective_chat.send_message(
+            "Chez ta grand-mère, vous utilisez l'argent négatif ?"
+        )
 
 
 async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game):

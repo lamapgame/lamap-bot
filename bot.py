@@ -62,6 +62,15 @@ async def learn(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """asks the orchestrator to initialize a new game in the current chat"""
+
+    nkap = 0
+    if context.args and context.args[0]:
+        nkap = int(context.args[0])
+
+    if nkap < 0:
+        await interactions.CANNOT_START_GAME(update, "neg")
+        return
+
     if (
         update.message
         and update.message.from_user
@@ -70,7 +79,9 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     ):
         user = update.message.from_user
         try:
-            game = orchestrator.new_game(update.message.chat.id, user, update, context)
+            game = orchestrator.new_game(
+                update.message.chat.id, user, update, context, nkap
+            )
             msg = await interactions.NEW_GAME(update, game)
             chat_id = update.message.chat.id
             await context.bot.pin_chat_message(
