@@ -23,12 +23,15 @@ from common.callback_handler import (
     process_inline_query_result,
 )
 from common.exceptions import GameAlreadyExistError
+from common.database import db
 
 import common.interactions as interactions
 from common.utils import mention
+from common.models import add_user
+
 from orchestrator import Orchestrator
-from validator import Validator
-from config import TOKEN
+
+from config import TOKEN, DATABASE_URL
 
 
 # Enable logging
@@ -43,9 +46,12 @@ logging.getLogger("httpx").setLevel(logging.WARNING)
 orchestrator = Orchestrator()
 
 
-@Validator.check_message_is_group
-async def start(update: Update) -> None:
+async def start(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
     """/start command handler"""
+    if update.message and update.message.from_user:
+        user = update.message.from_user
+        add_user(user)
+
     await interactions.INIT_USER(update)
 
 
@@ -107,11 +113,15 @@ async def reply_inline_query(
 try:
     if not TOKEN:
         raise ValueError("No token provided")
+    if not DATABASE_URL:
+        raise ValueError("No database url provided")
     app = (
         ApplicationBuilder().defaults(Defaults(ParseMode.MARKDOWN)).token(TOKEN).build()
     )
+    db.bind("postgres", DATABASE_URL)
+    db.generate_mapping(create_tables=True)
 except RuntimeError as excp:
-    raise ValueError("No token provided") from excp
+    raise ValueError("An issue occured when launching the app") from excp
 
 # Bot command handlers
 app.add_handler(CommandHandler("start", start))
