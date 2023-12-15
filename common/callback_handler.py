@@ -13,9 +13,12 @@ from common import interactions, jobs
 from common.exceptions import (
     NotEnoughPlayersError,
     PlayerAlreadyInGameError,
+    PlayerIsBanned,
+    PlayerIsPoor,
     PlayerNotInGameError,
     TooManyPlayersError,
 )
+from config import SUPER_ADMIN_LIST
 
 from deck import Card
 
@@ -30,6 +33,11 @@ async def handle_query(
     query = update.callback_query
 
     if query and query.from_user and query.message and update.effective_chat:
+        # if the query starts by "ACH" it's an achievement
+        if query.data and query.data.startswith("ACH"):
+            await interactions.ACHIEVEMENTS_DETAILS(query, context)
+            return
+
         chat_id = update.effective_chat.id
         game = orchestrator.games[chat_id]
         user = query.from_user
@@ -58,11 +66,28 @@ async def join_game(update, query, game, user):
         await query.answer("Calme toi! Tes cartes sont posés.", show_alert=True)
     except TooManyPlayersError:
         await query.answer("C'est plein, tu vas jouer après.", show_alert=True)
+    except PlayerIsBanned:
+        await query.answer("Tu es banni, tu ne joues pas.", show_alert=True)
+    except PlayerIsPoor:
+        await query.answer(
+            "Tu sais bien que tu es pauvre, pourquoi tu nous déranges?", show_alert=True
+        )
 
 
 async def start_game(update, context, query, chat_id, game, user):
     """starts the game properly from the query callback"""
-    if game.creator.id == user.id:
+    is_admin = False
+    is_super_admin = False
+
+    chat_admins = await update.effective_chat.get_administrators()
+    if update.effective_user in (admin.user for admin in chat_admins):
+        is_admin = True
+
+    if str(user.id) in SUPER_ADMIN_LIST:
+        is_super_admin = True
+        print("super admin")
+
+    if (game.creator.id == user.id) or is_admin or is_super_admin:
         try:
             game.start_game()
             jobs.remove_job_if_exists(str(chat_id), context)

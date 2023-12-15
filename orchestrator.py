@@ -32,6 +32,7 @@ class Orchestrator:
         game_creator: User,
         update: Update,
         context: ContextTypes.DEFAULT_TYPE,
+        nkap: int = 0,
         max_player_number: int = 4,
         has_quick_wins: bool = True,
         has_koras: bool = True,
@@ -52,6 +53,7 @@ class Orchestrator:
             has_koras,
             has_dbl_koras,
             time_to_play,
+            nkap,
         )
 
         if context.job_queue:

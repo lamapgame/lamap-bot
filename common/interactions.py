@@ -1,5 +1,7 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING
+from datetime import datetime
+from typing import TYPE_CHECKING, Literal
+import humanize
 
 from telegram import (
     CallbackQuery,
@@ -10,8 +12,8 @@ from telegram import (
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 from common.jobs import remove_job_if_exists
-from common.utils import mention, send_reply_message
-from config import GAME_START_TIMEOUT, TIME_TO_AFK
+from common.utils import mention, n_format, send_reply_message
+from config import ACHIEVEMENTS, GAME_START_TIMEOUT, TIME_TO_AFK
 
 if TYPE_CHECKING:
     from deck import Card
@@ -63,12 +65,27 @@ async def NEW_GAME(update, game: Game):
         ],
     ]
 
-    message = await update.effective_chat.send_animation(
+    if game.nkap > 0:
+        return await update.effective_chat.send_animation(
+            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
+            caption=f"{game.creator.first_name} veut nous mettre bien."
+            f" Il a déposé {n_format(game.nkap)}."
+            "\nQui est chaud?",
+            reply_markup=InlineKeyboardMarkup(keyboard),
+        )
+
+    return await update.effective_chat.send_animation(
         "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
         caption=f"{game.creator.first_name} veut nous mettre bien. Qui est chaud?",
         reply_markup=InlineKeyboardMarkup(keyboard),
     )
-    return message
+
+
+async def CANNOT_START_GAME(update, reason: Literal["neg"]):
+    if reason == "neg":
+        await update.effective_chat.send_message(
+            "Chez ta grand-mère, vous utilisez l'argent négatif ?"
+        )
 
 
 async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game):
@@ -250,3 +267,26 @@ async def NOT_ENOUGH_PLAYERS(
         await context.bot.send_message(chat_id, text)
     if query:
         await query.answer(text, show_alert=True)
+
+
+async def ACHIEVEMENTS_DETAILS(
+    query: CallbackQuery, _context: ContextTypes.DEFAULT_TYPE
+):
+    if not query.data:
+        return
+
+    achievement_code, achievement_date = query.data.split("||")
+    achievement_emoji = ACHIEVEMENTS[achievement_code]["emoji"]
+    achievement_title = ACHIEVEMENTS[achievement_code]["name"]
+    achievement_description = ACHIEVEMENTS[achievement_code]["description"]
+
+    humanize.activate("fr_FR")
+    date_from_now = humanize.naturaltime(
+        datetime.now() - datetime.fromisoformat(achievement_date)
+    )
+
+    text = (
+        f"{achievement_emoji} {achievement_title}\n\n{achievement_description}\n\n"
+        f"Obtenu {date_from_now}"
+    )
+    await query.answer(text, show_alert=True)

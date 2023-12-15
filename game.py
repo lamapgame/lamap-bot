@@ -6,10 +6,13 @@ from telegram import User
 from common.exceptions import (
     CannotRemoveControllerError,
     NotEnoughPlayersError,
+    PlayerIsBanned,
+    PlayerIsPoor,
     PlayerNotInGameError,
     TooManyPlayersError,
     PlayerAlreadyInGameError,
 )
+from common.models import compute_game_stats, get_stats
 
 from deck import Card, Deck
 from player import Player
@@ -20,15 +23,19 @@ MAX_PLAYER_NUMBER = 4
 
 CARDS_DESIGNS = ["DEFAULT", "GALATIC", "LUXURY"]
 
-ReasonType = Literal["NORMAL", "AFK", "SPECIAL"]
+ReasonType = Literal["NORMAL", "KORA", "DBLKORA", "AFK", "SPECIAL", "QUIT"]
 
 
 class Play(NamedTuple):
+    """Play typing"""
+
     player: Player | None
     move: Card
 
 
 class RoundInfo(NamedTuple):
+    """Round information typing"""
+
     round: int
     plays: list[Play]
     controller: Player | None
@@ -36,6 +43,8 @@ class RoundInfo(NamedTuple):
 
 
 class Game:
+    """An instance of the game"""
+
     def __init__(
         self,
         chat_id: int,
@@ -45,6 +54,7 @@ class Game:
         has_koras: bool = True,
         has_dbl_koras: bool = True,
         time_to_play: int = 60,
+        nkap: int = 0,
     ):
         self.chat_id = chat_id
         self.started_date = None
@@ -53,7 +63,7 @@ class Game:
         self.started = False
         self.creator = user
         self.current_player = None
-        self.bet = 0
+        self.nkap = nkap
         self.round = 1
         self.play_history: list[Play] = []
         self.round_history: list[RoundInfo] = []
@@ -88,8 +98,12 @@ class Game:
         return len(self.players)
 
     def add_player(self, player: Player) -> None:
-        # todo: [db] check if the player is banned
-        # todo: [db] check if the player has enough currency
+        user, stats = get_stats(player.user)
+        if not user.verified:
+            raise PlayerIsBanned()
+
+        if stats.nkap < self.nkap:
+            raise PlayerIsPoor()
 
         # check if the player is already in game
         if player.id in [p.id for p in self.players]:
@@ -129,7 +143,7 @@ class Game:
         if self.current_player and self.current_player == player:
             raise CannotRemoveControllerError()
         if len(self.players) == 1:
-            self.end_game()
+            self.end_game("QUIT")
             return
         if len(self.players) < MIN_PLAYER_NUMBER:
             raise NotEnoughPlayersError()
@@ -140,25 +154,42 @@ class Game:
         """Compute the score and end the game by setting the winners and losers"""
         self.started = False
 
+        if (self.controlling_player is None) or (self.controlling_card is None):
+            return [], [], "NORMAL"
+
         # if the game ends by afk
         if reason == "AFK":
             if self.current_player is None:
                 raise ValueError("No current player: cannot end game properly")
-            self.end_reason = "AFK"
+
             self.losers = [self.current_player]
             self.winners = [p for p in self.players if p.id != self.current_player.id]
-            # todo: [db] update scores and currency
-            return self.winners, self.losers, "AFK"
 
-        if (self.controlling_player is None) or (self.controlling_card is None):
-            return [], [], "NORMAL"
+        # in case the game ends normally
+        if reason == "NORMAL":
+            # the winner is the player who controls the last round
+            self.winners.append(self.controlling_player)
 
-        # the winner is the player who controls the last round
-        self.winners.append(self.controlling_player)
-        self.losers = [p for p in self.players if p.id != self.controlling_player.id]
-        # todo: [db] update scores and currency
+            if self.controlling_card.value == 3:
+                reason = "KORA"
+                # if round 4's controlling card was 3, it is double kora
+                if (
+                    self.round > 3
+                    and self.round_history[3].controlling_card
+                    and self.round_history[3].controlling_card.value == 3
+                    and self.round_history[3].controller == self.controlling_player
+                ):
+                    reason = "DBLKORA"
 
-        return self.winners, self.losers, "NORMAL"
+            self.losers = [
+                p for p in self.players if p.id != self.controlling_player.id
+            ]
+
+        self.end_reason = reason
+
+        # calculate the score and distribute the points and money
+        compute_game_stats(self)
+        return self.winners, self.losers, reason
 
     def add_message_to_delete(self, message_id: int) -> None:
         self.messages_to_delete.append(message_id)
@@ -264,6 +295,7 @@ class Game:
             self.prev_controlling_card = self.controlling_card
             self.controlling_card = None
             if self.round == 5:
+                self.controlling_card = self.prev_controlling_card
                 self.end_game()
                 return
 
