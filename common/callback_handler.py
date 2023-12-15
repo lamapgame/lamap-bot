@@ -18,6 +18,7 @@ from common.exceptions import (
     PlayerNotInGameError,
     TooManyPlayersError,
 )
+from config import SUPER_ADMIN_LIST
 
 from deck import Card
 
@@ -75,7 +76,18 @@ async def join_game(update, query, game, user):
 
 async def start_game(update, context, query, chat_id, game, user):
     """starts the game properly from the query callback"""
-    if game.creator.id == user.id:
+    is_admin = False
+    is_super_admin = False
+
+    chat_admins = await update.effective_chat.get_administrators()
+    if update.effective_user in (admin.user for admin in chat_admins):
+        is_admin = True
+
+    if str(user.id) in SUPER_ADMIN_LIST:
+        is_super_admin = True
+        print("super admin")
+
+    if (game.creator.id == user.id) or is_admin or is_super_admin:
         try:
             game.start_game()
             jobs.remove_job_if_exists(str(chat_id), context)

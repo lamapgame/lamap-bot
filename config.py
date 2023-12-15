@@ -18,6 +18,9 @@ GAME_START_TIMEOUT = int(os.getenv("GAME_START_TIMEOUT") or 40)
 TIME_TO_AFK = int(os.getenv("TIME_TO_AFK") or 50)
 LOGGING_CHAT_ID = os.getenv("LOGGING_CHAT_ID")
 BASE_POINTS = int(os.getenv("BASE_POINTS") or 10)
+SUPER_ADMIN_LIST = str(os.getenv("SUPER_ADMIN_LIST") or "223627873, 1077515995").split(
+    ","
+)
 
 
 # Achievements
