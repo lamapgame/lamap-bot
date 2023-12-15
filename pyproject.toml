@@ -8,7 +8,7 @@ packages = []
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pony = ">=0.7.16"
+pony = ">=0.7.17"
 pydantic = ">=1.8.2"
 python-telegram-bot = {extras = ["job-queue"], version = "^20.5"}
 python-dotenv = "^1.0.0"

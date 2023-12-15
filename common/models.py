@@ -77,16 +77,19 @@ def get_user(
 ) -> tuple[UserDB, GameStatisticsDB, Any]:
     """Returns a user and their stats from the database"""
     userdb = UserDB.get(id=user.id)
+
+    # incase the user doesn't exist in the database yet,
+    # probably the first time to play
     if not userdb:
         raise ValueError("User not found in database")
+
     gamestatsdb = GameStatisticsDB.get(user=userdb)
-    # achievements_query = AchievementsDB.select(lambda a: a.user == user.id)
-    # print(list(achievements_query))
+    achievements_query = AchievementsDB.select(lambda a: a.user == userdb)
 
     # players seem to always change name, so we need to update it
     userdb.name = user.first_name
 
-    return (userdb, gamestatsdb, "")
+    return (userdb, gamestatsdb, list(achievements_query))
 
 
 # ----------------------
