@@ -26,6 +26,7 @@ from common.exceptions import GameAlreadyExistError
 from common.database import db
 
 import common.interactions as interactions
+from common.stats import show_stats
 from common.utils import mention
 from common.models import add_user
 
@@ -140,6 +141,9 @@ app.add_handler(CommandHandler("learn", learn))
 
 # Game handlers
 app.add_handler(CommandHandler("play", start_new_game))
+
+# Stats handlers
+app.add_handler(CommandHandler("stats", show_stats))
 
 # Callback query handler
 app.add_handler(CallbackQueryHandler(callback_query))
