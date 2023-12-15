@@ -6,11 +6,13 @@ from telegram import User
 from common.exceptions import (
     CannotRemoveControllerError,
     NotEnoughPlayersError,
+    PlayerIsBanned,
+    PlayerIsPoor,
     PlayerNotInGameError,
     TooManyPlayersError,
     PlayerAlreadyInGameError,
 )
-from common.models import compute_game_stats
+from common.models import compute_game_stats, get_stats
 
 from deck import Card, Deck
 from player import Player
@@ -96,8 +98,12 @@ class Game:
         return len(self.players)
 
     def add_player(self, player: Player) -> None:
-        # todo: [db] check if the player is banned
-        # todo: [db] check if the player has enough currency
+        user, stats = get_stats(player.user)
+        if not user.verified:
+            raise PlayerIsBanned()
+
+        if stats.nkap < self.nkap:
+            raise PlayerIsPoor()
 
         # check if the player is already in game
         if player.id in [p.id for p in self.players]:

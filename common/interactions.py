@@ -1,6 +1,7 @@
 from __future__ import annotations
-from re import L
+from datetime import datetime
 from typing import TYPE_CHECKING, Literal
+import humanize
 
 from telegram import (
     CallbackQuery,
@@ -12,7 +13,7 @@ from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
 from common.jobs import remove_job_if_exists
 from common.utils import mention, n_format, send_reply_message
-from config import GAME_START_TIMEOUT, TIME_TO_AFK
+from config import ACHIEVEMENTS, GAME_START_TIMEOUT, TIME_TO_AFK
 
 if TYPE_CHECKING:
     from deck import Card
@@ -266,3 +267,26 @@ async def NOT_ENOUGH_PLAYERS(
         await context.bot.send_message(chat_id, text)
     if query:
         await query.answer(text, show_alert=True)
+
+
+async def ACHIEVEMENTS_DETAILS(
+    query: CallbackQuery, _context: ContextTypes.DEFAULT_TYPE
+):
+    if not query.data:
+        return
+
+    achievement_code, achievement_date = query.data.split("||")
+    achievement_emoji = ACHIEVEMENTS[achievement_code]["emoji"]
+    achievement_title = ACHIEVEMENTS[achievement_code]["name"]
+    achievement_description = ACHIEVEMENTS[achievement_code]["description"]
+
+    humanize.activate("fr_FR")
+    date_from_now = humanize.naturaltime(
+        datetime.now() - datetime.fromisoformat(achievement_date)
+    )
+
+    text = (
+        f"{achievement_emoji} {achievement_title}\n\n{achievement_description}\n\n"
+        f"Obtenu {date_from_now}"
+    )
+    await query.answer(text, show_alert=True)

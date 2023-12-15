@@ -13,6 +13,8 @@ from common import interactions, jobs
 from common.exceptions import (
     NotEnoughPlayersError,
     PlayerAlreadyInGameError,
+    PlayerIsBanned,
+    PlayerIsPoor,
     PlayerNotInGameError,
     TooManyPlayersError,
 )
@@ -30,6 +32,11 @@ async def handle_query(
     query = update.callback_query
 
     if query and query.from_user and query.message and update.effective_chat:
+        # if the query starts by "ACH" it's an achievement
+        if query.data and query.data.startswith("ACH"):
+            await interactions.ACHIEVEMENTS_DETAILS(query, context)
+            return
+
         chat_id = update.effective_chat.id
         game = orchestrator.games[chat_id]
         user = query.from_user
@@ -58,6 +65,12 @@ async def join_game(update, query, game, user):
         await query.answer("Calme toi! Tes cartes sont posés.", show_alert=True)
     except TooManyPlayersError:
         await query.answer("C'est plein, tu vas jouer après.", show_alert=True)
+    except PlayerIsBanned:
+        await query.answer("Tu es banni, tu ne joues pas.", show_alert=True)
+    except PlayerIsPoor:
+        await query.answer(
+            "Tu sais bien que tu es pauvre, pourquoi tu nous déranges?", show_alert=True
+        )
 
 
 async def start_game(update, context, query, chat_id, game, user):

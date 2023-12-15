@@ -13,6 +13,7 @@ pydantic = ">=1.8.2"
 python-telegram-bot = {extras = ["job-queue"], version = "^20.5"}
 python-dotenv = "^1.0.0"
 psycopg2-binary = "^2.9.9"
+humanize = "^4.9.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=5.3.5"

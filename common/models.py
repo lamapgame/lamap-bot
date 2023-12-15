@@ -54,7 +54,7 @@ class AchievementsDB(db.Entity):
     _table_ = "achievements"
     user = Required(UserDB)
     code = Required(str)
-    displayed = Required(bool, default=False)
+    displayed = Required(bool, default=True)
     date_achieved = Required(datetime, default=datetime.now())
     PrimaryKey(user, code)
 
@@ -68,7 +68,7 @@ def add_user(user: User) -> None:
     if not UserDB.exists(id=user.id):
         new_user = UserDB(id=user.id, name=user.first_name, verified=True)
         GameStatisticsDB(user=new_user)
-        AchievementsDB(user=new_user, code="NEW_PLAYER")
+        AchievementsDB(user=new_user, code="ACH_NEW_PLAYER")
 
 
 @db_session
@@ -79,9 +79,10 @@ def get_user(
     userdb = UserDB.get(id=user.id)
 
     # incase the user doesn't exist in the database yet,
-    # probably the first time to play
+    # probably their first time to play
     if not userdb:
-        raise ValueError("User not found in database")
+        # log: f"[User] {user.id} - {user.first_name} first time user"
+        raise ValueError("User doesn't exist in the database")
 
     gamestatsdb = GameStatisticsDB.get(user=userdb)
     achievements_query = AchievementsDB.select(lambda a: a.user == userdb)
@@ -96,9 +97,10 @@ def get_user(
 # ---- Stats Model ----
 # ----------------------
 @db_session
-def get_stats(user: User) -> GameStatisticsDB:
+def get_stats(user: User) -> tuple[UserDB, GameStatisticsDB]:
     """Returns a user's stats from the database"""
-    return GameStatisticsDB.get(user=user)
+    userdb = UserDB.get(id=user.id)
+    return userdb, GameStatisticsDB.get(user=userdb)
 
 
 @db_session

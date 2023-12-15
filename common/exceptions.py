@@ -26,6 +26,18 @@ class PlayerAlreadyInGameError(Exception):
     pass
 
 
+class PlayerIsBanned(Exception):
+    """is thrown when a player is banned from the bot"""
+
+    pass
+
+
+class PlayerIsPoor(Exception):
+    """is thrown when a player doesn't have enough money bot"""
+
+    pass
+
+
 class PlayerNotInGameError(Exception):
     """is thrown when a player is not in a game"""
 

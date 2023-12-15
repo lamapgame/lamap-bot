@@ -3,6 +3,7 @@ from telegram.ext import ContextTypes
 
 from common.models import get_user
 from common.utils import mention, n_format
+from config import ACHIEVEMENTS
 
 
 async def show_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -25,30 +26,38 @@ async def show_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
             f"`{s.points:<4}`   {'Points'}"
         )
 
-        keyboard = [
-            [
-                InlineKeyboardButton("🖐🏽", callback_data="join_game"),
-                InlineKeyboardButton("💰", callback_data="start_game"),
-                InlineKeyboardButton("👑", callback_data="start_game"),
-                InlineKeyboardButton("👑", callback_data="start_game"),
-            ],
-            [
-                InlineKeyboardButton("🖐🏽", callback_data="join_game"),
-                InlineKeyboardButton("💰", callback_data="start_game"),
-                InlineKeyboardButton("👑", callback_data="start_game"),
-                InlineKeyboardButton("👑", callback_data="start_game"),
-            ],
-            [
-                InlineKeyboardButton("🖐🏽", callback_data="join_game"),
-                InlineKeyboardButton("💰", callback_data="start_game"),
-                InlineKeyboardButton("👑", callback_data="start_game"),
-                InlineKeyboardButton("👑", callback_data="start_game"),
-            ],
-        ]
-
+        keyboard = create_achievement_matrix(a)
         await message.reply_text(stats_txt, reply_markup=InlineKeyboardMarkup(keyboard))
-    except ValueError as e:
-        print(e)
+    except ValueError:
         await message.reply_text(
-            "Je ne te know pas encore, fais /start j'ouvre ton registre"
+            "Je ne te know pas encore, tape /start j'ouvre ton registre"
         )
+
+
+def create_achievement_matrix(achievements) -> list[list[InlineKeyboardButton]]:
+    keyboard = []
+    row = []
+    max_columns = 4
+    for achievement in achievements:
+        key = achievement.code
+        timestamp = achievement.date_achieved.isoformat()
+
+        # do not show if the user has hidden the achievement
+        if not achievement.displayed:
+            continue
+
+        if key in ACHIEVEMENTS:
+            button = InlineKeyboardButton(
+                ACHIEVEMENTS[key]["emoji"],
+                callback_data=f"{key}||{timestamp}",
+            )
+            row.append(button)
+
+            if len(row) == max_columns:
+                keyboard.append(row)
+                row = []
+
+    if row:
+        keyboard.append(row)
+
+    return keyboard
