@@ -48,7 +48,8 @@ ACHIEVEMENTS = {
         "name": "Bien faible",
         "emoji": "🤡",
         "description": "Tu as perdu 20 parties de suite.\n"
-        "Tu sais qu'on ne te force pas à jouer ? Tu peux aussi aller jouer au loup garou.",
+        "Tu sais qu'on ne te force pas à jouer ?"
+        "Tu peux aussi aller jouer au loup garou.",
     },
     "ACH_LE_DON_MAN": {
         "name": "Le Don Man / La Don Nga",
@@ -60,7 +61,8 @@ ACHIEVEMENTS = {
         "name": "Le Ndem Man",
         "emoji": "🏦",
         "description": "Fuire 500 parties.\n"
-        "Tu fais comment pour fuire jusqu'a 500 parties. Tu fais comment dans la vraie vie tara?",
+        "Tu fais comment pour fuire jusqu'a 500 parties."
+        "Tu fais comment dans la vraie vie tara?",
     },
     "ACH_EL_PEQUENO": {
         "name": "El Pequeno",
