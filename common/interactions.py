@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 # :p this is my chosen interaction notation, I like it.
 
 # pylint: disable=invalid-name
+# pylint: disable=line-too-long
 
 
 async def INIT_USER(update: Update) -> None:
@@ -103,6 +104,14 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
         ]
     )
 
+    if game.end_reason == "AFK":
+        message = await context.bot.send_animation(
+            chat_id,
+            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
+            caption=f"{losers} a fui, comme d'habitude. On remet ça?",
+        )
+        return message
+
     if game.controlling_player:
         message = await context.bot.send_animation(
             chat_id,
@@ -112,17 +121,13 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
         return message
 
 
-async def END_GAME_BY_AFK(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game):
-    if game.controlling_player:
-        message = await context.bot.send_animation(
-            chat_id,
-            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
-            caption=f"{game.controlling_player.user.first_name} a gagné par forfait. On remet ça ?",
-        )
-        return message
-
-
-async def FIRST_CARD(update, game: Game):
+async def FIRST_CARD(
+    update,
+    context: ContextTypes.DEFAULT_TYPE,
+    chat_id: int,
+    game: Game,
+    orchestrator: Orchestrator,
+):
     if game.current_player:
         choice = [
             [
@@ -133,8 +138,31 @@ async def FIRST_CARD(update, game: Game):
             ]
         ]
         message = await update.effective_chat.send_message(
-            f"{game.current_player.user.first_name} tu joues la première carte",
+            f"{mention(game.current_player.user.first_name, f'tg://user?id={game.current_player.user.id}')} tu joues la première carte",
             reply_markup=InlineKeyboardMarkup(choice),
+        )
+        passed_data = {
+            "chat_id": chat_id,
+            "game": game,
+            "player": game.current_player,
+            "orchestrator": orchestrator,
+        }
+
+        if not context.job_queue:
+            raise ValueError("No job queue")
+
+        # END GAME BY AFK
+        context.job_queue.run_once(
+            WARN_AFK,
+            int(TIME_TO_AFK / 2),
+            passed_data,
+            name=str(object=chat_id),
+        )
+        context.job_queue.run_once(
+            orchestrator.end_game_from_afk,
+            int(TIME_TO_AFK),
+            passed_data,
+            name=str(chat_id),
         )
         return message
     else:
@@ -175,7 +203,7 @@ async def PLAY_CARD(
         choice = [
             [
                 InlineKeyboardButton(
-                    text=f"".join(c_list),
+                    text="".join(c_list),
                     switch_inline_query_current_chat=str(game.chat_id),
                 )
             ]
@@ -196,13 +224,16 @@ async def PLAY_CARD(
             "orchestrator": orchestrator,
         }
 
-        context.job_queue.run_once(  # type: ignore
+        if not context.job_queue:
+            raise ValueError("No job queue")
+
+        context.job_queue.run_once(
             WARN_AFK,
             int(TIME_TO_AFK / 2),
             passed_data,
             name=str(object=chat_id),
         )
-        context.job_queue.run_once(  # type: ignore
+        context.job_queue.run_once(
             orchestrator.end_game_from_afk,
             int(TIME_TO_AFK),
             passed_data,
@@ -210,7 +241,7 @@ async def PLAY_CARD(
         )
         return message
     else:
-        raise Exception("error in computing player and controlling card")
+        raise ValueError("error in computing player and controlling card")
 
 
 async def WRONG_CARD(
@@ -227,7 +258,7 @@ async def WRONG_CARD(
     if not current_controlling_card:
         message = await context.bot.send_message(
             chat_id,
-            f"🤦🏾‍♂️ {mention(player.user.first_name, f'tg://user?id={player.id}')}Merci on a vu!\n Mais ce n'est pas ton tour de jouer",
+            f"🤦🏾‍♂️ {mention(player.user.first_name, f'tg://user?id={player.id}')}, merci on a vu!\n Mais ce n'est pas ton tour de jouer",
         )
         return message
 
@@ -239,7 +270,7 @@ async def WRONG_CARD(
     else:
         message = await context.bot.send_message(
             chat_id,
-            f"Ok tara, on a vu, mais ce n'est pas le {card.icon} qui contrôle ce tour. C'est le {current_controlling_card.value}{current_controlling_card.icon} \n\nJe sais que tu a la carte, joue la!",
+            f"🤦🏾‍♂️ Ok tara, on a vu, mais ce n'est pas le {card.icon} qui contrôle ce tour. C'est le {current_controlling_card.value}{current_controlling_card.icon} \n\nJe sais que tu a la carte, joue la!",
         )
 
     return message

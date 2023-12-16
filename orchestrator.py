@@ -24,7 +24,7 @@ class Orchestrator:
 
     def __init__(self):
         # dict of games, key = chat_id, value = Game object
-        self.games: dict[int, Game] = {}
+        self.games: dict[int, Game] = dict()
 
     def new_game(
         self,
@@ -61,6 +61,7 @@ class Orchestrator:
                 "chat_id": chat_id,
                 "game": self.games[chat_id],
                 "update": update,
+                "orchestrator": self,
             }
             # start warning timer
             context.job_queue.run_once(  # type: ignore
@@ -95,12 +96,15 @@ class Orchestrator:
             chat_id = job.data["chat_id"]  # type: ignore
             game = context.job.data["game"]  # type: ignore
             update = context.job.data["update"]  # type: ignore
+            orchestrator = context.job.data["orchestrator"]  # type: ignore
 
             try:
                 game.start_game()
                 await self.delete_game_messages(chat_id, context)
                 jobs.remove_job_if_exists(str(chat_id), context)
-                await interactions.FIRST_CARD(update, game)
+                await interactions.FIRST_CARD(
+                    update, context, chat_id, game, orchestrator
+                )
             except NotEnoughPlayersError:
                 await interactions.NOT_ENOUGH_PLAYERS(chat_id, context=context)
                 await self.delete_game_messages(chat_id, context)
@@ -118,9 +122,9 @@ class Orchestrator:
             orchestrator: Orchestrator = job.data["orchestrator"]  # type: ignore
 
             game.end_game("AFK")
-            orchestrator.end_game(chat_id, context)
             jobs.remove_job_if_exists(str(chat_id), context)
             await interactions.END_GAME(context, chat_id, game)
+            orchestrator.end_game(chat_id, context)
 
     async def delete_game_messages(
         self, chat_id: int, context: ContextTypes.DEFAULT_TYPE
