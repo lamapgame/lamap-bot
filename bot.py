@@ -93,8 +93,8 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 )
             except Exception:
                 # log: can not pin
-                print("Cannot pin")
                 pass
+
             game.add_message_to_delete(msg.message_id)
 
         except GameAlreadyExistError:
