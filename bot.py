@@ -85,11 +85,16 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
             )
             msg = await interactions.NEW_GAME(update, game)
             chat_id = update.message.chat.id
-            await context.bot.pin_chat_message(
-                chat_id,
-                msg.message_id,
-                True,
-            )
+            try:
+                await context.bot.pin_chat_message(
+                    chat_id,
+                    msg.message_id,
+                    True,
+                )
+            except Exception:
+                # log: can not pin
+                print("Cannot pin")
+                pass
             game.add_message_to_delete(msg.message_id)
 
         except GameAlreadyExistError:
