@@ -37,6 +37,7 @@ class GameStatisticsDB(db.Entity):
     quit = Required(int, default=0)
     slept = Required(int, default=0)
     losses = Required(int, default=0)
+    afk = Required(int, default=0)
     losses_special = Required(int, default=0)
     losses_kora = Required(int, default=0)
     losses_dbl_kora = Required(int, default=0)
@@ -137,13 +138,17 @@ def compute_game_stats(game: Game):
         stats.points += points
         stats.wins += 1
         stats.games_played += 1
-        stats.wl_streak += 1
-        stats.nkap += game.nkap
+        if stats.wl_streak < 0:
+            stats.wl_streak = 1
+        else:
+            stats.wl_streak += 1
 
         # if a game finishes by AFK or QUIT at the >3 round, the player wins 3 times the nkap
-        # this is because the looser might have done this on purpose to avoid losing money
+        # this is because the looser might quit to avoid losing money
         if (game.end_reason == "AFK" or game.end_reason == "QUIT") and game.round >= 3:
-            stats.nkap += game.nkap * 3
+            nkap += nkap * 3
+
+        stats.nkap += nkap
 
         if game.end_reason == "KORA":
             stats.wins_kora += 1
@@ -155,15 +160,24 @@ def compute_game_stats(game: Game):
     for player in loosers:
         stats = GameStatisticsDB.get(user=player.user.id)
         stats.points -= points // 2
-        stats.wins -= 1
-        stats.games_played -= 1
-        stats.wl_streak -= 1
-        stats.nkap -= game.nkap
+        stats.losses += 0
+        stats.games_played += 1
+        if stats.wl_streak > 0:
+            stats.wl_streak = -1
+        else:
+            stats.wl_streak -= 1
 
-        # if a game finishes by AFK or QUIT >3 round, the player loses 3 times the nkap to all players
+        # if a game finishes by AFK or QUIT >3 round,
+        # the player loses 3 times the nkap to all players
         if (game.end_reason == "AFK" or game.end_reason == "QUIT") and game.round >= 3:
-            stats.nkap -= game.nkap * 3 * len(winners)
+            nkap -= nkap * 3 * len(winners)
 
+        if game.end_reason == "AFK":
+            stats.afk += 1
+        if game.end_reason == "QUIT":
+            stats.quit += 1
+
+        stats.nkap -= nkap
         if game.end_reason == "KORA":
             stats.losses_kora += 1
         if game.end_reason == "DBL_KORA":

@@ -48,7 +48,7 @@ async def handle_query(
 
         # start game query
         elif query.data == "start_game":
-            await start_game(update, context, query, chat_id, game, user)
+            await start_game(update, context, query, chat_id, orchestrator, game, user)
 
         await query.answer()
 
@@ -74,7 +74,7 @@ async def join_game(update, query, game, user):
         )
 
 
-async def start_game(update, context, query, chat_id, game, user):
+async def start_game(update, context, query, chat_id, orchestrator, game, user):
     """starts the game properly from the query callback"""
     is_admin = False
     is_super_admin = False
@@ -91,7 +91,7 @@ async def start_game(update, context, query, chat_id, game, user):
         try:
             game.start_game()
             jobs.remove_job_if_exists(str(chat_id), context)
-            await interactions.FIRST_CARD(update, game)
+            await interactions.FIRST_CARD(update, context, chat_id, game, orchestrator)
             # delete the game messages
             for message_id in game.messages_to_delete:
                 await context.bot.delete_message(chat_id, message_id)
