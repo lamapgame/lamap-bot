@@ -290,7 +290,7 @@ async def block_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     try:
         compute_ban_unban(reciever, True)
         await interactions.BLOCK_USER(update, reciever)
-    except Exception as e:
+    except Exception:
         await interactions.CANNOT_DO_THIS(update)
 
 
@@ -350,7 +350,8 @@ app.add_handler(CommandHandler("rem", rem_nkap))
 app.add_handler(CommandHandler("ret", ret_nkap))
 app.add_handler(CommandHandler("senta", block_user))
 app.add_handler(CommandHandler("unsenta", unblock_user))
-# FORCE commands - only for super admins - TO USE WITH EXTRA CAUTION # todo: add handlers for this
+# FORCE commands - only for super admins - TO USE WITH EXTRA CAUTION
+# todo: add handlers for these
 app.add_handler(CommandHandler("FORCE_nkap_reset", transfer_nkap))
 app.add_handler(CommandHandler("FORCE_stats_reset", transfer_nkap))
 
