@@ -5,82 +5,74 @@ class GameDoesntExistError(Exception):
 class GameAlreadyExistError(Exception):
     """is thrown when there's already a game in a chat"""
 
-    pass
+
+class CannotTransferToUnknownPlayerError(Exception):
+    """is thrown when a player tries to transfer money to an unknown player"""
+
+
+class CannotTransferToSelfError(Exception):
+    """is thrown when a player tries to transfer money to themselves"""
+
+
+class CannotTransferToBotError(Exception):
+    """is thrown when a player tries to transfer money to the bot"""
+
+
+class CannotTransferToBannedError(Exception):
+    """is thrown when a player tries to transfer money to a banned player"""
 
 
 class NotEnoughNkapError(Exception):
     """is thrown when a user doesn't have enough nkap for an operation"""
 
-    pass
-
 
 class NotEnoughPlayersError(Exception):
     """is thrown when the number of players is less than the max number of players"""
-
-    pass
 
 
 class PlayerAlreadyInGameError(Exception):
     """is thrown when a player is already in a game"""
 
-    pass
-
 
 class PlayerIsBanned(Exception):
     """is thrown when a player is banned from the bot"""
-
-    pass
 
 
 class PlayerIsPoor(Exception):
     """is thrown when a player doesn't have enough money bot"""
 
-    pass
-
 
 class PlayerNotInGameError(Exception):
     """is thrown when a player is not in a game"""
-
-    pass
 
 
 class TooManyPlayersError(Exception):
     """is thrown when the number of players exceeds the max number of players"""
 
-    pass
-
 
 class NotVerifiedError(Exception):
     """is thrown when a user is not verified or banned"""
-
-    pass
 
 
 class LobbyClosedError(Exception):
     """is thrown when a game lobby has been closed"""
 
-    pass
-
 
 class DeckEmptyError(Exception):
     """a rare issue where the deck is empty"""
-
-    pass
 
 
 class DifferentSuitError(Exception):
     """is thrown when a player tries to play a card of a different suit"""
 
-    pass
+
+class UserIsBanned(Exception):
+    """is thrown when a player is banned from the bot"""
 
 
 class CannotRemoveControllerError(Exception):
     """is thrown when a player tries to remove the current controller"""
 
-    pass
-
 
 class CannotRemoveLastPlayer(Exception):
     """is thrown when a player tries to remove the current controller"""
-
-    pass
