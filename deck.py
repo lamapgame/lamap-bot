@@ -222,13 +222,28 @@ class Deck:
         sum_of_cards = 0
         number_of_threes = 0
         number_of_sevens = 0
+        # Booleans to check if player's cut contains 3 & 4 to verify decomposed 7
+        contains_three = False
+        contains_four = False
+        # To monitor number of cards of suit similar to the first 
+        same_suit_as_first = 0
 
-        for card in hand_of_cards:
+        
+
+        for index, card in enumerate(hand_of_cards):
             sum_of_cards += card.value
+            if index == 0:
+                suit = card.suit
             if card.value == 3:
                 number_of_threes += 1
+                contains_three = True
             if card.value == 7:
                 number_of_sevens += 1
+            if card.value == 4:
+                contains_four = True
+            if card.suit == suit:
+                same_suit_as_first += 1
+
 
 
         if sum_of_cards <= 21:
@@ -239,6 +254,10 @@ class Deck:
             special_cards.append(Card("x", 777, self.design))
         if sum_of_cards <= 17:
             special_cards.append(Card("x", 16, self.design))
+        if number_of_sevens >= 2 and contains_three and contains_four:
+            special_cards.append(Card("x", 7734, self.design))
+        if same_suit_as_first == 5:
+            special_cards.append(Card("x", 99, self.design))
 
 
         return special_cards
