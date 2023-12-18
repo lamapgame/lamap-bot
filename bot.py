@@ -6,6 +6,7 @@ It declares the bot's handlers and starts the bot.
 import logging
 
 from telegram import Update
+from telegram.error import TelegramError
 from telegram.ext import (
     ApplicationBuilder,
     CommandHandler,
@@ -32,7 +33,7 @@ from common.models import add_user
 
 from orchestrator import Orchestrator
 
-from config import TOKEN, DATABASE_URL
+from config import SUPER_ADMIN_LIST, TOKEN, DATABASE_URL
 
 
 # Enable logging
@@ -54,6 +55,36 @@ async def start(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
         add_user(user)
 
     await interactions.INIT_USER(update)
+
+
+async def kill_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """kills the game in the current chat"""
+
+    is_admin = False
+    is_super_admin = False
+    user = update.effective_user
+
+    if update.effective_chat and user:
+        chat_id = update.effective_chat.id
+
+        if chat_id in orchestrator.games:
+            chat_admins = await update.effective_chat.get_administrators()
+            if user in (admin.user for admin in chat_admins):
+                is_admin = True
+            if str(user.id) in SUPER_ADMIN_LIST:
+                is_super_admin = True
+
+            game = orchestrator.games[chat_id]
+            if is_admin or is_super_admin:
+                await orchestrator.delete_game_messages(chat_id, context)
+                game.end_game("KILL")
+                game.killer = user
+                await interactions.END_GAME(context, chat_id, game)
+                orchestrator.end_game(chat_id, context)
+            else:
+                await interactions.NOT_ADMIN(update)
+        else:
+            await interactions.CANNOT_KILL_GAME(update)
 
 
 async def learn(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -91,8 +122,8 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                     msg.message_id,
                     True,
                 )
-            except Exception:
-                # log: can not pin
+            except TelegramError:
+                # the bot lacks rights to pin in group
                 pass
 
             game.add_message_to_delete(msg.message_id)
@@ -146,6 +177,7 @@ app.add_handler(CommandHandler("learn", learn))
 
 # Game handlers
 app.add_handler(CommandHandler("play", start_new_game))
+app.add_handler(CommandHandler("tuer", kill_game))
 
 # Stats handlers
 app.add_handler(CommandHandler("stats", show_stats))

@@ -23,7 +23,7 @@ MAX_PLAYER_NUMBER = 4
 
 CARDS_DESIGNS = ["DEFAULT", "GALATIC", "LUXURY"]
 
-ReasonType = Literal["NORMAL", "KORA", "DBL_KORA", "AFK", "SPECIAL", "QUIT"]
+ReasonType = Literal["NORMAL", "KORA", "DBL_KORA", "AFK", "SPECIAL", "QUIT", "KILL"]
 
 
 class Play(NamedTuple):
@@ -70,6 +70,7 @@ class Game:
         self.controlling_player = None
         self.controlling_card = None
         self.prev_controlling_card = None
+        self.killer: User | None = None
 
         # end of game computation
         self.winners: list[Player] = []
@@ -154,6 +155,11 @@ class Game:
         """Compute the score and end the game by setting the winners and losers"""
         self.started = False
         self.end_reason = reason
+
+        if reason == "KILL":
+            self.losers = []
+            self.winners = []
+            return self.winners, self.losers, reason
 
         # if the game ends by afk
         if reason == "AFK":
