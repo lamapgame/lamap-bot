@@ -36,7 +36,11 @@ async def INIT_USER(update: Update) -> None:
                 f"Ao {update.effective_user.first_name}.\nBienvenue sur Lamap Bot. c'est en 3 étapes! \n\n1. Tchouk moi dans un groupe\n2. Mets moi ADMIN\n3. Lance /play et on se met bien. \n\nSi tu souhaites apprendre à jouer, lance /learn et je t'explique tout!"
             )
     else:
-        await send_reply_message(update, "DM moi!")
+        await send_reply_message(
+            update,
+            "Bienvenue sur Lamap Bot.\n"
+            "Pour jouer, lance /play <montant> et je vous met bien.",
+        )
 
 
 async def LEARN(update: Update) -> None:
@@ -103,6 +107,16 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
             for player in game.winners
         ]
     )
+
+    if game.end_reason == "KILL":
+        if not game.killer:
+            raise ValueError("No killer")
+
+        message = await context.bot.send_message(
+            chat_id,
+            f"🔨 {game.killer.first_name} a tué la partie. On remet ça?",
+        )
+        return message
 
     if game.end_reason == "AFK":
         message = await context.bot.send_animation(
@@ -321,3 +335,13 @@ async def ACHIEVEMENTS_DETAILS(
         f"Obtenu {date_from_now}"
     )
     await query.answer(text, show_alert=True)
+
+
+async def CANNOT_KILL_GAME(update: Update) -> None:
+    await send_reply_message(update, "Tu ne peux pas tuer une partie qui n'existe pas.")
+
+
+async def NOT_ADMIN(update: Update) -> None:
+    await send_reply_message(
+        update, "Tara, tu n'as pas les accréditations pour faire ça."
+    )
