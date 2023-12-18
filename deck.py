@@ -92,7 +92,7 @@ class Card:
     def __init__(
         self,
         suit: Literal["h", "s", "c", "d", "x"],
-        value: Literal[3, 4, 5, 6, 7, 8, 9, 10, 21, 333, 777, 7734, 16],
+        value: Literal[3, 4, 5, 6, 7, 8, 9, 10, 21, 333, 777, 7734, 16, 99],
         design: Literal["DEFAULT", "GALATIC", "LUXURY", "OLD"] = "DEFAULT",
     ) -> None:
         self.suit: Literal["h", "s", "c", "d", "x"] = suit
@@ -107,7 +107,7 @@ class Card:
             if suit == "d"
             else "*"
         )
-        self.value: Literal[3, 4, 5, 6, 7, 8, 9, 10, 21, 333, 777, 7734, 16] = value
+        self.value = value
         self.sticker: str = STICKERS[design][f"{self.suit}_{self.value}"]
         self.id = f"{self.suit}_{self.value}"
 
@@ -214,6 +214,39 @@ class Deck:
 
         self.design = design
 
+
+    def compute_cards(self, hand_of_cards: list[Card]) -> list[Card]:
+        """" find if cards are eligible to create a special card """
+        special_cards = []
+
+        sum_of_cards = 0
+        number_of_threes = 0
+        number_of_sevens = 0
+
+        for card in hand_of_cards:
+            sum_of_cards += card.value
+            if card.value == 3:
+                number_of_threes += 1
+            if card.value == 7:
+                number_of_sevens += 1
+
+
+        if sum_of_cards <= 21:
+            special_cards.append(Card("x", 21, self.design))
+        if number_of_threes >= 3:
+            special_cards.append(Card("x", 333, self.design))
+        if number_of_sevens >= 3:
+            special_cards.append(Card("x", 777, self.design))
+        if sum_of_cards <= 17:
+            special_cards.append(Card("x", 16, self.design))
+
+
+        return special_cards
+
     def cut_cards(self, player: Player):
-        player.hand_of_cards = self.cards[:5]
+        players_cut = self.cards[:5]
+        special_card = self.compute_cards(players_cut)
+        player.hand_of_cards += special_card
         del self.cards[:5]
+
+

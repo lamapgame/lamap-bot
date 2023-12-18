@@ -18,6 +18,7 @@ class Player:
         self.is_controller = False
 
         self.hand_of_cards: list[Any] = []
+        print("Hand od cards:", self.hand_of_cards)
         self.turn_started_time = datetime.now()
 
     def __eq__(self, p: object) -> bool:
