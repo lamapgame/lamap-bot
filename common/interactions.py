@@ -8,6 +8,7 @@ from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     Update,
+    User,
 )
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
@@ -345,3 +346,98 @@ async def NOT_ADMIN(update: Update) -> None:
     await send_reply_message(
         update, "Tara, tu n'as pas les accréditations pour faire ça."
     )
+
+
+async def TRANSFER_NKAP(
+    update: Update, amount: int, sender_name: str, reciever_name: str
+):
+    await send_reply_message(
+        update, f"{sender_name} a donné {n_format(amount)} à {reciever_name}"
+    )
+
+
+async def CANNOT_TRANSFER_NKAP(
+    update: Update,
+    reason: Literal[
+        "banned",
+        "bot",
+        "self",
+        "not_enough",
+        "unknown",
+        "no_nkap_specified",
+        "no_reply",
+        "neg",
+        "admin",
+    ],
+) -> None:
+    if reason == "banned":
+        await send_reply_message(update, "Be cool, tu ne peux pas donner à un banni.")
+
+    elif reason == "bot":
+        await send_reply_message(
+            update, "Tu me donnes les dos là, tu ne verras plus jamais ça."
+        )
+
+    elif reason == "self":
+        await send_reply_message(
+            update,
+            "Tu ne peux pas te donner à toi même. Sinon tout le monde va être riche.",
+        )
+
+    elif reason == "not_enough":
+        await send_reply_message(update, "Tu n'as pas assez d'argent pour donner.")
+
+    elif reason == "unknown":
+        await send_reply_message(
+            update, "Tara, je ne sais pas à qui tu veux transférer l'argent là."
+        )
+
+    elif reason == "neg":
+        await send_reply_message(
+            update,
+            "Hahaha, tu dois être un free boy ein, toi là. Imagine que je te paies en négatif. Qui gagnes ?",
+        )
+
+    elif reason == "no_reply":
+        await send_reply_message(update, "Tu dois répondre à un message pour donner.")
+
+    else:
+        await send_reply_message(update, "Je ne comprends pas boss.")
+
+
+async def CANNOT_DO_THIS(update: Update) -> None:
+    await send_reply_message(update, "Je ne comprends pas boss.")
+
+
+async def DID_REM(update: Update, amount: int) -> None:
+    await send_reply_message(
+        update,
+        f"C'est fait boss. J'ai déposé {n_format(amount)} dans son compte.",
+    )
+
+
+async def DID_RET(update: Update, amount: int) -> None:
+    await send_reply_message(
+        update,
+        f"Le retour est géré. Le mboutman a payé {n_format(amount)}.",
+    )
+
+
+async def BLOCK_USER(update: Update, user: User | int) -> None:
+    if isinstance(user, int):
+        return await send_reply_message(update, f"J'ai bloqué {user}.")
+    await send_reply_message(
+        update, f"J'ai bloqué {mention(user.first_name, f'tg://user?id={user.id}')}."
+    )
+
+
+async def UNBLOCK_USER(update: Update, user: User | int) -> None:
+    if isinstance(user, int):
+        return await send_reply_message(update, f"J'ai débloqué {user}.")
+    await send_reply_message(
+        update, f"J'ai débloqué {mention(user.first_name, f'tg://user?id={user.id}')}."
+    )
+
+
+async def YOU_ARE_NOT_SUPER_ADMIN(update: Update) -> None:
+    await send_reply_message(update, "Tu n'es pas un super admin.")

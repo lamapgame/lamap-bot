@@ -5,7 +5,15 @@ from datetime import datetime
 from pony.orm import PrimaryKey, Set, Required, db_session
 
 from common.database import db
-from config import BASE_POINTS
+from common.exceptions import (
+    CannotTransferToBannedError,
+    CannotTransferToBotError,
+    CannotTransferToSelfError,
+    CannotTransferToUnknownPlayerError,
+    NotEnoughNkapError,
+    UserIsBanned,
+)
+from config import BASE_POINTS, BOT_ID
 
 if TYPE_CHECKING:
     from game import Game
@@ -84,6 +92,9 @@ def get_user(
     if not userdb:
         # log: f"[User] {user.id} - {user.first_name} first time user"
         raise ValueError("User doesn't exist in the database")
+
+    if userdb.verified is False:
+        raise UserIsBanned()
 
     gamestatsdb = GameStatisticsDB.get(user=userdb)
     achievements_query = AchievementsDB.select(lambda a: a.user == userdb)
@@ -184,6 +195,63 @@ def compute_game_stats(game: Game):
             stats.losses_dbl_kora += 1
         if game.end_reason == "SPECIAL":
             stats.losses_special += 1
+
+
+@db_session
+def compute_transfer_nkap(from_id: int, to_id: int, amount: int):
+    """Transfer nkap from one user to another"""
+    userdb_from = UserDB.get(id=from_id)
+    userdb_to = UserDB.get(id=to_id)
+
+    if userdb_to is None:
+        raise CannotTransferToUnknownPlayerError()
+
+    stats_from = GameStatisticsDB.get(user=userdb_from)
+    stats_to = GameStatisticsDB.get(user=userdb_to)
+
+    if userdb_from.id == userdb_to.id:
+        raise CannotTransferToSelfError()
+
+    if userdb_to.verified is False or userdb_from.verified is False:
+        raise CannotTransferToBannedError()
+
+    if stats_from.nkap >= amount:
+        stats_from.nkap -= amount
+        stats_to.nkap += amount
+    else:
+        raise NotEnoughNkapError()
+
+
+@db_session
+def compute_ret_rem(user_id: int, amount: int, ret: bool = True):
+    """Rem or Ret nkap from one user to another"""
+    userdb = UserDB.get(id=user_id)
+    stats = GameStatisticsDB.get(user=userdb)
+
+    if userdb.id == BOT_ID:
+        raise CannotTransferToBotError()
+
+    if ret:  # retour
+        stats.nkap -= amount
+    else:  # remboursement
+        stats.nkap += amount
+
+
+@db_session
+def compute_ban_unban(user_id: int | User, ban: bool = True):
+    """Ban or Unban a user"""
+    if not isinstance(user_id, int):
+        user_id = user_id.id
+
+    userdb = UserDB.get(id=user_id)
+
+    if userdb.id == BOT_ID:
+        raise CannotTransferToBotError()
+
+    if ban:  # ban
+        userdb.verified = False
+    else:  # unban
+        userdb.verified = True
 
 
 # ----------------------
