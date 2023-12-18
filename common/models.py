@@ -209,9 +209,6 @@ def compute_transfer_nkap(from_id: int, to_id: int, amount: int):
     stats_from = GameStatisticsDB.get(user=userdb_from)
     stats_to = GameStatisticsDB.get(user=userdb_to)
 
-    if userdb_from.id == userdb_to.id:
-        raise CannotTransferToSelfError()
-
     if userdb_to.verified is False or userdb_from.verified is False:
         raise CannotTransferToBannedError()
 

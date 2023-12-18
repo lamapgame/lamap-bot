@@ -187,8 +187,11 @@ async def transfer_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
             try:
                 if reciever.id == BOT_ID:
                     raise CannotTransferToBotError()
+                if sender.id == reciever.id:
+                    raise CannotTransferToSelfError()
 
                 compute_transfer_nkap(sender.id, reciever.id, amount)
+
                 await interactions.TRANSFER_NKAP(
                     update, amount, sender.first_name, reciever.first_name
                 )
