@@ -25,6 +25,7 @@ class Orchestrator:
     def __init__(self):
         # dict of games, key = chat_id, value = Game object
         self.games: dict[int, Game] = dict()
+        self.cards_design = "DEFAULT"
 
     def new_game(
         self,

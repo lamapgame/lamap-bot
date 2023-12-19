@@ -25,6 +25,7 @@ BASE_POINTS = int(os.getenv("BASE_POINTS") or 10)
 SUPER_ADMIN_LIST = str(os.getenv("SUPER_ADMIN_LIST") or "223627873, 1077515995").split(
     ","
 )
+CARDS_DESIGN = os.getenv("CARDS_DESIGN") or "DEFAULT"
 
 
 # Achievements

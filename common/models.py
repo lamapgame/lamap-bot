@@ -8,7 +8,6 @@ from common.database import db
 from common.exceptions import (
     CannotTransferToBannedError,
     CannotTransferToBotError,
-    CannotTransferToSelfError,
     CannotTransferToUnknownPlayerError,
     NotEnoughNkapError,
     UserIsBanned,

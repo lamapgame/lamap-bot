@@ -45,7 +45,7 @@ STICKERS = {
         "x_777": "CAACAgQAAxkBAAIDlmUZ2lizB4_q_j37m5WxPop5HwcGAAKeFAACvhLIUFeyzxBM8B3fMAQ",
         "x_7734": "CAACAgQAAxkBAAIDmGUZ2lqbStK5u2lewiBLlE2g3QGEAAKwEQACaxnJUKcFUmVLJPLrMAQ",
         "x_16": "CAACAgQAAxkBAAIDmmUZ2l0K6rADoAlP5-0stufCHDGSAAJREgACZ93RUIVrLwsVdPYdMAQ",
-        "x_0": "CAACAgQAAxkBAAIDcGUZ2U5UAfUMF3u2m2o0snnupDwNAAJ9DgAC3w_JUC-XAoQfGh4hMAQ",
+        "x_99": "CAACAgQAAxkBAAIDcGUZ2U5UAfUMF3u2m2o0snnupDwNAAJ9DgAC3w_JUC-XAoQfGh4hMAQ",
     },
     "OLD": {
         "h_3": "CAACAgQAAxkBAAOzXqbjq88jyiRYK0HCxnuHVAtKL40AAtEAA2FKVA1dSx3Iy3IK3xkE",
@@ -93,7 +93,7 @@ class Card:
         self,
         suit: Literal["h", "s", "c", "d", "x"],
         value: Literal[3, 4, 5, 6, 7, 8, 9, 10, 21, 333, 777, 7734, 16],
-        design: Literal["DEFAULT", "GALATIC", "LUXURY", "OLD"] = "DEFAULT",
+        design: Literal["DEFAULT", "GALATIC", "CLASSIC", "LUXURY", "OLD"] = "DEFAULT",
     ) -> None:
         self.suit: Literal["h", "s", "c", "d", "x"] = suit
         self.icon: Literal["♥️", "♠️", "♣️", "♦️", "*"] = (
@@ -139,16 +139,6 @@ class Card:
         return self.value < c.value
 
 
-# ? Test cards - input any set to test with only that set
-# ? Do not forget to remove shuffle and
-# ? remember the cards are shared from the right to the left
-""" [
-    Card(h,3, design), Card(d,7, design), Card(d,6, design), Card(d,8, design),
-    Card(d,4, design), Card(d,3, design), Card(h,8, design), Card(h,9, design), Card(h,10, design),
-    Card(s,3, design), Card(c,3, design), Card(c,4, design), Card(c,5, design), Card(c,10, design)
-] """
-
-
 class Deck:
     """This class represents a shuffled deck of card"""
 
@@ -190,7 +180,10 @@ class Deck:
         ].copy()
 
         """
-        Test suit
+        Test deck
+        # ? Test cards - input any set to test with only that set
+        # ? Do not forget to remove the shuffle() below and
+        # ? remember the cards are shared from the right to the left
         [
             Card("h", 3, design),
             Card("d", 7, design),
