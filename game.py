@@ -21,8 +21,6 @@ from player import Player
 MIN_PLAYER_NUMBER = 2
 MAX_PLAYER_NUMBER = 4
 
-CARDS_DESIGNS = ["DEFAULT", "GALATIC", "LUXURY"]
-
 ReasonType = Literal["NORMAL", "KORA", "DBL_KORA", "AFK", "SPECIAL", "QUIT"]
 
 
@@ -59,7 +57,7 @@ class Game:
         self.chat_id = chat_id
         self.started_date = None
         self.players: list[Player] = []
-        self.deck = Deck("DEFAULT")
+        self.deck = Deck()
         self.started = False
         self.creator = user
         self.current_player = None
@@ -85,7 +83,7 @@ class Game:
         self.has_koras = has_koras
         self.has_dbl_koras = has_dbl_koras
         self.time_to_play = time_to_play
-        self.cards_design: Literal["DEFAULT", "GALATIC", "LUXURY"] = "DEFAULT"
+        self.cards_design: Literal["DEFAULT", "GALACTIC", "LUXURY"] = "DEFAULT"
 
     @property
     def current_player_index(self) -> int:
@@ -157,6 +155,16 @@ class Game:
 
         # if the game ends by afk
         if reason == "AFK":
+            if (
+                self.play_history
+                and self.play_history[-1].move.suit == "x"
+                and self.play_history[-1].player
+            ):
+                winner = self.play_history[-1].player
+                self.winners = [winner]
+                self.losers = [p for p in self.players if p.id != winner.id]
+
+        if reason == "SPECIAL":
             if self.current_player is None:
                 raise ValueError("No current player: cannot end game properly")
 
@@ -260,6 +268,10 @@ class Game:
         # but won't correctly play
         else:
             card_played, card_correctly_played = True, False
+
+            # if it is a special card, it is always playable
+            if card.suit == "x":
+                card_correctly_played = True
 
         # remove the card from the player's hand
         # and add it to the play history if it was played correctly

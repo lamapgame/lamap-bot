@@ -85,7 +85,6 @@ async def start_game(update, context, query, chat_id, orchestrator, game, user):
 
     if str(user.id) in SUPER_ADMIN_LIST:
         is_super_admin = True
-        print("super admin")
 
     if (game.creator.id == user.id) or is_admin or is_super_admin:
         try:

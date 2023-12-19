@@ -148,14 +148,16 @@ def compute_game_stats(game: Game):
         if (game.end_reason == "AFK" or game.end_reason == "QUIT") and game.round >= 3:
             nkap += nkap * 3
 
-        stats.nkap += nkap
-
         if game.end_reason == "KORA":
             stats.wins_kora += 1
+            nkap += nkap * 2
         if game.end_reason == "DBL_KORA":
             stats.wins_dbl_kora += 1
+            nkap += nkap * 4
         if game.end_reason == "SPECIAL":
             stats.wins_special += 1
+
+        stats.nkap += nkap
 
     for player in loosers:
         stats = GameStatisticsDB.get(user=player.user.id)
@@ -177,13 +179,16 @@ def compute_game_stats(game: Game):
         if game.end_reason == "QUIT":
             stats.quit += 1
 
-        stats.nkap -= nkap
         if game.end_reason == "KORA":
             stats.losses_kora += 1
+            nkap -= nkap * 2
         if game.end_reason == "DBL_KORA":
             stats.losses_dbl_kora += 1
+            nkap -= nkap * 4
         if game.end_reason == "SPECIAL":
             stats.losses_special += 1
+
+        stats.nkap -= nkap
 
 
 # ----------------------
