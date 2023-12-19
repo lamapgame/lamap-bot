@@ -202,6 +202,42 @@ class Deck:
     def __init__(self, design: DesignType = DEFAULT_DESIGN):
         self.cards: list[Card] = [
             Card("h", 3, design),
+            Card("h", 4, design),
+            Card("h", 5, design),
+            Card("h", 6, design),
+            Card("h", 7, design),
+            Card("h", 8, design),
+            Card("h", 9, design),
+            Card("h", 10, design),
+            Card("c", 3, design),
+            Card("c", 4, design),
+            Card("c", 5, design),
+            Card("c", 6, design),
+            Card("c", 7, design),
+            Card("c", 8, design),
+            Card("c", 9, design),
+            Card("c", 10, design),
+            Card("d", 3, design),
+            Card("d", 4, design),
+            Card("d", 5, design),
+            Card("d", 6, design),
+            Card("d", 7, design),
+            Card("d", 8, design),
+            Card("d", 9, design),
+            Card("d", 10, design),
+            Card("s", 3, design),
+            Card("s", 4, design),
+            Card("s", 5, design),
+            Card("s", 6, design),
+            Card("s", 7, design),
+            Card("s", 8, design),
+            Card("s", 9, design),
+        ].copy()
+
+        """
+        Test suit
+        [
+            Card("h", 3, design),
             Card("d", 3, design),
             Card("s", 3, design),
             Card("d", 6, design),
@@ -216,62 +252,10 @@ class Deck:
             Card("c", 5, design),
             Card("c", 10, design),
         ].copy()
-        # [
-        #     Card("h", 3, design),
-        #     Card("h", 4, design),
-        #     Card("h", 5, design),
-        #     Card("h", 6, design),
-        #     Card("h", 7, design),
-        #     Card("h", 8, design),
-        #     Card("h", 9, design),
-        #     Card("h", 10, design),
-        #     Card("c", 3, design),
-        #     Card("c", 4, design),
-        #     Card("c", 5, design),
-        #     Card("c", 6, design),
-        #     Card("c", 7, design),
-        #     Card("c", 8, design),
-        #     Card("c", 9, design),
-        #     Card("c", 10, design),
-        #     Card("d", 3, design),
-        #     Card("d", 4, design),
-        #     Card("d", 5, design),
-        #     Card("d", 6, design),
-        #     Card("d", 7, design),
-        #     Card("d", 8, design),
-        #     Card("d", 9, design),
-        #     Card("d", 10, design),
-        #     Card("s", 3, design),
-        #     Card("s", 4, design),
-        #     Card("s", 5, design),
-        #     Card("s", 6, design),
-        #     Card("s", 7, design),
-        #     Card("s", 8, design),
-        #     Card("s", 9, design),
-        # ].copy()
-
-        """
-        Test suit
-        [
-            Card("h", 3, design),
-            Card("d", 7, design),
-            Card("d", 6, design),
-            Card("d", 8, design),
-            Card("d", 4, design),
-            Card("d", 3, design),
-            Card("h", 8, design),
-            Card("h", 9, design),
-            Card("h", 10, design),
-            Card("s", 3, design),
-            Card("c", 3, design),
-            Card("c", 4, design),
-            Card("c", 5, design),
-            Card("c", 10, design),
-        ]
         """
 
         # a deck is shuffled by default
-        # shuffle(self.cards)
+        shuffle(self.cards)
 
         self.design = design
 
