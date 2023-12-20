@@ -189,7 +189,6 @@ def compute_game_stats(game: Game):
             stats.afk += 1
         if game.end_reason == "QUIT":
             stats.quit += 1
-
         if game.end_reason == "KORA":
             stats.losses_kora += 1
             nkap -= nkap * 2

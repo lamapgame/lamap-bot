@@ -196,6 +196,10 @@ class Game:
                 ):
                     reason = "DBL_KORA"
 
+            # if the game ends by kora or dbl kora
+            # the reason is set to kora or dbl kora
+            self.end_reason = reason
+
             self.losers = [
                 p for p in self.players if p.id != self.controlling_player.id
             ]
