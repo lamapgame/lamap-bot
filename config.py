@@ -8,6 +8,10 @@ load_dotenv()
 # ----------------
 # Telegram token
 TOKEN = os.getenv("TOKEN")
+
+# Bot Id
+BOT_ID = int(os.getenv("BOT_ID") or 1397177261)
+
 # Connection url to db
 DATABASE_URL = os.getenv("DATABASE_URL")
 

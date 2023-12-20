@@ -1,14 +1,18 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
+from common.exceptions import UserIsBanned
 
 from common.models import get_user
 from common.utils import mention, n_format
 from config import ACHIEVEMENTS
 
 
-async def show_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def show_stats(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
     """Shows a user's stats"""
-    user = update.effective_user
+    if update.message and update.message.reply_to_message is not None:
+        user = update.message.reply_to_message.from_user
+    else:
+        user = update.effective_user
     chat = update.effective_chat
     message = update.message
     if not user or not message or not chat:
@@ -28,6 +32,10 @@ async def show_stats(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
         keyboard = create_achievement_matrix(a)
         await message.reply_text(stats_txt, reply_markup=InlineKeyboardMarkup(keyboard))
+    except UserIsBanned:
+        await message.reply_text(
+            "Tu es ban du bot, gère avec les admins dans @lamapsupport"
+        )
     except ValueError:
         await message.reply_text(
             "Je ne te know pas encore, tape /start j'ouvre ton registre"

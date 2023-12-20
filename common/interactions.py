@@ -8,6 +8,7 @@ from telegram import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     Update,
+    User,
 )
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
@@ -36,7 +37,11 @@ async def INIT_USER(update: Update) -> None:
                 f"Ao {update.effective_user.first_name}.\nBienvenue sur Lamap Bot. c'est en 3 étapes! \n\n1. Tchouk moi dans un groupe\n2. Mets moi ADMIN\n3. Lance /play et on se met bien. \n\nSi tu souhaites apprendre à jouer, lance /learn et je t'explique tout!"
             )
     else:
-        await send_reply_message(update, "DM moi!")
+        await send_reply_message(
+            update,
+            "Bienvenue sur Lamap Bot.\n"
+            "Pour jouer, lance /play <montant> et je vous met bien.",
+        )
 
 
 async def LEARN(update: Update) -> None:
@@ -109,6 +114,16 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
             chat_id,
             "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
             caption=f"{winners} a gagné avec une carte spéciale. On remet ça?",
+        )
+        return message
+
+    if game.end_reason == "KILL":
+        if not game.killer:
+            raise ValueError("No killer")
+
+        message = await context.bot.send_message(
+            chat_id,
+            f"🔨 {game.killer.first_name} a tué la partie. On remet ça?",
         )
         return message
 
@@ -329,3 +344,108 @@ async def ACHIEVEMENTS_DETAILS(
         f"Obtenu {date_from_now}"
     )
     await query.answer(text, show_alert=True)
+
+
+async def CANNOT_KILL_GAME(update: Update) -> None:
+    await send_reply_message(update, "Tu ne peux pas tuer une partie qui n'existe pas.")
+
+
+async def NOT_ADMIN(update: Update) -> None:
+    await send_reply_message(
+        update, "Tara, tu n'as pas les accréditations pour faire ça."
+    )
+
+
+async def TRANSFER_NKAP(
+    update: Update, amount: int, sender_name: str, reciever_name: str
+):
+    await send_reply_message(
+        update, f"{sender_name} a donné {n_format(amount)} à {reciever_name}"
+    )
+
+
+async def CANNOT_TRANSFER_NKAP(
+    update: Update,
+    reason: Literal[
+        "banned",
+        "bot",
+        "self",
+        "not_enough",
+        "unknown",
+        "no_nkap_specified",
+        "no_reply",
+        "neg",
+        "admin",
+    ],
+) -> None:
+    if reason == "banned":
+        await send_reply_message(update, "Be cool, tu ne peux pas donner à un banni.")
+
+    elif reason == "bot":
+        await send_reply_message(
+            update, "Tu me donnes les dos là, tu ne verras plus jamais ça."
+        )
+
+    elif reason == "self":
+        await send_reply_message(
+            update,
+            "Tu ne peux pas te donner à toi même. Sinon tout le monde va être riche.",
+        )
+
+    elif reason == "not_enough":
+        await send_reply_message(update, "Tu n'as pas assez d'argent pour donner.")
+
+    elif reason == "unknown":
+        await send_reply_message(
+            update, "Tara, je ne sais pas à qui tu veux transférer l'argent là."
+        )
+
+    elif reason == "neg":
+        await send_reply_message(
+            update,
+            "Hahaha, tu dois être un free boy ein, toi là. Imagine que je te paies en négatif. Qui gagnes ?",
+        )
+
+    elif reason == "no_reply":
+        await send_reply_message(update, "Tu dois répondre à un message pour donner.")
+
+    else:
+        await send_reply_message(update, "Je ne comprends pas boss.")
+
+
+async def CANNOT_DO_THIS(update: Update) -> None:
+    await send_reply_message(update, "Je ne comprends pas boss.")
+
+
+async def DID_REM(update: Update, amount: int) -> None:
+    await send_reply_message(
+        update,
+        f"C'est fait boss. J'ai déposé {n_format(amount)} dans son compte.",
+    )
+
+
+async def DID_RET(update: Update, amount: int) -> None:
+    await send_reply_message(
+        update,
+        f"Le retour est géré. Le mboutman a payé {n_format(amount)}.",
+    )
+
+
+async def BLOCK_USER(update: Update, user: User | int) -> None:
+    if isinstance(user, int):
+        return await send_reply_message(update, f"J'ai bloqué {user}.")
+    await send_reply_message(
+        update, f"J'ai bloqué {mention(user.first_name, f'tg://user?id={user.id}')}."
+    )
+
+
+async def UNBLOCK_USER(update: Update, user: User | int) -> None:
+    if isinstance(user, int):
+        return await send_reply_message(update, f"J'ai débloqué {user}.")
+    await send_reply_message(
+        update, f"J'ai débloqué {mention(user.first_name, f'tg://user?id={user.id}')}."
+    )
+
+
+async def YOU_ARE_NOT_SUPER_ADMIN(update: Update) -> None:
+    await send_reply_message(update, "Tu n'es pas un super admin.")
