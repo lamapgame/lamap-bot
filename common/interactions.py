@@ -109,6 +109,14 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
         ]
     )
 
+    if game.end_reason == "SPECIAL":
+        message = await context.bot.send_animation(
+            chat_id,
+            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
+            caption=f"{winners} a gagné avec une carte spéciale. On remet ça?",
+        )
+        return message
+
     if game.end_reason == "KILL":
         if not game.killer:
             raise ValueError("No killer")

@@ -1,13 +1,53 @@
 from __future__ import annotations
 
 from random import shuffle
-from typing import Literal
+from typing import Literal, cast
 
 from player import Player
 
 # ruff: noqa: E501
 
 STICKERS = {
+    "GALACTIC": {
+        "h_3": "CAACAgQAAxkBAAEoWDNlgeH-q5r2uL0fJDW72xFdP56THwACcRcAApAkEFC9RTjIN5Xt9TME",
+        "h_4": "CAACAgQAAxkBAAEoWDdlgeIP3BsHFFOEDRQbVOtSUy9pcgACbBEAAr79EVARwQM4d2FdpzME",
+        "h_5": "CAACAgQAAxkBAAEoWDllgeIc1K54VenEsM_Gimeg69IwjgACDBAAAgRjEFBH6QR_0LwgojME",
+        "h_6": "CAACAgQAAxkBAAEoWDtlgeIrlEeOrI2xOBSFoSt4sD_ExgACwBEAArr9EFD0opkO3A5MUTME",
+        "h_7": "CAACAgQAAxkBAAEoWD1lgeI5D3aXzw5fxbUGbNA2PMiAewACHRIAAnl2EFDMWiMN8iOj8TME",
+        "h_8": "CAACAgQAAxkBAAEoWEFlgeJgcaSNND0RpQRiUKBZRMNccgAC5RMAArfeEVBQZPrRJX4LVTME",
+        "h_9": "CAACAgQAAxkBAAEoWENlgeJ79UDvcSyzMNmhr1NTs3rMVQACIRAAAs2NCFBLyZeEBfqXDzME",
+        "h_10": "CAACAgQAAxkBAAEoWEdlgeKGW8TY57iAPWA1cy3Q3CI6KAACYREAAp1OEFAxTYIUq-8KpTME",
+        "c_3": "CAACAgQAAxkBAAEoWEllgeKWwuxs536zazj-HTzDeefdCAACrBQAAgGYEFAPaJzJk1ppVjME",
+        "c_4": "CAACAgQAAxkBAAEoWEtlgeKhAj7g_DPk5_5bM2ctp6unaQACQhQAAuIJEFBDpyJ0P4Ux1jME",
+        "c_5": "CAACAgQAAxkBAAEoWE1lgeKpQW1VUds2tUdVlQtcJfwotQACCxEAAnVfCFBU4TcAAbiPaFUzBA",
+        "c_6": "CAACAgQAAxkBAAEoWFNlgeK24KGv8uUef4_PqhjE_PORmwACFxQAAvVAEVDZH0JThLqMGDME",
+        "c_7": "CAACAgQAAxkBAAEoWFVlgeK_zZn-KSPM_SBcnN03BVeThgACDBQAAthwEVDGiceiCFZ5iDME",
+        "c_8": "CAACAgQAAxkBAAEoWFllgeLMNiNdK-5euVK81R5bRbP_LgACExQAAgr9EVDszPzj267uyTME",
+        "c_9": "CAACAgQAAxkBAAEoWFtlgeLXLSrjNhb7f-Yd4oKIucuncgACoRMAArvREFBU9HSddIAkLDME",
+        "c_10": "CAACAgQAAxkBAAEoWF1lgeLl2lV4kuxRJZkgnHIGa01TRgACLxIAAv0_EVAyhNMEnBEewjME",
+        "d_3": "CAACAgQAAxkBAAEoWF9lgeL9VnxVMpHcTJWkvYnk2ugAAXEAAuYSAALaGRFQPi2q5F6UPcUzBA",
+        "d_4": "CAACAgQAAxkBAAEoWGFlgeMKCk_0k4EqiIs9HDS-rkNtgQACaxQAAha9CVDGug9S7UUCcTME",
+        "d_5": "CAACAgQAAxkBAAEoWGRlgeMUc1S8LwZgWhiloNEs0AABPB8AAucSAAIq5hBQA5HTLSMv7qEzBA",
+        "d_6": "CAACAgQAAxkBAAEoWGllgeMfMCt2gxM8V3wGluZ706NtKwACnRAAApblEVAaRQ8VXN4yKjME",
+        "d_7": "CAACAgQAAxkBAAEoWGtlgeMrckVTCfa5vbWw9Y2OBSTmJgAChBAAAp4MEFDgpHIdaGBbxjME",
+        "d_8": "CAACAgQAAxkBAAEoWG1lgeM2KxC-zHDXI3yuAd4HlKHEIQAC4RIAAmPHCFBJY4v_ojOFYzME",
+        "d_9": "CAACAgQAAxkBAAEoWG9lgeM_byghJzPcTdzWYdOqN7FKqAACRRYAAijuEFDkUeXDxikETDME",
+        "d_10": "CAACAgQAAxkBAAEoWHFlgeNKcQzYZsh5NS3pPWopQKPziwACvBQAArcBEFB1eLfqEKxU3zME",
+        "s_3": "CAACAgQAAxkBAAEoWHVlgeNqcsUeDRSI96vbWgAB07908XAAAhYSAAJa4xBQCEen7kNUfPkzBA",
+        "s_4": "CAACAgQAAxkBAAEoWHdlgeNz_jOD8zvwUaWChtbajHmnKgACChQAAnjoEVDuw6tP2dLhuTME",
+        "s_5": "CAACAgQAAxkBAAEoWHllgeN9hGkogCEDpMbgoJmhtxtP7gACXRIAAjM0EFBPs4NcBXgP8jME",
+        "s_6": "CAACAgQAAxkBAAEoWHtlgeOHt0QdQnMExa7HlaNgXsztowAC5REAAiplEVBJqaoz194pmzME",
+        "s_7": "CAACAgQAAxkBAAEoWH1lgeOQlAXZUswsHyo-mvtbWd_MqwAC8xQAAg7cEVAOOtzTmYUI7zME",
+        "s_8": "CAACAgQAAxkBAAEoWH9lgeOYNJUz9S3MTNjsybK81lv8RgACyA8AArmTCFAjKkC19xuAGTME",
+        "s_9": "CAACAgQAAxkBAAEoWIFlgeOiFF6c-K7_npk85byxugfV4QAChhcAAh45EVB-CkFL6F-xhDME",
+        "x_21": "CAACAgQAAxkBAAEoWINlgeOvllulP-9oIKQKODMJA_Dl9AAC2RIAAjaAEVDf1JnTgKOinzME",
+        "x_333": "CAACAgQAAxkBAAEoWIVlgeO6J9uzCBL_O-8XTTp0ljEsAQAC1BIAAooeCVDP94Fd8BZjAzME",
+        "x_777": "CAACAgQAAxkBAAEoWIdlgePFJOWRFvlMbxJArkLjufr8SgACyRYAAgIWEFCTVl_JwTWVlzME",
+        "x_7734": "CAACAgQAAxkBAAEoWIllgePRZiSFDwSqG13KTYx8oZtwNAACQSMAAg7nEVDTK53v8eeSZjME",
+        "x_16": "CAACAgQAAxkBAAEoWItlgePgfOnE5iovznEuh2Lroog5RwAC5RAAArA_EVClGgX11dN_GjME",
+        "x_0": "CAACAgQAAxkBAAEoWI1lgePrlzQH1nEZfC8ahdr03NIW7gACIBQAAhtLEVBxAvLCBBz_jzME",
+        "x_99": "CAACAgQAAxkBAAEoWI9lgeP99bX63GWtkgO4XQ4ixtvFGQACIxQAAp-2EVAi7U1BNsZBUjME",
+    },
     "DEFAULT": {
         "h_3": "CAACAgQAAxkBAAIDgmUZ2eeA0OjKd2r2oaEiq1R0h56kAALIDwAC67XQUEkQSivH_ZX9MAQ",
         "h_4": "CAACAgQAAxkBAAIDhGUZ2fdgqjMaziYmFKKZYQpJRg-RAAKxEgACUfTRUIZ6rnSbl6dQMAQ",
@@ -44,8 +84,9 @@ STICKERS = {
         "x_333": "CAACAgQAAxkBAAIDlGUZ2lZ3NG1KOeTEX3_NN_mKkMNGAAK2EQACGfDRUOZTjMMsjxYiMAQ",
         "x_777": "CAACAgQAAxkBAAIDlmUZ2lizB4_q_j37m5WxPop5HwcGAAKeFAACvhLIUFeyzxBM8B3fMAQ",
         "x_7734": "CAACAgQAAxkBAAIDmGUZ2lqbStK5u2lewiBLlE2g3QGEAAKwEQACaxnJUKcFUmVLJPLrMAQ",
-        "x_16": "CAACAgQAAxkBAAIDmmUZ2l0K6rADoAlP5-0stufCHDGSAAJREgACZ93RUIVrLwsVdPYdMAQ",
-        "x_0": "CAACAgQAAxkBAAIDcGUZ2U5UAfUMF3u2m2o0snnupDwNAAJ9DgAC3w_JUC-XAoQfGh4hMAQ",
+        "x_16": "CAACAgQAAxkBAAEoWC1lgeEq4FGot2lEV3oEV409Fjdw9gACURIAAmfd0VCFay8LFXT2HTME",
+        "x_0": "CAACAgQAAxkBAAEoWC9lgeGHUWF-VMdPUeVZzvhqKl59IgACfQ4AAt8PyVAvlwKEHxoeITME",
+        "x_99": "CAACAgQAAxkBAAEoWCdlgeDksNLi00NTu2_Avz9l01O6qgAC6BAAAgInCVA5tJmDIMxt9DME",
     },
     "OLD": {
         "h_3": "CAACAgQAAxkBAAOzXqbjq88jyiRYK0HCxnuHVAtKL40AAtEAA2FKVA1dSx3Iy3IK3xkE",
@@ -82,8 +123,15 @@ STICKERS = {
         "x_21": "CAACAgQAAxkBAAMNXuLPGA6r1loi2c8EPix80dSsRLQAAu4AA2FKVA3qDTAidx882BoE",
         "x_333": "CAACAgQAAxkBAAMPXuLPMo_m6LJtBCoJEKQCZbPK9wcAAu8AA2FKVA2_-eKiP4VxnhoE",
         "x_777": "CAACAgQAAxkBAAMRXuLPUL3O4bkGxyRvO9FDI5ItDiMAAvAAA2FKVA3j7_ZjyANyTBoE",
+        "x_7734": "CAACAgQAAxkBAAIDmGUZ2lqbStK5u2lewiBLlE2g3QGEAAKwEQACaxnJUKcFUmVLJPLrMAQ",
+        "x_16": "CAACAgQAAxkBAAEoWC1lgeEq4FGot2lEV3oEV409Fjdw9gACURIAAmfd0VCFay8LFXT2HTME",
+        "x_0": "CAACAgQAAxkBAAEoWC9lgeGHUWF-VMdPUeVZzvhqKl59IgACfQ4AAt8PyVAvlwKEHxoeITME",
+        "x_99": "CAACAgQAAxkBAAEoWCdlgeDksNLi00NTu2_Avz9l01O6qgAC6BAAAgInCVA5tJmDIMxt9DME",
     },
 }
+
+DesignType = Literal["DEFAULT", "GALACTIC", "LUXURY", "OLD"]
+DEFAULT_DESIGN: DesignType = "GALACTIC"
 
 
 class Card:
@@ -92,8 +140,8 @@ class Card:
     def __init__(
         self,
         suit: Literal["h", "s", "c", "d", "x"],
-        value: Literal[3, 4, 5, 6, 7, 8, 9, 10, 21, 333, 777, 7734, 16],
-        design: Literal["DEFAULT", "GALATIC", "LUXURY", "OLD"] = "DEFAULT",
+        value: Literal[3, 4, 5, 6, 7, 8, 9, 10, 21, 333, 777, 7734, 16, 99, 0],
+        design: DesignType = DEFAULT_DESIGN,
     ) -> None:
         self.suit: Literal["h", "s", "c", "d", "x"] = suit
         self.icon: Literal["♥️", "♠️", "♣️", "♦️", "*"] = (
@@ -107,7 +155,8 @@ class Card:
             if suit == "d"
             else "*"
         )
-        self.value: Literal[3, 4, 5, 6, 7, 8, 9, 10, 21, 333, 777, 7734, 16] = value
+        self.value = value
+        self.design = design
         self.sticker: str = STICKERS[design][f"{self.suit}_{self.value}"]
         self.id = f"{self.suit}_{self.value}"
 
@@ -136,25 +185,21 @@ class Card:
         return str(object=self.id) == str(c.id)
 
     def __lt__(self, c: Card) -> bool:
+        # special cards are always show higher than normal cards
+        if self.suit == "x" and c.suit != "x":
+            return True
         return self.value < c.value
 
 
 # ? Test cards - input any set to test with only that set
 # ? Do not forget to remove shuffle and
 # ? remember the cards are shared from the right to the left
-""" [
-    Card(h,3, design), Card(d,7, design), Card(d,6, design), Card(d,8, design),
-    Card(d,4, design), Card(d,3, design), Card(h,8, design), Card(h,9, design), Card(h,10, design),
-    Card(s,3, design), Card(c,3, design), Card(c,4, design), Card(c,5, design), Card(c,10, design)
-] """
 
 
 class Deck:
     """This class represents a shuffled deck of card"""
 
-    def __init__(
-        self, design: Literal["DEFAULT", "GALATIC", "LUXURY", "OLD"] = "DEFAULT"
-    ):
+    def __init__(self, design: DesignType = DEFAULT_DESIGN):
         self.cards: list[Card] = [
             Card("h", 3, design),
             Card("h", 4, design),
@@ -193,20 +238,20 @@ class Deck:
         Test suit
         [
             Card("h", 3, design),
-            Card("d", 7, design),
+            Card("d", 3, design),
+            Card("s", 3, design),
             Card("d", 6, design),
             Card("d", 8, design),
             Card("d", 4, design),
-            Card("d", 3, design),
             Card("h", 8, design),
-            Card("h", 9, design),
-            Card("h", 10, design),
-            Card("s", 3, design),
+            Card("d", 7, design),
             Card("c", 3, design),
+            Card("s", 7, design),
+            Card("h", 7, design),
             Card("c", 4, design),
             Card("c", 5, design),
             Card("c", 10, design),
-        ]
+        ].copy()
         """
 
         # a deck is shuffled by default
@@ -214,6 +259,54 @@ class Deck:
 
         self.design = design
 
+    def compute_cards(self, hand_of_cards: list[Card]) -> list[Card]:
+        """ " find if cards are eligible to create a special card"""
+        special_cards = []
+
+        sum_of_cards = 0
+        number_of_threes = 0
+        number_of_sevens = 0
+        # Booleans to check if player's cut contains 3 & 4 to verify decomposed 7
+        contains_three = False
+        contains_four = False
+        # To monitor number of cards of suit similar to the first
+        same_suit_as_first = 0
+        # default suit is the first card's suit
+        suit = hand_of_cards[0].suit
+        design: DesignType = cast(DesignType, self.design)
+
+        for index, card in enumerate(hand_of_cards):
+            sum_of_cards += card.value
+
+            if index == 0:
+                suit = card.suit
+            if card.value == 3:
+                number_of_threes += 1
+                contains_three = True
+            if card.value == 7:
+                number_of_sevens += 1
+            if card.value == 4:
+                contains_four = True
+            if card.suit == suit:
+                same_suit_as_first += 1
+
+        if sum_of_cards <= 21:
+            special_cards.append(Card("x", 21, design))
+        if number_of_threes >= 3:
+            special_cards.append(Card("x", 333, design))
+        if number_of_sevens >= 3:
+            special_cards.append(Card("x", 777, design))
+        if sum_of_cards <= 17:
+            special_cards.append(Card("x", 16, design))
+        if number_of_sevens >= 2 and contains_three and contains_four:
+            special_cards.append(Card("x", 7734, design))
+        if same_suit_as_first == 5:
+            special_cards.append(Card("x", 99, design))
+
+        return special_cards
+
     def cut_cards(self, player: Player):
-        player.hand_of_cards = self.cards[:5]
+        players_cut = self.cards[:5]
+        special_card = self.compute_cards(players_cut)
+        player.hand_of_cards = players_cut + special_card
         del self.cards[:5]
