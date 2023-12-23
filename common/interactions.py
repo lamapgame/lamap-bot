@@ -424,6 +424,27 @@ async def DID_REM(update: Update, amount: int) -> None:
     )
 
 
+async def QUIT_GAME(update: Update, user: User) -> None:
+    await send_reply_message(update, f"{user.first_name} as fui, comme d'habitude...")
+
+
+async def CANNOT_QUIT_GAME(
+    update: Update, reason: Literal["before_start", "not_in_game", "no_game"]
+) -> None:
+    if reason == "before_start":
+        await send_reply_message(
+            update, "Tu ne peux pas quitter une partie qui n'a pas encore commencé."
+        )
+    elif reason == "not_in_game":
+        await send_reply_message(
+            update, "Tu ne peux pas quitter une partie dans laquelle tu n'es pas."
+        )
+    elif reason == "no_game":
+        await send_reply_message(
+            update, "Tu ne peux pas quitter une partie qui n'existe pas."
+        )
+
+
 async def DID_RET(update: Update, amount: int) -> None:
     await send_reply_message(
         update,

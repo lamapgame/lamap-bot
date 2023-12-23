@@ -30,6 +30,8 @@ from common.exceptions import (
     CannotTransferToUnknownPlayerError,
     GameAlreadyExistError,
     NotEnoughNkapError,
+    PlayerNotInGameError,
+    PlayerRemovedBeforeGameStart,
 )
 from common.database import db
 
@@ -97,6 +99,58 @@ async def kill_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await interactions.NOT_ADMIN(update)
         else:
             await interactions.CANNOT_KILL_GAME(update)
+
+
+async def force_kick_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """kills the game in the current chat"""
+
+    # ! fix: this is a copy of kill_game, refactor this
+    is_admin = False
+    is_super_admin = False
+    user = update.effective_user
+    if update.effective_chat and user:
+        chat_admins = await update.effective_chat.get_administrators()
+        if user in (admin.user for admin in chat_admins):
+            is_admin = True
+        if str(user.id) in SUPER_ADMIN_LIST:
+            is_super_admin = True
+
+    if is_admin or is_super_admin:
+        if (
+            not update.message
+            or not update.message.reply_to_message
+            or not update.message.reply_to_message.from_user
+        ):
+            await interactions.CANNOT_DO_THIS(update)
+            return
+        context.bot_data[
+            "user_to_kick_id"
+        ] = update.message.reply_to_message.from_user.id
+        await quit_game(update, context)
+
+
+async def quit_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """/fuir command handler"""
+    user = update.effective_user
+
+    # incase the command was called by force_kick_player
+    if context.bot_data.get("user_to_kick_id"):
+        user = context.bot_data["user_to_kick_id"]
+
+    if update.effective_chat and user:
+        chat_id = update.effective_chat.id
+        if chat_id in orchestrator.games:
+            try:
+                game = orchestrator.games[chat_id]
+                game.kick_player(user.id)
+            except PlayerRemovedBeforeGameStart:
+                await interactions.QUIT_GAME(update, user)
+            except PlayerNotInGameError:
+                await interactions.CANNOT_QUIT_GAME(update, "not_in_game")
+
+        else:
+            await interactions.CANNOT_QUIT_GAME(update, "no_game")
+            return
 
 
 async def learn(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -343,6 +397,7 @@ app.add_handler(CommandHandler("learn", learn))
 # Game handlers
 app.add_handler(CommandHandler("play", start_new_game))
 app.add_handler(CommandHandler("tuer", kill_game))
+app.add_handler(CommandHandler("fuir", quit_game))
 
 # Stats handlers
 app.add_handler(CommandHandler("transfert", transfer_nkap))

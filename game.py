@@ -9,6 +9,7 @@ from common.exceptions import (
     PlayerIsBanned,
     PlayerIsPoor,
     PlayerNotInGameError,
+    PlayerRemovedBeforeGameStart,
     TooManyPlayersError,
     PlayerAlreadyInGameError,
 )
@@ -73,6 +74,7 @@ class Game:
         # end of game computation
         self.winners: list[Player] = []
         self.losers: list[Player] = []
+        self.quitters: list[Player] = []
         self.end_reason: ReasonType = "NORMAL"
 
         # messages to delete when the game starts
@@ -127,25 +129,35 @@ class Game:
         next_player_index = (self.current_player_index + 1) % len(self.players)
         return self.players[next_player_index]
 
-    def remove_player(self, player: Player) -> None:
-        self.players.remove(player)
-        if self.current_player and self.current_player == player:
-            raise CannotRemoveControllerError()
-        if len(self.players) == 1:
-            self.end_game()
-            return
-        if len(self.players) < MIN_PLAYER_NUMBER:
-            raise NotEnoughPlayersError()
+    def kick_player(self, player_id: int) -> None:
+        player = self.get_player(player_id)
 
-    def kick_player(self, player: Player) -> None:
-        self.players.remove(player)
-        if self.current_player and self.current_player == player:
+        # if the player controls the game, they cannot be kicked
+        if self.controlling_player and self.controlling_player == player:
             raise CannotRemoveControllerError()
-        if len(self.players) == 1:
+
+        # if the game isn't started, remove the player thats it
+        if not self.started:
+            self.players.remove(player)
+            raise PlayerRemovedBeforeGameStart()
+        else:
+            # if the game is started...
+            # if this is the first round, remove the player and
+            # make them not koratable
+            if self.round == 1:
+                self.players.remove(player)
+                player.is_koratable = False
+                self.quitters.append(player)
+            else:
+                self.quitters.append(player)
+
+            # if the player is the current player, move to the next player
+            # if self.current_player and self.current_player == player:
+            self.next_round()
+
+        # ends the game if there are not enough players left
+        if len(self.players) < MIN_PLAYER_NUMBER and self.started:
             self.end_game("QUIT")
-            return
-        if len(self.players) < MIN_PLAYER_NUMBER:
-            raise NotEnoughPlayersError()
 
     def end_game(
         self, reason: ReasonType = "NORMAL"
@@ -155,9 +167,7 @@ class Game:
         self.end_reason = reason
 
         if reason == "KILL":
-            self.losers = []
-            self.winners = []
-            return self.winners, self.losers, reason
+            return [], [], reason
 
         # if the game ends by afk
         if reason == "AFK":
@@ -206,7 +216,7 @@ class Game:
 
         # calculate the score and distribute the points and money
         compute_game_stats(self)
-        return self.winners, self.losers, reason
+        return self.winners, self.losers + self.quitters, reason
 
     def add_message_to_delete(self, message_id: int) -> None:
         self.messages_to_delete.append(message_id)
