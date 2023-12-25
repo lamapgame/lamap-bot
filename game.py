@@ -76,6 +76,7 @@ class Game:
         self.losers: list[Player] = []
         self.quitters: list[Player] = []
         self.end_reason: ReasonType = "NORMAL"
+        self.amount_won = 0
 
         # messages to delete when the game starts
         self.messages_to_delete: list[int] = []
@@ -142,10 +143,11 @@ class Game:
             raise PlayerRemovedBeforeGameStart()
         else:
             # if the game is started...
+            self.players.remove(player)
+
             # if this is the first round, remove the player and
             # make them not koratable
             if self.round == 1:
-                self.players.remove(player)
                 player.is_koratable = False
                 self.quitters.append(player)
             else:
@@ -153,11 +155,12 @@ class Game:
 
             # if the player is the current player, move to the next player
             # if self.current_player and self.current_player == player:
-            self.next_round()
 
         # ends the game if there are not enough players left
         if len(self.players) < MIN_PLAYER_NUMBER and self.started:
             self.end_game("QUIT")
+        else:
+            self.next_round()
 
     def end_game(
         self, reason: ReasonType = "NORMAL"
@@ -169,8 +172,8 @@ class Game:
         if reason == "KILL":
             return [], [], reason
 
-        # if the game ends by afk
-        if reason == "AFK":
+        # if the game ends by special card
+        if reason == "SPECIAL":
             if (
                 self.play_history
                 and self.play_history[-1].move.suit == "x"
@@ -180,12 +183,19 @@ class Game:
                 self.winners = [winner]
                 self.losers = [p for p in self.players if p.id != winner.id]
 
-        if reason == "SPECIAL":
+        # if the game ends by afk
+        if reason == "AFK":
             if self.current_player is None:
                 raise ValueError("No current player: cannot end game properly")
 
             self.losers = [self.current_player]
             self.winners = [p for p in self.players if p.id != self.current_player.id]
+
+        # if the game ends by player quitting
+        if reason == "QUIT":
+            self.losers = self.quitters
+            # winners are the players who didn't quit
+            self.winners = [p for p in self.players if p.id not in self.quitters]
 
         # in case the game ends normally
         if reason == "NORMAL":
@@ -311,7 +321,7 @@ class Game:
             self.end_game("SPECIAL")
             return
 
-        # if both players played, move to the next
+        # if all players played, move to the next
         if len(self.play_history) == len(self.players):
             self.current_player = self.controlling_player
             self.round_history.append(

@@ -169,6 +169,12 @@ def compute_game_stats(game: Game):
             stats.wins_special += 1
 
         stats.nkap += nkap
+        game.amount_won = nkap
+
+        # find this player in the game and update the amount
+        for p in game.players:
+            if p.id == player.id:
+                p.nkap = nkap
 
     for player in loosers:
         stats = GameStatisticsDB.get(user=player.user.id)
@@ -189,16 +195,21 @@ def compute_game_stats(game: Game):
             stats.afk += 1
         if game.end_reason == "QUIT":
             stats.quit += 1
-        if game.end_reason == "KORA":
+        if game.end_reason == "KORA" and player.is_koratable:
             stats.losses_kora += 1
             nkap -= nkap * 2
-        if game.end_reason == "DBL_KORA":
+        if game.end_reason == "DBL_KORA" and player.is_koratable:
             stats.losses_dbl_kora += 1
             nkap -= nkap * 4
         if game.end_reason == "SPECIAL":
             stats.losses_special += 1
 
         stats.nkap -= nkap
+
+        # find this player in the game and update the amount
+        for p in game.players:
+            if p.id == player.id:
+                p.nkap = nkap
 
 
 @db_session

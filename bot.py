@@ -17,6 +17,7 @@ from telegram.ext import (
     Defaults,
 )
 from telegram.constants import ParseMode
+from common import jobs
 
 from common.callback_handler import (
     handle_inline_query,
@@ -24,6 +25,7 @@ from common.callback_handler import (
     process_inline_query_result,
 )
 from common.exceptions import (
+    CannotRemoveControllerError,
     CannotTransferToBannedError,
     CannotTransferToBotError,
     CannotTransferToSelfError,
@@ -140,13 +142,28 @@ async def quit_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     if update.effective_chat and user:
         chat_id = update.effective_chat.id
         if chat_id in orchestrator.games:
+            game = orchestrator.games[chat_id]
             try:
-                game = orchestrator.games[chat_id]
                 game.kick_player(user.id)
+                msg = await interactions.QUIT_GAME(update, user)
+                if game.started:
+                    await interactions.NEXT_PLAYER(update, game)
+                else:
+                    jobs.remove_job_if_exists(str(chat_id), context)
+                    await interactions.END_GAME(context, chat_id, game)
+                    orchestrator.end_game(chat_id, context)
             except PlayerRemovedBeforeGameStart:
-                await interactions.QUIT_GAME(update, user)
+                msg = await interactions.QUIT_GAME(update, user)
+                if msg:
+                    game.add_message_to_delete(msg.message_id)
             except PlayerNotInGameError:
-                await interactions.CANNOT_QUIT_GAME(update, "not_in_game")
+                msg = await interactions.CANNOT_QUIT_GAME(update, "not_in_game")
+                if msg:
+                    game.add_message_to_delete(msg.message_id)
+            except CannotRemoveControllerError:
+                msg = await interactions.CANNOT_QUIT_GAME(update, "controller")
+                if msg:
+                    game.add_message_to_delete(msg.message_id)
 
         else:
             await interactions.CANNOT_QUIT_GAME(update, "no_game")
@@ -408,6 +425,7 @@ app.add_handler(CommandHandler("rem", rem_nkap))
 app.add_handler(CommandHandler("ret", ret_nkap))
 app.add_handler(CommandHandler("senta", block_user))
 app.add_handler(CommandHandler("unsenta", unblock_user))
+
 # FORCE commands - only for super admins - TO USE WITH EXTRA CAUTION
 # todo: add handlers for these
 app.add_handler(CommandHandler("FORCE_nkap_reset", transfer_nkap))

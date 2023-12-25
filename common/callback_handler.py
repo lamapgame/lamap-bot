@@ -38,19 +38,27 @@ async def handle_query(
             await interactions.ACHIEVEMENTS_DETAILS(query, context)
             return
 
-        chat_id = update.effective_chat.id
-        game = orchestrator.games[chat_id]
-        user = query.from_user
+        try:
+            chat_id = update.effective_chat.id
+            game = orchestrator.games[chat_id]
+            user = query.from_user
 
-        # join game query
-        if query.data == "join_game":
-            await join_game(update, query, game, user)
+            # join game query
+            if query.data == "join_game":
+                await join_game(update, query, game, user)
 
-        # start game query
-        elif query.data == "start_game":
-            await start_game(update, context, query, chat_id, orchestrator, game, user)
+            # start game query
+            elif query.data == "start_game":
+                await start_game(
+                    update, context, query, chat_id, orchestrator, game, user
+                )
 
-        await query.answer()
+            await query.answer()
+        except KeyError:
+            await query.answer(
+                "Senta la partie là, c'est OFF. Crée une autre avec /play <montant>.",
+                show_alert=True,
+            )
 
 
 async def join_game(update, query, game, user):

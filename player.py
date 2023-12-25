@@ -17,6 +17,9 @@ class Player:
         self.is_koratable = True
         self.is_controller = False
 
+        # money lost or won, (negative if lost)
+        self.nkap = 0
+
         self.hand_of_cards: list[Any] = []
         self.turn_started_time = datetime.now()
 

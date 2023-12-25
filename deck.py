@@ -188,7 +188,10 @@ class Card:
         # special cards are always show higher than normal cards
         if self.suit == "x" and c.suit != "x":
             return True
-        return self.value < c.value
+        # sort by suit too
+        if self.suit == c.suit:
+            return self.value < c.value
+        return self.suit < c.suit
 
 
 # ? Test cards - input any set to test with only that set
