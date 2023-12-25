@@ -109,11 +109,19 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
         ]
     )
 
+    if game.end_reason == "QUIT":
+        message = await context.bot.send_animation(
+            chat_id,
+            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
+            caption=f"Il ne reste qu'un joueur, {winners} gagne {n_format(game.amount_won)} par forfait. On remet ça ?",
+        )
+        return message
+
     if game.end_reason == "SPECIAL":
         message = await context.bot.send_animation(
             chat_id,
             "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
-            caption=f"{winners} a gagné avec une carte spéciale. On remet ça?",
+            caption=f"{winners} a gagné {n_format(game.amount_won)} avec une carte spéciale. On remet ça ?",
         )
         return message
 
@@ -123,7 +131,7 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
 
         message = await context.bot.send_message(
             chat_id,
-            f"🔨 {game.killer.first_name} a tué la partie. On remet ça?",
+            f"🔨 {game.killer.first_name} a tué la partie. On remet ça ?",
         )
         return message
 
@@ -131,7 +139,7 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
         message = await context.bot.send_animation(
             chat_id,
             "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
-            caption=f"{losers} a fui, comme d'habitude. On remet ça?",
+            caption=f"{losers} a AFK. La mise était {n_format(game.nkap)} On remet ça?",
         )
         return message
 
@@ -139,9 +147,28 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
         message = await context.bot.send_animation(
             chat_id,
             "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
-            caption=f"{winners} nous a allumé comme il faut et comme d'habitude {losers} perds. On remet ça?",
+            caption=f"{winners} nous a allumé comme il faut et prends {n_format(game.amount_won)}. On remet ça ?",
         )
         return message
+
+
+async def NEXT_PLAYER(
+    update,
+    game: Game,
+):
+    if game.current_player:
+        choice = [
+            [
+                InlineKeyboardButton(
+                    text="Dégager",
+                    switch_inline_query_current_chat=str(game.chat_id),
+                )
+            ]
+        ]
+        await update.effective_chat.send_message(
+            f"{mention(game.current_player.user.first_name, f'tg://user?id={game.current_player.user.id}')} c'est toi qui joue maintenant",
+            reply_markup=InlineKeyboardMarkup(choice),
+        )
 
 
 async def FIRST_CARD(
@@ -424,6 +451,42 @@ async def DID_REM(update: Update, amount: int) -> None:
     )
 
 
+async def QUIT_GAME(update: Update, user: User):
+    return await send_reply_message(
+        update, f"{user.first_name} as fui, comme d'habitude..."
+    )
+
+
+async def CANNOT_QUIT_GAME(
+    update: Update,
+    reason: Literal[
+        "before_start", "not_in_game", "no_game", "controller", "experimental"
+    ],
+):
+    message = None
+    if reason == "before_start":
+        message = await send_reply_message(
+            update, "Tu ne peux pas quitter une partie qui n'a pas encore commencé."
+        )
+    elif reason == "not_in_game":
+        message = await send_reply_message(
+            update, "Tu ne peux pas quitter une partie dans laquelle tu n'es pas."
+        )
+    elif reason == "controller":
+        message = await send_reply_message(
+            update, "C'est toi qui contrôles, tu ne peux pas quitter maintenant."
+        )
+    elif reason == "no_game":
+        message = await send_reply_message(
+            update, "Tu ne peux pas quitter une partie qui n'existe pas."
+        )
+    elif reason == "experimental":
+        message = await send_reply_message(
+            update, "C'est en cours de dévéloppement, ce n'est pas prêt."
+        )
+    return message
+
+
 async def DID_RET(update: Update, amount: int) -> None:
     await send_reply_message(
         update,
@@ -433,7 +496,8 @@ async def DID_RET(update: Update, amount: int) -> None:
 
 async def BLOCK_USER(update: Update, user: User | int) -> None:
     if isinstance(user, int):
-        return await send_reply_message(update, f"J'ai bloqué {user}.")
+        await send_reply_message(update, f"J'ai bloqué {user}.")
+        return
     await send_reply_message(
         update, f"J'ai bloqué {mention(user.first_name, f'tg://user?id={user.id}')}."
     )
@@ -441,7 +505,8 @@ async def BLOCK_USER(update: Update, user: User | int) -> None:
 
 async def UNBLOCK_USER(update: Update, user: User | int) -> None:
     if isinstance(user, int):
-        return await send_reply_message(update, f"J'ai débloqué {user}.")
+        await send_reply_message(update, f"J'ai débloqué {user}.")
+        return
     await send_reply_message(
         update, f"J'ai débloqué {mention(user.first_name, f'tg://user?id={user.id}')}."
     )

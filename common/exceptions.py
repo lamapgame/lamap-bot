@@ -18,6 +18,10 @@ class CannotTransferToBotError(Exception):
     """is thrown when a player tries to transfer money to the bot"""
 
 
+class PlayerRemovedBeforeGameStart(Exception):
+    """is thrown when a player is removed before the game starts"""
+
+
 class CannotTransferToBannedError(Exception):
     """is thrown when a player tries to transfer money to a banned player"""
 

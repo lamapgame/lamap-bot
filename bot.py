@@ -17,6 +17,7 @@ from telegram.ext import (
     Defaults,
 )
 from telegram.constants import ParseMode
+from common import jobs
 
 from common.callback_handler import (
     handle_inline_query,
@@ -24,12 +25,15 @@ from common.callback_handler import (
     process_inline_query_result,
 )
 from common.exceptions import (
+    CannotRemoveControllerError,
     CannotTransferToBannedError,
     CannotTransferToBotError,
     CannotTransferToSelfError,
     CannotTransferToUnknownPlayerError,
     GameAlreadyExistError,
     NotEnoughNkapError,
+    PlayerNotInGameError,
+    PlayerRemovedBeforeGameStart,
 )
 from common.database import db
 
@@ -54,6 +58,7 @@ logging.basicConfig(
 )
 # set higher logging level for httpx to avoid all GET and POST requests being logged
 logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("apscheduler.scheduler").setLevel(logging.WARNING)
 
 
 # start the orchestrator at bot load
@@ -97,6 +102,78 @@ async def kill_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
                 await interactions.NOT_ADMIN(update)
         else:
             await interactions.CANNOT_KILL_GAME(update)
+
+
+async def force_kick_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """kills the game in the current chat"""
+
+    # ! fix: this is a copy of kill_game, refactor this
+    is_admin = False
+    is_super_admin = False
+    user = update.effective_user
+    if update.effective_chat and user:
+        chat_admins = await update.effective_chat.get_administrators()
+        if user in (admin.user for admin in chat_admins):
+            is_admin = True
+        if str(user.id) in SUPER_ADMIN_LIST:
+            is_super_admin = True
+
+    if is_admin or is_super_admin:
+        if (
+            not update.message
+            or not update.message.reply_to_message
+            or not update.message.reply_to_message.from_user
+        ):
+            await interactions.CANNOT_DO_THIS(update)
+            return
+        context.bot_data[
+            "user_to_kick_id"
+        ] = update.message.reply_to_message.from_user.id
+        await quit_game(update, context)
+
+
+async def quit_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """/fuir command handler"""
+    user = update.effective_user
+
+    # incase the command was called by force_kick_player
+    if context.bot_data.get("user_to_kick_id"):
+        user = context.bot_data["user_to_kick_id"]
+
+    if update.effective_chat and user:
+        chat_id = update.effective_chat.id
+        if chat_id in orchestrator.games:
+            game = orchestrator.games[chat_id]
+
+            if len(game.players) > 2 and game.started:
+                await interactions.CANNOT_QUIT_GAME(update, "experimental")
+                return
+
+            try:
+                game.kick_player(user.id)
+                msg = await interactions.QUIT_GAME(update, user)
+                if game.started:
+                    await interactions.NEXT_PLAYER(update, game)
+                else:
+                    jobs.remove_job_if_exists(str(chat_id), context)
+                    await interactions.END_GAME(context, chat_id, game)
+                    orchestrator.end_game(chat_id, context)
+            except PlayerRemovedBeforeGameStart:
+                msg = await interactions.QUIT_GAME(update, user)
+                if msg:
+                    game.add_message_to_delete(msg.message_id)
+            except PlayerNotInGameError:
+                msg = await interactions.CANNOT_QUIT_GAME(update, "not_in_game")
+                if msg:
+                    game.add_message_to_delete(msg.message_id)
+            except CannotRemoveControllerError:
+                msg = await interactions.CANNOT_QUIT_GAME(update, "controller")
+                if msg:
+                    game.add_message_to_delete(msg.message_id)
+
+        else:
+            await interactions.CANNOT_QUIT_GAME(update, "no_game")
+            return
 
 
 async def learn(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -343,6 +420,7 @@ app.add_handler(CommandHandler("learn", learn))
 # Game handlers
 app.add_handler(CommandHandler("play", start_new_game))
 app.add_handler(CommandHandler("tuer", kill_game))
+app.add_handler(CommandHandler("fuir", quit_game))
 
 # Stats handlers
 app.add_handler(CommandHandler("transfert", transfer_nkap))
@@ -353,6 +431,7 @@ app.add_handler(CommandHandler("rem", rem_nkap))
 app.add_handler(CommandHandler("ret", ret_nkap))
 app.add_handler(CommandHandler("senta", block_user))
 app.add_handler(CommandHandler("unsenta", unblock_user))
+
 # FORCE commands - only for super admins - TO USE WITH EXTRA CAUTION
 # todo: add handlers for these
 app.add_handler(CommandHandler("FORCE_nkap_reset", transfer_nkap))
