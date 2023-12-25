@@ -131,7 +131,7 @@ STICKERS = {
 }
 
 DesignType = Literal["DEFAULT", "GALACTIC", "LUXURY", "OLD"]
-DEFAULT_DESIGN: DesignType = "GALACTIC"
+DEFAULT_DESIGN: DesignType = "DEFAULT"
 
 
 class Card:

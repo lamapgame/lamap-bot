@@ -8,7 +8,6 @@ from common.database import db
 from common.exceptions import (
     CannotTransferToBannedError,
     CannotTransferToBotError,
-    CannotTransferToSelfError,
     CannotTransferToUnknownPlayerError,
     NotEnoughNkapError,
     UserIsBanned,
@@ -111,6 +110,8 @@ def get_user(
 @db_session
 def get_stats(user: User) -> tuple[UserDB, GameStatisticsDB]:
     """Returns a user's stats from the database"""
+
+    add_user(user)
     userdb = UserDB.get(id=user.id)
     return userdb, GameStatisticsDB.get(user=userdb)
 
