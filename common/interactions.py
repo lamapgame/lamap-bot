@@ -459,7 +459,9 @@ async def QUIT_GAME(update: Update, user: User):
 
 async def CANNOT_QUIT_GAME(
     update: Update,
-    reason: Literal["before_start", "not_in_game", "no_game", "controller"],
+    reason: Literal[
+        "before_start", "not_in_game", "no_game", "controller", "experimental"
+    ],
 ):
     message = None
     if reason == "before_start":
@@ -477,6 +479,10 @@ async def CANNOT_QUIT_GAME(
     elif reason == "no_game":
         message = await send_reply_message(
             update, "Tu ne peux pas quitter une partie qui n'existe pas."
+        )
+    elif reason == "experimental":
+        message = await send_reply_message(
+            update, "C'est en cours de dévéloppement, ce n'est pas prêt."
         )
     return message
 

@@ -144,6 +144,11 @@ async def quit_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         chat_id = update.effective_chat.id
         if chat_id in orchestrator.games:
             game = orchestrator.games[chat_id]
+
+            if len(game.players) > 2 and game.started:
+                await interactions.CANNOT_QUIT_GAME(update, "experimental")
+                return
+
             try:
                 game.kick_player(user.id)
                 msg = await interactions.QUIT_GAME(update, user)
