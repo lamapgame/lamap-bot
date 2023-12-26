@@ -1,9 +1,15 @@
 from __future__ import annotations
+import logging
 
 from random import shuffle
 from typing import Literal, cast
 
 from player import Player
+
+# Enable logging
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 
 # ruff: noqa: E501
 

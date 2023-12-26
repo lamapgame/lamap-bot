@@ -20,7 +20,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 # time to start game after being initiated
 GAME_START_TIMEOUT = int(os.getenv("GAME_START_TIMEOUT") or 40)
 TIME_TO_AFK = int(os.getenv("TIME_TO_AFK") or 50)
-LOGGING_CHAT_ID = os.getenv("LOGGING_CHAT_ID")
+LOGGING_CHAT_ID = int(os.getenv("LOGGING_CHAT_ID") or 0)
 BASE_POINTS = int(os.getenv("BASE_POINTS") or 10)
 SUPER_ADMIN_LIST = str(os.getenv("SUPER_ADMIN_LIST") or "223627873, 1077515995").split(
     ","
@@ -103,3 +103,8 @@ ACHIEVEMENTS = {
         "Tu sers les 33s comme chez Pacho à Bastos. C'est pas bon pour la santé.",
     },
 }
+
+
+# Logging
+# ----------------
+THREAD_IDS = {"TRANSFERT": 41027, "BLOCKS": 41026, "RETREM": 41023, "OTHER": None}
