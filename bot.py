@@ -63,6 +63,8 @@ logging.getLogger("apscheduler.scheduler").setLevel(logging.WARNING)
 logger.info("Starting orchestrator")
 orchestrator = Orchestrator()
 
+# ruff: noqa: E501 # pylint: disable=line-too-long disable=anomalous-backslash-in-string
+
 
 async def start(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
     """/start command handler"""
@@ -275,8 +277,10 @@ async def transfer_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
                 await log_admin(
                     f"💸 \#TRANSFERT de **{amount}**:\n\n"
-                    f"↗️ {mention(sender.first_name, f'tg://user?id={sender.id}', True)}  `{sender.id}`\n"
-                    f"↘️ {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}  `{reciever.id}`\n\n"
+                    f"↗️ {mention(sender.first_name, f'tg://user?id={sender.id}', True)}"
+                    f"  `{sender.id}`\n"
+                    f"↘️ {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}"
+                    f"  `{reciever.id}`\n\n"
                     f"➡️ {mention(chat.title, update.message.link, True)}",
                     context,
                     THREAD_IDS["TRANSFERT"],
@@ -351,7 +355,8 @@ async def rem_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if reciever and not has_id_arg:
             await log_admin(
                 f"🪙 \#REMBOURSEMENT de **{amount}**"
-                f" à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}  \(`{reciever.id}`\) "
+                f" à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}"
+                f"  \(`{reciever.id}`\) "
                 f"dans {mention(chat.title, update.message.link, True)}",
                 context,
                 THREAD_IDS["RETREM"],
@@ -431,7 +436,8 @@ async def ret_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         if reciever and not has_id_arg:
             await log_admin(
                 f"🪙 \#RETOUR de **{amount}**"
-                f" à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}  \(`{reciever.id}`\) "
+                f" à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}"
+                f"  \(`{reciever.id}`\) "
                 f"dans {mention(chat.title, update.message.link, True)}",
                 context,
                 THREAD_IDS["RETREM"],
@@ -488,7 +494,8 @@ async def block_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
                 chat.id,
             )
             await log_admin(
-                f"🔨 \#BLOCK de à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}  \(`{reciever.id}`\) "
+                f"🔨 \#BLOCK de à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}"
+                f"  \(`{reciever.id}`\) "
                 f"dans {mention(chat.title, update.message.link, True)}",
                 context,
                 THREAD_IDS["BLOCKS"],
@@ -553,7 +560,8 @@ async def unblock_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
                 chat.id,
             )
             await log_admin(
-                f"🔨 \#UNBLOCK de à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}  \(`{reciever.id}`\)\n"
+                f"🔨 \#UNBLOCK de à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}"
+                f"  \(`{reciever.id}`\)\n"
                 f"dans {mention(chat.title, update.message.link, True)}",
                 context,
                 THREAD_IDS["BLOCKS"],
