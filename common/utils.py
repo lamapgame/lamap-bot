@@ -1,8 +1,11 @@
 """
 Some utils shared amoung the app module
 """
-
 from telegram import Update
+from telegram.ext import ContextTypes
+from telegram.error import TelegramError
+
+from config import LOGGING_CHAT_ID
 
 
 async def send_reply_message(update: Update, message: str):
@@ -13,8 +16,53 @@ async def send_reply_message(update: Update, message: str):
         )
 
 
-def mention(title, link):
+async def log_admin(
+    message: str,
+    context: ContextTypes.DEFAULT_TYPE,
+    thread_id: int | None = None,
+) -> None:
+    """Logs the message to the logging chat"""
+    try:
+        await context.bot.send_message(
+            chat_id=LOGGING_CHAT_ID,
+            text=message,
+            disable_web_page_preview=True,
+            parse_mode="MarkdownV2",
+            message_thread_id=thread_id,
+        )
+    except TelegramError as e:
+        print(e)
+        # bot might not be able to message admin group
+        # its alright, we will just ignore it
+        # it will work in prod ;)
+        # pass
+
+
+def mention(title, link, v2: bool = False):
     """mention (tag) a telegram user"""
+    if v2:
+        # escape invalid markdown characters
+        for char in [
+            "_",
+            "*",
+            "[",
+            "]",
+            "(",
+            ")",
+            "~",
+            "`",
+            ">",
+            "#",
+            "+",
+            "-",
+            "=",
+            "|",
+            "{",
+            "}",
+            ".",
+            "!",
+        ]:
+            title = title.replace(char, f"\\{char}")
     if link:
         return f"[{title}]({link})"
     else:
@@ -33,3 +81,8 @@ def n_format(num):
         "{:f}".format(num).rstrip("0").rstrip("."),
         ["", " kolos", " bâtons", " myondos", " mitoumba"][magnitude],
     )
+
+
+def ascii_art() -> None:
+    """print the ascii art logo"""
+    print("""""")

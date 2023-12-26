@@ -1,3 +1,4 @@
+import logging
 from telegram import Update, User
 from telegram.error import TelegramError
 from telegram.ext import ContextTypes
@@ -7,6 +8,11 @@ from common.exceptions import GameAlreadyExistError, NotEnoughPlayersError
 
 from config import GAME_START_TIMEOUT
 from game import Game
+
+# Enable logging
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class Orchestrator:
@@ -78,6 +84,7 @@ class Orchestrator:
                 name=str(chat_id),
             )
 
+        logger.info("GAME_STARTED in chat %s", chat_id)
         return self.games[chat_id]
 
     def end_game(self, chat_id: int, context: ContextTypes.DEFAULT_TYPE):
@@ -87,6 +94,7 @@ class Orchestrator:
             raise GameAlreadyExistError()
 
         jobs.remove_job_if_exists(str(chat_id), context)
+        logger.info("GAME_ENDED in chat %s", chat_id)
         del self.games[chat_id]
 
     async def start_game_on_timeout(self, context: ContextTypes.DEFAULT_TYPE):
@@ -109,8 +117,7 @@ class Orchestrator:
                 await interactions.NOT_ENOUGH_PLAYERS(chat_id, context=context)
                 await self.delete_game_messages(chat_id, context)
                 self.end_game(chat_id, context)
-            # can't add delete_game_messages in finally
-            # because the game is already ended in the except
+                logger.info("CANNOT_START in chat %s", chat_id)
 
     async def end_game_from_afk(self, context: ContextTypes.DEFAULT_TYPE) -> None:
         """ends a game from afk"""
@@ -135,6 +142,7 @@ class Orchestrator:
             for message_id in game.messages_to_delete:
                 try:
                     await context.bot.delete_message(chat_id, message_id)
-                except TelegramError:
+                except TelegramError as e:
                     # bot might not be admin or the message is already deleted
+                    logger.warning("CANNOT_DELETE in chat %s", chat_id, exc_info=e)
                     pass

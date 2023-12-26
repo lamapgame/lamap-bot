@@ -2,7 +2,6 @@
 Bot's entry point.
 It declares the bot's handlers and starts the bot.
 """
-
 import logging
 
 from telegram import Update, User
@@ -17,8 +16,8 @@ from telegram.ext import (
     Defaults,
 )
 from telegram.constants import ParseMode
-from common import jobs
 
+import common.jobs as jobs
 from common.callback_handler import (
     handle_inline_query,
     handle_query,
@@ -39,7 +38,7 @@ from common.database import db
 
 import common.interactions as interactions
 from common.stats import show_stats
-from common.utils import mention
+from common.utils import log_admin, mention
 from common.models import (
     add_user,
     compute_ban_unban,
@@ -49,20 +48,22 @@ from common.models import (
 
 from orchestrator import Orchestrator
 
-from config import BOT_ID, SUPER_ADMIN_LIST, TOKEN, DATABASE_URL
-
+from config import BOT_ID, SUPER_ADMIN_LIST, THREAD_IDS, TOKEN, DATABASE_URL
 
 # Enable logging
-logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
-)
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
 # set higher logging level for httpx to avoid all GET and POST requests being logged
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("apscheduler.scheduler").setLevel(logging.WARNING)
 
 
-# start the orchestrator at bot load
+logger.info("Starting orchestrator")
 orchestrator = Orchestrator()
+
+# ruff: noqa: E501 # pylint: disable=line-too-long disable=anomalous-backslash-in-string
 
 
 async def start(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -107,7 +108,6 @@ async def kill_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 async def force_kick_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """kills the game in the current chat"""
 
-    # ! fix: this is a copy of kill_game, refactor this
     is_admin = False
     is_super_admin = False
     user = update.effective_user
@@ -227,6 +227,7 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
                 ParseMode.MARKDOWN,
                 disable_web_page_preview=True,
             )
+            logger.warning("GAME_ALREADY_EXIST in %i", update.message.chat.id)
 
 
 async def callback_query(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -253,6 +254,11 @@ async def transfer_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
 
     reciever = None
     sender = update.message.from_user
+    chat = update.effective_chat
+
+    if not chat:
+        return
+
     if update.message.reply_to_message and update.message.reply_to_message.from_user:
         reciever = update.message.reply_to_message.from_user
 
@@ -268,6 +274,17 @@ async def transfer_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
                     raise CannotTransferToSelfError()
 
                 compute_transfer_nkap(sender.id, reciever.id, amount)
+
+                await log_admin(
+                    f"💸 \#TRANSFERT de **{amount}**:\n\n"
+                    f"↗️ {mention(sender.first_name, f'tg://user?id={sender.id}', True)}"
+                    f"  `{sender.id}`\n"
+                    f"↘️ {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}"
+                    f"  `{reciever.id}`\n\n"
+                    f"➡️ {mention(chat.title, update.message.link, True)}",
+                    context,
+                    THREAD_IDS["TRANSFERT"],
+                )
 
                 await interactions.TRANSFER_NKAP(
                     update, amount, sender.first_name, reciever.first_name
@@ -295,15 +312,26 @@ async def rem_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     user = update.message.from_user
+    chat = update.effective_chat
+
+    if not chat:
+        return
+
     if str(user.id) not in SUPER_ADMIN_LIST:
         await interactions.YOU_ARE_NOT_SUPER_ADMIN(update)
         return
 
     reciever_id = None
+    reciever = None
     amount = 0
+    has_id_arg = False
+
     if update.message.reply_to_message and update.message.reply_to_message.from_user:
-        reciever_id = update.message.reply_to_message.from_user.id
-    elif context.args and context.args[1]:
+        reciever = update.message.reply_to_message.from_user
+        reciever_id = reciever.id
+
+    if context.args and context.args[1]:
+        has_id_arg = True
         reciever_id = int(context.args[1].replace(" ", ""))
 
     if context.args and context.args[0]:
@@ -316,8 +344,40 @@ async def rem_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         compute_ret_rem(reciever_id, amount, False)
         await interactions.DID_REM(update, amount)
-    except Exception:
+
+        logger.info(
+            "REMBOURSEMENT of %i to player %i by admin %i in chat %i",
+            amount,
+            reciever_id,
+            user.id,
+            chat.id,
+        )
+        if reciever and not has_id_arg:
+            await log_admin(
+                f"🪙 \#REMBOURSEMENT de **{amount}**"
+                f" à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}"
+                f"  \(`{reciever.id}`\) "
+                f"dans {mention(chat.title, update.message.link, True)}",
+                context,
+                THREAD_IDS["RETREM"],
+            )
+        else:
+            await log_admin(
+                f"🪙 \#REMBOURSEMENT de **{amount}**\n à `{reciever_id}` "
+                f"dans {mention(chat.title, update.message.link, True)}",
+                context,
+                THREAD_IDS["RETREM"],
+            )
+
+    except Exception as e:
         await interactions.CANNOT_DO_THIS(update)
+        logger.warning(
+            "ATTEMPT_REMBOURSEMENT of %i by %i in %i players",
+            reciever_id,
+            chat.id,
+            user.id,
+            exc_info=e,
+        )
 
 
 async def ret_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -326,15 +386,26 @@ async def ret_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         return
 
     user = update.message.from_user
+    chat = update.effective_chat
+
+    if not chat:
+        return
+
     if str(user.id) not in SUPER_ADMIN_LIST:
         await interactions.YOU_ARE_NOT_SUPER_ADMIN(update)
         return
 
     reciever_id = None
+    reciever = None
+    has_id_arg = False
     amount = 0
+
     if update.message.reply_to_message and update.message.reply_to_message.from_user:
-        reciever_id = update.message.reply_to_message.from_user.id
-    elif context.args and context.args[1]:
+        reciever = update.message.reply_to_message.from_user
+        reciever_id = reciever.id
+
+    if context.args and context.args[1]:
+        has_id_arg = True
         reciever_id = int(context.args[1].replace(" ", ""))
 
     if context.args and context.args[0]:
@@ -346,8 +417,47 @@ async def ret_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     try:
         compute_ret_rem(reciever_id, amount, True)
         await interactions.DID_RET(update, amount)
-    except Exception:
+
+        logger.info(
+            "RETOUR of %i to player %i by admin %i in chat %i",
+            amount,
+            reciever_id,
+            user.id,
+            chat.id,
+        )
+        logger.info(
+            "RETOUR of %i to player %i by admin %i in chat %i",
+            amount,
+            reciever_id,
+            user.id,
+            chat.id,
+        )
+
+        if reciever and not has_id_arg:
+            await log_admin(
+                f"🪙 \#RETOUR de **{amount}**"
+                f" à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}"
+                f"  \(`{reciever.id}`\) "
+                f"dans {mention(chat.title, update.message.link, True)}",
+                context,
+                THREAD_IDS["RETREM"],
+            )
+        else:
+            await log_admin(
+                f"🪙 \#RETOUR de **{amount}**\n à `{reciever_id}` "
+                f"dans {mention(chat.title, update.message.link, True)}",
+                context,
+                THREAD_IDS["RETREM"],
+            )
+    except Exception as e:
         await interactions.CANNOT_DO_THIS(update)
+        logger.warning(
+            "ATTEMPT_RETOUR of %i by %i in %i players",
+            reciever_id,
+            chat.id,
+            user.id,
+            exc_info=e,
+        )
 
 
 async def block_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -356,6 +466,11 @@ async def block_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
         return
 
     user = update.message.from_user
+    chat = update.effective_chat
+
+    if not chat:
+        return
+
     if str(user.id) not in SUPER_ADMIN_LIST:
         await interactions.YOU_ARE_NOT_SUPER_ADMIN(update)
         return
@@ -370,8 +485,44 @@ async def block_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
     try:
         compute_ban_unban(reciever, True)
         await interactions.BLOCK_USER(update, reciever)
-    except Exception:
+
+        if not isinstance(reciever, int):
+            logger.info(
+                "BLOCK of %i by admin %i in chat %i",
+                reciever.id,
+                user.id,
+                chat.id,
+            )
+            await log_admin(
+                f"🔨 \#BLOCK de à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}"
+                f"  \(`{reciever.id}`\) "
+                f"dans {mention(chat.title, update.message.link, True)}",
+                context,
+                THREAD_IDS["BLOCKS"],
+            )
+        else:
+            logger.info(
+                "BLOCK of %i by admin %i in chat %i",
+                reciever,
+                user.id,
+                chat.id,
+            )
+            await log_admin(
+                f"🔨 \#BLOCK de `{reciever}` "
+                f"dans {mention(chat.title, update.message.link, True)}",
+                context,
+                THREAD_IDS["BLOCKS"],
+            )
+
+    except Exception as e:
         await interactions.CANNOT_DO_THIS(update)
+        logger.warning(
+            "ATTEMPT_BLOCK of %i by %i in chat %i",
+            reciever,
+            chat.id,
+            user.id,
+            exc_info=e,
+        )
 
 
 async def unblock_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -380,6 +531,11 @@ async def unblock_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         return
 
     user = update.message.from_user
+    chat = update.effective_chat
+
+    if not chat:
+        return
+
     if str(user.id) not in SUPER_ADMIN_LIST:
         await interactions.YOU_ARE_NOT_SUPER_ADMIN(update)
         return
@@ -395,8 +551,44 @@ async def unblock_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     try:
         compute_ban_unban(reciever, False)
         await interactions.UNBLOCK_USER(update, reciever)
-    except Exception:
+
+        if not isinstance(reciever, int):
+            logger.info(
+                "UNBLOCK of %i by admin %i in chat %i",
+                reciever.id,
+                user.id,
+                chat.id,
+            )
+            await log_admin(
+                f"🔨 \#UNBLOCK de à {mention(reciever.first_name, f'tg://user?id={reciever.id}', True)}"
+                f"  \(`{reciever.id}`\)\n"
+                f"dans {mention(chat.title, update.message.link, True)}",
+                context,
+                THREAD_IDS["BLOCKS"],
+            )
+        else:
+            logger.info(
+                "UNBLOCK of %i by admin %i in chat %i",
+                reciever,
+                user.id,
+                chat.id,
+            )
+            await log_admin(
+                f"🔨 \#UNBLOCK de `{reciever}` "
+                f"dans {mention(chat.title, update.message.link, True)}",
+                context,
+                THREAD_IDS["BLOCKS"],
+            )
+
+    except Exception as e:
         await interactions.CANNOT_DO_THIS(update)
+        logger.warning(
+            "ATTEMPT_UNBLOCK of %i by %i in chat %i",
+            reciever,
+            chat.id,
+            user.id,
+            exc_info=e,
+        )
 
 
 # launch bot
@@ -411,6 +603,7 @@ try:
     db.bind("postgres", DATABASE_URL)
     db.generate_mapping(create_tables=True)
 except RuntimeError as excp:
+    logger.critical("An issue occured when launching the app", exc_info=excp)
     raise ValueError("An issue occured when launching the app") from excp
 
 # Bot command handlers
@@ -421,6 +614,7 @@ app.add_handler(CommandHandler("learn", learn))
 app.add_handler(CommandHandler("play", start_new_game))
 app.add_handler(CommandHandler("tuer", kill_game))
 app.add_handler(CommandHandler("fuir", quit_game))
+app.add_handler(CommandHandler("kick", force_kick_player))
 
 # Stats handlers
 app.add_handler(CommandHandler("transfert", transfer_nkap))
@@ -429,11 +623,12 @@ app.add_handler(CommandHandler("stats", show_stats))
 # Admin handlers
 app.add_handler(CommandHandler("rem", rem_nkap))
 app.add_handler(CommandHandler("ret", ret_nkap))
-app.add_handler(CommandHandler("senta", block_user))
-app.add_handler(CommandHandler("unsenta", unblock_user))
+app.add_handler(CommandHandler("block", block_user))
+app.add_handler(CommandHandler("unblock", unblock_user))
 
 # FORCE commands - only for super admins - TO USE WITH EXTRA CAUTION
 # todo: add handlers for these
+app.add_handler(CommandHandler("FORCE_achievement", transfer_nkap))
 app.add_handler(CommandHandler("FORCE_nkap_reset", transfer_nkap))
 app.add_handler(CommandHandler("FORCE_stats_reset", transfer_nkap))
 

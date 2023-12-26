@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 from random import shuffle
 from typing import Literal, NamedTuple
 
@@ -18,6 +19,11 @@ from common.models import compute_game_stats, get_stats
 from deck import Card, Deck
 from player import Player
 
+
+# Enable logging
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 MIN_PLAYER_NUMBER = 2
 MAX_PLAYER_NUMBER = 4
@@ -115,6 +121,7 @@ class Game:
         if len(self.players) < self.max_player_number:
             self.players.append(player)
             self.deck.cut_cards(player)
+            logger.info("PLAYER_ADDED %s in chat %s", player.user.id, self.chat_id)
         else:
             raise TooManyPlayersError()
 
@@ -152,6 +159,8 @@ class Game:
                 self.quitters.append(player)
             else:
                 self.quitters.append(player)
+
+            logger.info("PLAYER_KICKED %s in chat %s", player.user.id, self.chat_id)
 
             # if the player is the current player, move to the next player
             # if self.current_player and self.current_player == player:
@@ -226,6 +235,10 @@ class Game:
 
         # calculate the score and distribute the points and money
         compute_game_stats(self)
+
+        logger.info(
+            "ENDED with reason %s, game_id=%s", reason, self.chat_id, extra=vars(self)
+        )
         return self.winners, self.losers + self.quitters, reason
 
     def add_message_to_delete(self, message_id: int) -> None:
@@ -241,6 +254,13 @@ class Game:
         self.current_player = self.players[0]  # set the first player
         self.started_date = datetime.now()
         self.round = 1
+
+        logger.info(
+            "STARTED in %s with %i players",
+            self.chat_id,
+            len(self.players),
+            extra=vars(self),
+        )
 
     def play_card(self, player: Player, card: Card) -> tuple[bool, bool]:
         """
