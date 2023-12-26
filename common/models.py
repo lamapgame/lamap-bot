@@ -1,4 +1,5 @@
 from __future__ import annotations
+import logging
 from math import log10
 from typing import TYPE_CHECKING, Any
 from datetime import datetime
@@ -17,6 +18,11 @@ from config import BASE_POINTS, BOT_ID
 if TYPE_CHECKING:
     from game import Game
     from telegram import User
+
+# Enable logging
+logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 class UserDB(db.Entity):
