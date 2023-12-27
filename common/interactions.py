@@ -12,6 +12,18 @@ from telegram import (
 )
 from telegram.constants import ParseMode
 from telegram.ext import ContextTypes
+from common.interactions_res import (
+    IMAGES,
+    t_cannot_start_neg,
+    t_count_down,
+    t_first_card,
+    t_new_game,
+    t_not_admin,
+    t_not_enough_players,
+    t_warn_afk,
+    t_wrong_card_control,
+    t_wrong_card_turn,
+)
 from common.jobs import remove_job_if_exists
 from common.utils import mention, n_format, send_reply_message
 from config import ACHIEVEMENTS, GAME_START_TIMEOUT, TIME_TO_AFK
@@ -34,7 +46,7 @@ async def INIT_USER(update: Update) -> None:
     if update.message and update.message.chat.type == "private":
         if update.effective_user and update.message:
             await update.message.reply_text(
-                f"Ao {update.effective_user.first_name}.\nBienvenue sur Lamap Bot. c'est en 3 étapes! \n\n1. Tchouk moi dans un groupe\n2. Mets moi ADMIN\n3. Lance /play et on se met bien. \n\nSi tu souhaites apprendre à jouer, lance /learn et je t'explique tout!"
+                f"Ao {update.effective_user.first_name}.\nBienvenue sur Lamap Bot. c'est en 3 étapes! \n\n1. Tchouk moi dans un groupe\n2. Mets moi ADMIN\n3. Lance /play <montant> et on se met bien. \n\nSi tu souhaites apprendre à jouer, tapes /learn et je t'explique tout!"
             )
     else:
         await send_reply_message(
@@ -63,7 +75,7 @@ async def LEARN(update: Update) -> None:
             )
 
 
-async def NEW_GAME(update, game: Game):
+async def NEW_GAME(update: Update, game: Game):
     keyboard = [
         [
             InlineKeyboardButton("🖐🏽 Joindre", callback_data="join_game"),
@@ -71,12 +83,16 @@ async def NEW_GAME(update, game: Game):
         ],
     ]
 
+    if not update.effective_chat:
+        raise ValueError("No effective chat")
+
     if game.nkap > 0:
-        return await update.effective_chat.send_animation(
-            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
-            caption=f"{game.creator.first_name} veut nous mettre bien."
-            f" Il a déposé {n_format(game.nkap)}."
-            "\nQui est chaud?",
+        return await update.effective_chat.send_photo(
+            IMAGES["START"],
+            caption=t_new_game(
+                mention(game.creator.first_name, f"tg://user?id={game.creator.id}"),
+                n_format(game.nkap),
+            ),
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
 
@@ -89,9 +105,7 @@ async def NEW_GAME(update, game: Game):
 
 async def CANNOT_START_GAME(update, reason: Literal["neg"]):
     if reason == "neg":
-        await update.effective_chat.send_message(
-            "Chez ta grand-mère, vous utilisez l'argent négatif ?"
-        )
+        await update.effective_chat.send_message(t_cannot_start_neg())
 
 
 async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game):
@@ -188,7 +202,12 @@ async def FIRST_CARD(
             ]
         ]
         message = await update.effective_chat.send_message(
-            f"{mention(game.current_player.user.first_name, f'tg://user?id={game.current_player.user.id}')} tu joues la première carte",
+            t_first_card(
+                mention(
+                    game.current_player.user.first_name,
+                    f"tg://user?id={game.current_player.user.id}",
+                )
+            ),
             reply_markup=InlineKeyboardMarkup(choice),
         )
         passed_data = {
@@ -228,7 +247,10 @@ async def WARN_AFK(context: ContextTypes.DEFAULT_TYPE) -> None:
         player: Player = job.data["player"]  # type: ignore
         msg = await context.bot.send_message(
             chat_id,
-            f"{mention(player.user.first_name, f'tg://user?id={player.id}')} si tu ne joue pas dans les prochaines {int(TIME_TO_AFK/2)} secondes tu perds",
+            t_warn_afk(
+                mention(player.user.first_name, f"tg://user?id={player.id}"),
+                int(TIME_TO_AFK / 2),
+            ),
         )
         game.add_message_to_delete(msg.message_id)
 
@@ -246,9 +268,9 @@ async def PLAY_CARD(
         c_list = []
         game_round_from_0 = game.round - 1
         for _ in range(game_round_from_0):
-            c_list.append("🎴")
-        for _ in range(5 - game_round_from_0):
             c_list.append("🃏")
+        for _ in range(5 - game_round_from_0):
+            c_list.append("🎴")
 
         choice = [
             [
@@ -308,19 +330,26 @@ async def WRONG_CARD(
     if not current_controlling_card:
         message = await context.bot.send_message(
             chat_id,
-            f"🤦🏾‍♂️ {mention(player.user.first_name, f'tg://user?id={player.id}')}, merci on a vu!\n Mais ce n'est pas ton tour de jouer",
+            t_wrong_card_turn(
+                mention(player.user.first_name, f"tg://user?id={player.id}")
+            ),
         )
         return message
 
     if (game.current_player != player) and game.started:
         message = await context.bot.send_message(
             chat_id,
-            f"🤦🏾‍♂️ {mention(player.user.first_name, f'tg://user?id={player.id}')}, merci on a vu!\n Mais ce n'est pas ton tour de jouer",
+            t_wrong_card_turn(
+                mention(player.user.first_name, f"tg://user?id={player.id}")
+            ),
         )
     else:
         message = await context.bot.send_message(
             chat_id,
-            f"🤦🏾‍♂️ Ok tara, on a vu, mais ce n'est pas le {card.icon} qui contrôle ce tour. C'est le {current_controlling_card.value}{current_controlling_card.icon} \n\nJe sais que tu a la carte, joue la!",
+            t_wrong_card_control(
+                card.icon,
+                f"{current_controlling_card.value}{current_controlling_card.icon}",
+            ),
         )
 
     return message
@@ -333,7 +362,7 @@ async def WARN_GAME_START(context: ContextTypes.DEFAULT_TYPE) -> None:
         chat_id: int = job.data["chat_id"]  # type: ignore
         game: Game = job.data["game"]  # type: ignore
         msg = await context.bot.send_message(
-            chat_id, f"On lance dans {int(GAME_START_TIMEOUT/2)} secondes"
+            chat_id, t_count_down(int(GAME_START_TIMEOUT / 2))
         )
         game.add_message_to_delete(msg.message_id)
 
@@ -343,7 +372,7 @@ async def NOT_ENOUGH_PLAYERS(
     context: ContextTypes.DEFAULT_TYPE | None = None,
     query: CallbackQuery | None = None,
 ) -> None:
-    text = "Pas assez de joueurs pour lancer.\nInvite les autres à rejoindre avant de lancer"
+    text = t_not_enough_players()
     if context:
         await context.bot.send_message(chat_id, text)
     if query:
@@ -378,9 +407,7 @@ async def CANNOT_KILL_GAME(update: Update) -> None:
 
 
 async def NOT_ADMIN(update: Update) -> None:
-    await send_reply_message(
-        update, "Tara, tu n'as pas les accréditations pour faire ça."
-    )
+    await send_reply_message(update, t_not_admin())
 
 
 async def TRANSFER_NKAP(
