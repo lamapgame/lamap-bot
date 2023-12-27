@@ -39,9 +39,7 @@ TEXTS = {
         "Respecte moi, c'est pas parce que on est ici sur Telegram on joue aux cartes.",
         "Tu veux jouer au malin? Tu vas voir",
         "Tu fais encore ça, je te bannis, propre !",
-        "Tu carbures à quoi? T'es déjà en jeu!"
-        "Pas la peine de pousser, tu es déjà sur le terrain!"
-        "Garde ton calme, tu fais déjà partie de l'aventure!",
+        "Tu carbures à quoi? Pose moi les vrais sous!",
     ],
     "NOT_ENOUGH_PLAYERS": [
         "Pas assez de joueurs pour lancer.\nInvite les autres à rejoindre avant de lancer",
@@ -78,6 +76,8 @@ TEXTS = {
         "Tu es au terre, titulaire à mort",
         "Ton nom est déjà dans le cahier, tu bouffes le prémier",
         "J'ai déjà coupé tes 5 cartes, calme toi",
+        "Pas la peine de pousser, tu es déjà sur le terrain!",
+        "Garde ton calme, tu fais déjà partie de l'aventure!",
     ],
     "FULL_GAME": [
         "Le terre est plein, tu vas jouer après",
@@ -93,6 +93,7 @@ TEXTS = {
         "Tu ne joue pas, contact @lamapsupport",
         "Tara, laisse nous tranquille.",
         "Va jouer autre chose stp.",
+        "Fiches le camps.",
         "Tu n'as pas un autre groupe ? Vas t'amuser sur whatsapp, tu es ban.",
         "Malheureusement tu n'as pas le droit de jouer",
         "Accès refusé! Va voir ailleurs si j'y suis.",
@@ -148,6 +149,7 @@ TEXTS = {
         "{user} c'est toi qui joues en premier.",
         "{user} tu es le premier à jouer.",
         "{user} tu es le premier à jouer, dégage la partie.",
+        "{user} dégage la partie.",
         "Fouette nous la première carte {user}",
         "C'est à toi de jouer {user}",
         "Tu es le premier à jouer {user}",
@@ -194,7 +196,7 @@ TEXTS = {
         "🤦🏾‍♂️ waahaa, j'ai remarqué que le mboutman ci ne m'écoute pas!\nCe n'est pas ton tour de jouer",
         "🤦🏾‍♂️ {user}, stp be cool, tu vas jouer quand je vais te dire, cache ta carte, les gars vont voir",
         "🤦🏾‍♂️ {user}, tu fais encore ça je te banque, laisse moi te dire quand tu dois jouer",
-        "🤦🏾‍♂️ On joue même avec qui comme ça ? Tu dois jouer quand je te dis que c'est ton tour.",
+        "🤦🏾‍♂️ C'est encore qui ici ? Tu dois jouer quand je te dis que c'est ton tour.",
     ],
     "NOT_ADMIN": [
         "Fiches moi la paix stp, tu n'es pas admin",
