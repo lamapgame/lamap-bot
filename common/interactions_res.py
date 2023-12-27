@@ -4,6 +4,7 @@ from random import choice
 
 IMAGES = {
     "START": "https://i.imgur.com/GwMcZVr.png",
+    "START0": "https://i.imgur.com/nCQ6Ams.png",
     "NORMAL": "https://i.imgur.com/ITeg26s.png",
     "KORA": "https://i.imgur.com/AEXG4Dp.png",
     "AFK": "https://i.imgur.com/hoeRJV2.png",
@@ -27,7 +28,7 @@ TEXTS = {
         "Le groupe ci dort trop, voici *{bet}* chaud chaud!",
         "La moula c'est *{bet}*, le moulatier c'est {user}. Qui est chaud?",
         "*{bet}* est posé, tu n'auras jamais ça a 1xBet !",
-        "*{bet}* à été déposé par {first_name} ! Qui a la rage ?",
+        "*{bet}* à été déposé par {user} ! Qui a la rage ?",
     ],
     "CANNOT_START_NEG": [
         "Tu ne peux pas commencer avec un nombre négatif",
@@ -50,8 +51,8 @@ TEXTS = {
         "Tu es seul ? Il faut au moins 2 joueurs pour lancer une partie",
         "Va dans le groupe du loup, dit leurs que j'ai dit qu'ils viennent jouer avec toi",
         "Waaaah, je t'ai déjà dit de ne plus venir lancer seul, tu ne m'écoutes pas",
-        "Weeeeh, tu vas alors jouer avec qui ?"
-        "Vas un peu tourner stp."
+        "Weeeeh, tu vas alors jouer avec qui ?",
+        "Vas un peu tourner stp.",
         "Tu n'as pas d'amis ?, il faut au moins 2 joueurs pour lancer une partie",
         "Les gars ont peur de toi, Raaaaambo ?!",
         "Le terre est sec, revient après, il y aura plus de joueurs",
@@ -189,11 +190,11 @@ TEXTS = {
         "🤦🏾‍♂️ Ce n'est pas toi qui joue, {user}. Attends ton tour",
         "🤦🏾‍♂️ Tu ne peux pas jouer, {user}. Attends ton tour",
         "🤦🏾‍♂️ {user} C'est moi ou ce n'est pas moi le katika ? Laisse moi te dire quand c'est ton tour de jouer.",
-        "🤦🏾‍♂️ {user}, merci on a vu!\n Mais ce n'est pas ton tour de jouer"
-        "🤦🏾‍♂️ waahaa, j'ai remarqué que le mboutman ci ne m'écoute pas!\n Ce n'est pas ton tour de jouer"
-        "🤦🏾‍♂️ {user}, stp be cool, tu vas jouer quand je vais te dire, cache ta carte, les gars vont voir"
-        "🤦🏾‍♂️ {user}, tu fais encore ça je te banque, laisse moi te dire quand tu dois jouer"
-        "🤦🏾‍♂️ On joue même avec qui comme ça ? Tu dois jouer quand je te dis que c'est ton tour,,,,,,."
+        "🤦🏾‍♂️ {user}, merci on a vu!\n Mais ce n'est pas ton tour de jouer",
+        "🤦🏾‍♂️ waahaa, j'ai remarqué que le mboutman ci ne m'écoute pas!\nCe n'est pas ton tour de jouer",
+        "🤦🏾‍♂️ {user}, stp be cool, tu vas jouer quand je vais te dire, cache ta carte, les gars vont voir",
+        "🤦🏾‍♂️ {user}, tu fais encore ça je te banque, laisse moi te dire quand tu dois jouer",
+        "🤦🏾‍♂️ On joue même avec qui comme ça ? Tu dois jouer quand je te dis que c'est ton tour.",
     ],
     "NOT_ADMIN": [
         "Fiches moi la paix stp, tu n'es pas admin",

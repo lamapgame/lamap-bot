@@ -96,8 +96,8 @@ async def NEW_GAME(update: Update, game: Game):
             reply_markup=InlineKeyboardMarkup(keyboard),
         )
 
-    return await update.effective_chat.send_animation(
-        "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
+    return await update.effective_chat.send_photo(
+        IMAGES["START0"],
         caption=f"{game.creator.first_name} veut nous mettre bien. Qui est chaud?",
         reply_markup=InlineKeyboardMarkup(keyboard),
     )
@@ -124,18 +124,19 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
     )
 
     if game.end_reason == "QUIT":
-        message = await context.bot.send_animation(
+        message = await context.bot.send_photo(
             chat_id,
-            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
-            caption=f"Il ne reste qu'un joueur, {winners} gagne {n_format(game.amount_won)} par forfait. On remet ça ?",
+            IMAGES["NORMAL"],
+            caption=f"Il ne reste qu'un joueur, {winners} gagne *{n_format(game.amount_won)}* par forfait. On remet ça ?",
         )
         return message
 
     if game.end_reason == "SPECIAL":
-        message = await context.bot.send_animation(
+        message = await context.bot.send_photo(
             chat_id,
-            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
-            caption=f"{winners} a gagné {n_format(game.amount_won)} avec une carte spéciale. On remet ça ?",
+            IMAGES["SPECIAL"],
+            has_spoiler=True,
+            caption=f"Ekié ! {winners} a gagné *{n_format(game.amount_won)}* avec une carte spéciale. On remet ça ?",
         )
         return message
 
@@ -150,17 +151,37 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
         return message
 
     if game.end_reason == "AFK":
-        message = await context.bot.send_animation(
+        message = await context.bot.send_photo(
             chat_id,
-            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
-            caption=f"{losers} a AFK. La mise était {n_format(game.nkap)} On remet ça?",
+            IMAGES["AFK"],
+            has_spoiler=True,
+            caption=f"On a pas le temps, {losers} a AFK. La mise  *{n_format(game.nkap)}. Je calcule ses dettes et On remet ça?",
+        )
+        return message
+
+    if game.end_reason == "KORA":
+        message = await context.bot.send_photo(
+            chat_id,
+            IMAGES["KORA"],
+            has_spoiler=True,
+            caption=f"{winners} nous a KORATER. Le voilà qui fuit avec *{n_format(game.amount_won)}*. On remet ça?",
+        )
+        return message
+
+    if game.end_reason == "DBL_KORA":
+        message = await context.bot.send_photo(
+            chat_id,
+            IMAGES["DBL_KORA"],
+            has_spoiler=True,
+            caption=f"{winners} nous servi la 33 la plus glacée d'Essos. Il ramasse *{n_format(game.amount_won)}*. On remet ça?",
         )
         return message
 
     if game.controlling_player:
-        message = await context.bot.send_animation(
+        message = await context.bot.send_photo(
             chat_id,
-            "https://media.giphy.com/media/qrXMFgQ5UOI8g/giphy-downsized.gif",
+            IMAGES["NORMAL"],
+            has_spoiler=True,
             caption=f"{winners} nous a allumé comme il faut et prends {n_format(game.amount_won)}. On remet ça ?",
         )
         return message

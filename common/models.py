@@ -137,12 +137,12 @@ def compute_game_stats(game: Game):
     # if player wins by kora, double the points and the money
     if game.end_reason == "KORA":
         points *= 2
-        nkap *= 2
+        nkap = nkap * 2
 
     # if player wins by double kora, quadruple
     if game.end_reason == "DBL_KORA":
         points *= 4
-        nkap *= 4
+        nkap = nkap * 4
 
     # if we are playing a money game, assign points based on the nkap
     if nkap > 0:
@@ -188,15 +188,20 @@ def compute_game_stats(game: Game):
 
         if game.end_reason == "KORA":
             stats.wins_kora += 1
-            nkap += nkap * 2
         if game.end_reason == "DBL_KORA":
             stats.wins_dbl_kora += 1
-            nkap += nkap * 4
         if game.end_reason == "SPECIAL":
             stats.wins_special += 1
 
-        stats.nkap += nkap
-        game.amount_won = nkap
+        # if the game ends by afk, pay the nkap to all players
+        # else, the winner takes from the loosers
+        if game.end_reason == "AFK":
+            amount_won = nkap
+        else:
+            amount_won = nkap * len(loosers)
+
+        stats.nkap += amount_won
+        game.amount_won = amount_won
 
         # find this player in the game and update the amount
         for p in game.players:
@@ -224,10 +229,8 @@ def compute_game_stats(game: Game):
             stats.quit += 1
         if game.end_reason == "KORA" and player.is_koratable:
             stats.losses_kora += 1
-            nkap -= nkap * 2
         if game.end_reason == "DBL_KORA" and player.is_koratable:
             stats.losses_dbl_kora += 1
-            nkap -= nkap * 4
         if game.end_reason == "SPECIAL":
             stats.losses_special += 1
 

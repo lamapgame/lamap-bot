@@ -41,7 +41,7 @@ async def log_admin(
 def mention(title, link, v2: bool = False):
     """mention (tag) a telegram user"""
     if v2:
-        v2ize(title)
+        title = v2ize(title)
     if link:
         return f"[{title}]({link})"
     else:
