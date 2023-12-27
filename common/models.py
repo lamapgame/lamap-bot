@@ -168,16 +168,16 @@ def compute_game_stats(game: Game):
         if game.play_history[-1].move.value == 99:
             if AchievementsDB.get(user=player.id, code="ACH_LA_FAMILLE") == None:
                 AchievementsDB(user=player.id, code="ACH_LA_FAMILLE")
-        if stats.nkap == 500_000_000:
+        if stats.nkap >= 500_000_000:
             if AchievementsDB.get(user=player.id, code="ACH_LE_BOBO") == None:
                 AchievementsDB(user=player.id, code="ACH_LE_BOBO")
-        if stats.nkap == 1_000_000_000:
+        if stats.nkap >= 1_000_000_000:
             if AchievementsDB.get(user=player.id, code="ACH_LE_DON_MAN") == None:
                 AchievementsDB(user=player.id, code="ACH_LE_DON_MAN")
-        if stats.wins_kora > 1000:
+        if stats.wins_kora >= 1000:
             if AchievementsDB.get(user=player.id, code="ACH_LE_KORATEUR") == None:
                 AchievementsDB(user=player.id, code="ACH_LE_KORATEUR")
-        if stats.wins_dbl_kora > 1000:
+        if stats.wins_dbl_kora >= 1000:
             if AchievementsDB.get(user=player.id, code="ACH_LE_SNACKBAR") == None:
                 AchievementsDB(user=player.id, code="ACH_LE_SNACKBAR")
 
