@@ -142,7 +142,6 @@ class Orchestrator:
             for message_id in game.messages_to_delete:
                 try:
                     await context.bot.delete_message(chat_id, message_id)
-                except TelegramError as e:
+                except TelegramError:
                     # bot might not be admin or the message is already deleted
-                    logger.warning("CANNOT_DELETE in chat %s", chat_id, exc_info=e)
-                    pass
+                    logger.warning("CANNOT_DELETE in chat %s", chat_id)

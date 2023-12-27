@@ -41,32 +41,37 @@ async def log_admin(
 def mention(title, link, v2: bool = False):
     """mention (tag) a telegram user"""
     if v2:
-        # escape invalid markdown characters
-        for char in [
-            "_",
-            "*",
-            "[",
-            "]",
-            "(",
-            ")",
-            "~",
-            "`",
-            ">",
-            "#",
-            "+",
-            "-",
-            "=",
-            "|",
-            "{",
-            "}",
-            ".",
-            "!",
-        ]:
-            title = title.replace(char, f"\\{char}")
+        title = v2ize(title)
     if link:
         return f"[{title}]({link})"
     else:
         return f"{title}"
+
+
+def v2ize(text: str) -> str:
+    """escape invalid markdown characters"""
+    for char in [
+        "_",
+        "*",
+        "[",
+        "]",
+        "(",
+        ")",
+        "~",
+        "`",
+        ">",
+        "#",
+        "+",
+        "-",
+        "=",
+        "|",
+        "{",
+        "}",
+        ".",
+        "!",
+    ]:
+        text = text.replace(char, f"\\{char}")
+    return text
 
 
 def n_format(num):

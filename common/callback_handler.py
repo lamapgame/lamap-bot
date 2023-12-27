@@ -18,6 +18,14 @@ from common.exceptions import (
     PlayerNotInGameError,
     TooManyPlayersError,
 )
+from common.interactions_res import (
+    t_already_in_game,
+    t_banned_player,
+    t_full_game,
+    t_player_joined,
+    t_poor_player,
+)
+from common.utils import mention
 from config import SUPER_ADMIN_LIST
 
 from deck import Card
@@ -67,19 +75,19 @@ async def join_game(update, query, game, user):
         player = Player(user)
         game.add_player(player)
         msg = await update.effective_chat.send_message(
-            f"{player.user.first_name} j'ai coupé tes cartes mon pro!"
+            t_player_joined(
+                mention(player.user.first_name, f"tg://user?id={player.user.id}")
+            )
         )
         game.add_message_to_delete(msg.message_id)
     except PlayerAlreadyInGameError:
-        await query.answer("Calme toi! Tes cartes sont posés.", show_alert=True)
+        await query.answer(t_already_in_game(), show_alert=True)
     except TooManyPlayersError:
-        await query.answer("C'est plein, tu vas jouer après.", show_alert=True)
+        await query.answer(t_full_game(), show_alert=True)
     except PlayerIsBanned:
-        await query.answer("Tu es banni, tu ne joues pas.", show_alert=True)
+        await query.answer(t_banned_player(), show_alert=True)
     except PlayerIsPoor:
-        await query.answer(
-            "Tu sais bien que tu es pauvre, pourquoi tu nous déranges?", show_alert=True
-        )
+        await query.answer(t_poor_player(), show_alert=True)
 
 
 async def start_game(update, context, query, chat_id, orchestrator, game, user):
