@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "lamap-bot"
-version = "0.1.0"
+version = "2.0.0"
 description = "Python Telegram bot to play Lamap card game."
 authors = ["Dylan Tientcheu <dylantientcheu@gmail.com>"]
 readme = "README.md"
