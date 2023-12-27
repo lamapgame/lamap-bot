@@ -1,0 +1,12 @@
+{
+	"configurations": [
+		{
+			"name": "Launch Bot",
+			"type": "python",
+			"request": "launch",
+			"program": "${workspaceFolder}/bot.py",
+			"console": "integratedTerminal",
+			"justMyCode": true
+		}
+	]
+}

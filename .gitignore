@@ -7,7 +7,7 @@
 data/
 
 # vs code
-.vscode/
+# .vscode/ # shared settings for codespace
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
