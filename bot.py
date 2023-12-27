@@ -185,7 +185,7 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
     """asks the orchestrator to initialize a new game in the current chat"""
 
     nkap = 0
-    if context.args and context.args[0]:
+    if context.args and len(context.args) > 0:
         nkap = int(context.args[0])
 
     if nkap < 0:
@@ -262,7 +262,7 @@ async def transfer_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> N
     if update.message.reply_to_message and update.message.reply_to_message.from_user:
         reciever = update.message.reply_to_message.from_user
 
-        if context.args and context.args[0]:
+        if context.args and len(context.args) > 0:
             amount = int(context.args[0].replace(" ", ""))
             if amount < 0:
                 await interactions.CANNOT_TRANSFER_NKAP(update, "neg")
@@ -330,11 +330,11 @@ async def rem_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reciever = update.message.reply_to_message.from_user
         reciever_id = reciever.id
 
-    if context.args and context.args[1]:
+    if context.args and len(context.args) > 1:
         has_id_arg = True
         reciever_id = int(context.args[1].replace(" ", ""))
 
-    if context.args and context.args[0]:
+    if context.args and len(context.args) > 0:
         amount = int(context.args[0].replace(" ", ""))
 
     else:
@@ -404,11 +404,11 @@ async def ret_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
         reciever = update.message.reply_to_message.from_user
         reciever_id = reciever.id
 
-    if context.args and context.args[1]:
+    if context.args and len(context.args) > 1:
         has_id_arg = True
         reciever_id = int(context.args[1].replace(" ", ""))
 
-    if context.args and context.args[0]:
+    if context.args and len(context.args) > 0:
         amount = int(context.args[0].replace(" ", ""))
     else:
         await interactions.CANNOT_TRANSFER_NKAP(update, "admin")
@@ -479,7 +479,7 @@ async def block_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None
 
     if update.message.reply_to_message and update.message.reply_to_message.from_user:
         reciever = update.message.reply_to_message.from_user
-    if context.args and context.args[0]:
+    if context.args and len(context.args) > 0:
         reciever = int(context.args[0].replace(" ", ""))
 
     try:
@@ -545,7 +545,7 @@ async def unblock_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     if update.message.reply_to_message and update.message.reply_to_message.from_user:
         reciever = update.message.reply_to_message.from_user
 
-    if context.args and context.args[0]:
+    if context.args and len(context.args) > 0:
         reciever = int(context.args[0].replace(" ", ""))
 
     try:
