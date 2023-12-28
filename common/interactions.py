@@ -155,7 +155,7 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
             chat_id,
             IMAGES["AFK"],
             has_spoiler=True,
-            caption=f"On a pas le temps, {losers} a AFK. La mise  *{n_format(game.nkap)}. Je calcule ses dettes et On remet ça?",
+            caption=f"On a pas le temps, {losers} a AFK. La mise  *{n_format(game.nkap)}*. Je calcule ses dettes et On remet ça?",
         )
         return message
 
