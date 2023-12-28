@@ -77,6 +77,9 @@ async def start(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def kill_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """kills the game in the current chat"""
+    if update.message and update.message.chat.type == "private":
+        await interactions.PRIVATE_CHAT(update)
+        return
 
     is_admin = False
     is_super_admin = False
@@ -107,6 +110,9 @@ async def kill_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def force_kick_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """kills the game in the current chat"""
+    if update.message and update.message.chat.type == "private":
+        await interactions.PRIVATE_CHAT(update)
+        return
 
     is_admin = False
     is_super_admin = False
@@ -134,6 +140,10 @@ async def force_kick_player(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def quit_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """/fuir command handler"""
+    if update.message and update.message.chat.type == "private":
+        await interactions.PRIVATE_CHAT(update)
+        return
+
     user = update.effective_user
 
     # incase the command was called by force_kick_player
@@ -183,6 +193,9 @@ async def learn(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """asks the orchestrator to initialize a new game in the current chat"""
+    if update.message and update.message.chat.type == "private":
+        await interactions.PRIVATE_CHAT(update)
+        return
 
     nkap = 0
     if context.args and len(context.args) > 0:

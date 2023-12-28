@@ -52,7 +52,14 @@ async def INIT_USER(update: Update) -> None:
         await send_reply_message(
             update,
             "Bienvenue sur Lamap Bot.\n"
-            "Pour jouer, lance /play <montant> et je vous met bien.",
+            "Pour jouer, lance `/play 500` et je vous met bien.",
+        )
+
+
+async def PRIVATE_CHAT(update: Update) -> None:
+    if update.message:
+        await update.message.reply_text(
+            "Cette commande ne se lance que dans un groupe."
         )
 
 
@@ -348,12 +355,27 @@ async def WRONG_CARD(
     if not game.controlling_card:
         current_controlling_card = game.prev_controlling_card
 
+    play_txt = f"Jouer {card.icon}"
+
+    if game.current_player:
+        play_txt = f"À toi {game.current_player.user.first_name}"
+
+    choice = [
+        [
+            InlineKeyboardButton(
+                text=play_txt,
+                switch_inline_query_current_chat=str(game.chat_id),
+            )
+        ]
+    ]
+
     if not current_controlling_card:
         message = await context.bot.send_message(
             chat_id,
             t_wrong_card_turn(
                 mention(player.user.first_name, f"tg://user?id={player.id}")
             ),
+            reply_markup=InlineKeyboardMarkup(choice),
         )
         return message
 
@@ -363,14 +385,26 @@ async def WRONG_CARD(
             t_wrong_card_turn(
                 mention(player.user.first_name, f"tg://user?id={player.id}")
             ),
+            reply_markup=InlineKeyboardMarkup(choice),
         )
     else:
+        if game.current_player:
+            choice = [
+                [
+                    InlineKeyboardButton(
+                        text=f"{game.current_player.user.first_name} joue"
+                        f" le {current_controlling_card.icon}",
+                        switch_inline_query_current_chat=str(game.chat_id),
+                    )
+                ]
+            ]
         message = await context.bot.send_message(
             chat_id,
             t_wrong_card_control(
                 card.icon,
                 f"{current_controlling_card.value}{current_controlling_card.icon}",
             ),
+            reply_markup=InlineKeyboardMarkup(choice),
         )
 
     return message
