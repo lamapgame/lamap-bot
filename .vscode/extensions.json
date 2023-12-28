@@ -3,6 +3,8 @@
 		"ms-python.python",
 		"ms-python.pylint",
 		"ms-python.vscode-pylance",
-		"charliermarsh.ruff"
+		"charliermarsh.ruff",
+		"ms-python.mypy-type-checker",
+		"ms-python.isort"
 	]
 }

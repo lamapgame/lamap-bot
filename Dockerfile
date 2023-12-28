@@ -11,7 +11,7 @@ RUN pip install poetry
 
 # Install dependencies using Poetry
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-root --no-dev
+    && poetry install --no-root --only main
 
 # Railway will define environment variables for you
 
