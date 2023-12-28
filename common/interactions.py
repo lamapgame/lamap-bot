@@ -24,6 +24,18 @@ from common.interactions_res import (
     t_wrong_card_control,
     t_wrong_card_turn,
 )
+from common.interactions_res import (
+    IMAGES,
+    t_cannot_start_neg,
+    t_count_down,
+    t_first_card,
+    t_new_game,
+    t_not_admin,
+    t_not_enough_players,
+    t_warn_afk,
+    t_wrong_card_control,
+    t_wrong_card_turn,
+)
 from common.jobs import remove_job_if_exists
 from common.utils import mention, n_format, send_reply_message
 from config import ACHIEVEMENTS, GAME_START_TIMEOUT, TIME_TO_AFK
@@ -155,7 +167,7 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
             chat_id,
             IMAGES["AFK"],
             has_spoiler=True,
-            caption=f"On a pas le temps, {losers} a AFK. La mise  *{n_format(game.nkap)}. Je calcule ses dettes et On remet ça?",
+            caption=f"On a pas le temps, {losers} a AFK. La mise  *{n_format(game.nkap)}*. Je calcule ses dettes et On remet ça?",
         )
         return message
 
