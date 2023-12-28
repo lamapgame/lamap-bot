@@ -26,6 +26,7 @@ SUPER_ADMIN_LIST = str(os.getenv("SUPER_ADMIN_LIST") or "223627873, 1077515995")
     ","
 )
 
+# ruff: noqa: E501
 
 # Achievements
 # ----------------
@@ -84,7 +85,7 @@ ACHIEVEMENTS = {
         "description": "Avoir 500 batons\n"
         "L'argent ne fait pas le bonheur, mais il y contribue fortement.",
     },
-     "ACH_LE_NTONG_MAN": {
+    "ACH_LE_NTONG_MAN": {
         "name": "Le Ntong Man",
         "emoji": "🎰",
         "description": "Gagner 200 parties avec les cartes speciales\n"
@@ -112,14 +113,14 @@ ACHIEVEMENTS = {
         "name": "Le Payeur",
         "emoji": "🤕",
         "description": "Payer 200 koras.\n"
-        "Tu as même encore l'argent? Le jambo ce n'est pas pour les enfant."
+        "Tu as même encore l'argent? Le jambo ce n'est pas pour les enfant.",
     },
     "ACH_LE_BUVEUR": {
         "name": "Le Buveur",
         "emoji": "😵",
         "description": "Boire 200 trente-trois.\n"
-        "On a compris que ton goût c'est la 33. Ne bois pas seulement ton cerveau aussi."
-    }
+        "On a compris que ton goût c'est la 33. Ne bois pas seulement ton cerveau aussi.",
+    },
 }
 
 
