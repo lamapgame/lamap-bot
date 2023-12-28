@@ -1,9 +1,6 @@
 <h1 align="center">
   <br>
-  <a href="http://t.me/LaMapBot"><img src="./static/botlogo-rnd.png" alt="Markdownify" width="200"></a>
-  <br>
-  La Map Telegram Bot
-  <br>
+  <a href="http://t.me/LaMapBot"><img src="./static/botlogo.png" alt="Markdownify" width="480"></a>
 </h1>
 
 <h4 align="center">A Telegram bot built on top of <a href="https://python-telegram-bot.org/" target="_blank">Python Telegram Bot</a> to help play La Map card game in Telegram groups.</h4>
@@ -14,12 +11,16 @@
     <img src="https://img.shields.io/badge/Telegram-La%20Map%20Bot-%230088cc?style=for-the-badge&logo=telegram"
          alt="Bot Chat">
   </a>
-  <a href="https://t.me/lamapdevs">
+  <a href="https://t.me/lamapbot">
+    <img src="https://img.shields.io/badge/Telegram-La%20Map%20Game-%2AAA8cc?style=for-the-badge&logo=telegram"
+         alt="Game Chat">
+  </a>
+  <a href="https://t.me/lamapsupport">
     <img src="https://img.shields.io/badge/Telegram-Support%20Chat-orange?style=for-the-badge&logo=telegram"
-         alt="Devs Chat">
+         alt="Support Chat">
   </a>
   <a href="https://t.me/lamapupdates">
-      <img src="https://img.shields.io/badge/Telegram-Update%20Channel-%230088cc?style=for-the-badge&logo=telegram" alt="Updates Group">
+      <img src="https://img.shields.io/badge/Telegram-Updates%20Channel-%230088cc?style=for-the-badge&logo=telegram" alt="Updates Group">
   </a>
 
 </p>
@@ -36,12 +37,14 @@
 
 ## Features
 
-- Play La Map in groups
-- Save stats per game played **(in development)**
+- Play La Map in Telegram groups
+- Stats per game played
+- Achievements and badges
+- Top tier performance
 
 ## Play
 
-Message [@LaMapBot](https://t.me/lamapbot) on Telegram and follow instructions
+Message [@LaMapBot](https://t.me/lamapbot) on Telegram and follow instructions - (French)
 
 Join [@LaMapUpdates](https://t.me/LaMapUpdates) to get bot related updates
 
@@ -55,7 +58,6 @@ This software uses the following tech:
 
 - [Python Telegram Bot](https://python-telegram-bot.org/): Python framework to help build Telegram bots
 - [Telegram Messenger](https://telegram.org/): Base chat platform on which the bot functions
-- Postgres: Data persistence and management
 
 ## Related
 
