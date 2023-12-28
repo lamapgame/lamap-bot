@@ -100,23 +100,23 @@ ACHIEVEMENTS = {
     "ACH_LE_KORATEUR": {
         "name": "Le Korateur",
         "emoji": "👺",
-        "description": "Kora 1000 fois.\n"
+        "description": "Kora 200 fois.\n"
         "Les 3 ne cherchent plus leurs frère, tu es un vrai korateur.",
     },
     "ACH_LE_SNACKBAR": {
         "name": "Le Snackbar",
-        "emoji": "👺",
-        "description": "Distribuer 1000 trente-trois.\n"
+        "emoji": "🍺",
+        "description": "Distribuer 200 trente-trois.\n"
         "Tu sers les 33s comme chez Pacho à Bastos. C'est pas bon pour la santé.",
     },
-    "ACH_LE_PAYEUR": {
-        "name": "Le Payeur",
+    "ACH_LE_KORATE": {
+        "name": "Le Koraté",
         "emoji": "🤕",
         "description": "Payer 200 koras.\n"
-        "Tu as même encore l'argent? Le jambo ce n'est pas pour les enfant.",
+        "Comment tu peux payer 200 koras ?",
     },
-    "ACH_LE_BUVEUR": {
-        "name": "Le Buveur",
+    "ACH_LE_SAOULARD": {
+        "name": "Le Saoulard",
         "emoji": "😵",
         "description": "Boire 200 trente-trois.\n"
         "On a compris que ton goût c'est la 33. Ne bois pas seulement ton cerveau aussi.",

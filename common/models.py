@@ -14,6 +14,7 @@ from common.exceptions import (
     UserIsBanned,
 )
 from config import BASE_POINTS, BOT_ID
+from player import Player
 
 if TYPE_CHECKING:
     from game import Game
@@ -121,6 +122,44 @@ def get_stats(user: User) -> tuple[UserDB, GameStatisticsDB]:
     userdb = UserDB.get(id=user.id)
     return userdb, GameStatisticsDB.get(user=userdb)
 
+@db_session
+def compute_game_achievements(player: Player, game: Game):
+    stats = GameStatisticsDB.get(user=player.user.id)
+    # Attributing achievement if player's winning streak equals 20
+    if stats.wl_streak == 20:
+        if AchievementsDB.get(user=player.id, code="ACH_LE_DON_MAN") is None:
+            AchievementsDB(user=player.id, code="ACH_LE_DON_MAN")
+    if game.end_reason == 'SPECIAL' and game.play_history[-1].move.value == 99:
+        if AchievementsDB.get(user=player.id, code="ACH_LA_FAMILLE") is None:
+            AchievementsDB(user=player.id, code="ACH_LA_FAMILLE")
+    if stats.nkap >= 500_000_000:
+        if AchievementsDB.get(user=player.id, code="ACH_LE_BOBO") is None:
+            AchievementsDB(user=player.id, code="ACH_LE_BOBO")
+    if stats.nkap >= 1_000_000_000:
+        if AchievementsDB.get(user=player.id, code="ACH_LE_TETE") is None:
+            AchievementsDB(user=player.id, code="ACH_LE_TETE")
+    if stats.wins_kora >= 200:
+        if AchievementsDB.get(user=player.id, code="ACH_LE_KORATEUR") is None:
+            AchievementsDB(user=player.id, code="ACH_LE_KORATEUR")
+    if stats.wins_dbl_kora >= 200:
+        if AchievementsDB.get(user=player.id, code="ACH_LE_SNACKBAR") is None:
+            AchievementsDB(user=player.id, code="ACH_LE_SNACKBAR")
+    if stats.wins_special >= 200:
+        if AchievementsDB.get(user=player.id, code="ACH_LE_NTONG_MAN") is None:
+            AchievementsDB(user=player.id, code="ACH_LE_NTONG_MAN")
+    if stats.wl_streak <= -20:
+        if AchievementsDB.get(user=player.id, code="ACH_LE_NOOB") is None:
+            AchievementsDB(user=player.id, code="ACH_LE_NOOB")
+    if stats.quit >= 500:
+        if AchievementsDB.get(user=player.id, code="ACH_LE_NDEM_MAN") is None:
+            AchievementsDB(user=player.id, code="ACH_LE_NDEM_MAN")
+    if stats.losses_kora >= 200:
+        if AchievementsDB.get(user=player.id, code="ACH_LE_KORATE") is None:
+            AchievementsDB(user=player.id, code="ACH_LE_KORATE")
+    if stats.losses_dbl_kora >= 200:
+        if AchievementsDB.get(user=player.id, code="ACH_LE_BUVEUR") is None:
+            AchievementsDB(user=player.id, code="ACH_LE_BUVEUR")
+
 
 @db_session
 def compute_game_stats(game: Game):
@@ -161,29 +200,8 @@ def compute_game_stats(game: Game):
         else:
             stats.wl_streak += 1
 
-
-        # Attributing achievement if player's winning streak equals 20
-        if stats.wl_streak == 20:
-            if AchievementsDB.get(user=player.id, code="ACH_LE_DON_MAN") is None:
-                AchievementsDB(user=player.id, code="ACH_LE_DON_MAN")
-        if game.end_reason == 'SPECIAL' and game.play_history[-1].move.value == 99:
-            if AchievementsDB.get(user=player.id, code="ACH_LA_FAMILLE") is None:
-                AchievementsDB(user=player.id, code="ACH_LA_FAMILLE")
-        if stats.nkap >= 500_000_000:
-            if AchievementsDB.get(user=player.id, code="ACH_LE_BOBO") is None:
-                AchievementsDB(user=player.id, code="ACH_LE_BOBO")
-        if stats.nkap >= 1_000_000_000:
-            if AchievementsDB.get(user=player.id, code="ACH_LE_TETE") is None:
-                AchievementsDB(user=player.id, code="ACH_LE_TETE")
-        if stats.wins_kora >= 1000:
-            if AchievementsDB.get(user=player.id, code="ACH_LE_KORATEUR") is None:
-                AchievementsDB(user=player.id, code="ACH_LE_KORATEUR")
-        if stats.wins_dbl_kora >= 1000:
-            if AchievementsDB.get(user=player.id, code="ACH_LE_SNACKBAR") is None:
-                AchievementsDB(user=player.id, code="ACH_LE_SNACKBAR")
-        if stats.wins_special == 200:
-            if AchievementsDB.get(user=player.id, code="ACH_LE_NTONG_MAN") is None:
-                AchievementsDB(user=player.id, code="ACH_LE_NTONG_MAN")
+        # Compute achievements
+        compute_game_achievements(player, game)
 
         # if a game finishes by AFK or QUIT at the >3 round, the player wins 3 times the nkap
         # this is because the looser might quit to avoid losing money
@@ -240,17 +258,8 @@ def compute_game_stats(game: Game):
 
         stats.nkap -= nkap
 
-        # Allocating achievements
-        # Attributing achievement if player's losing streak equals 20
-        if stats.wl_streak == -20:
-            if AchievementsDB.get(user=player.id, code="ACH_LE_NOOB") is None:
-                AchievementsDB(user=player.id, code="ACH_LE_NOOB")
-        if stats.quit == 500:
-            if AchievementsDB.get(user=player.id, code="ACH_LE_NDEM_MAN") is None:
-                AchievementsDB(user=player.id, code="ACH_LE_NDEM_MAN")
-        if stats.losses_dbl_kora >= 1000:
-            if AchievementsDB.get(user=player.id, code="ACH_LE_BUVEUR") is None:
-                AchievementsDB(user=player.id, code="ACH_LE_BUVEUR")
+        # Computing achievements
+        compute_game_achievements(player, game)
 
         # find this player in the game and update the amount
         for p in game.players:
