@@ -84,6 +84,12 @@ ACHIEVEMENTS = {
         "description": "Avoir 500 batons\n"
         "L'argent ne fait pas le bonheur, mais il y contribue fortement.",
     },
+     "ACH_LE_NTONG_MAN": {
+        "name": "Le Ntong Man",
+        "emoji": "🎰",
+        "description": "Gagner 200 parties avec les cartes speciales\n"
+        "Tu joues avec les écorces?",
+    },
     "ACH_LE_TETE": {
         "name": "Le Tété",
         "emoji": "🤑",
@@ -102,6 +108,18 @@ ACHIEVEMENTS = {
         "description": "Distribuer 1000 trente-trois.\n"
         "Tu sers les 33s comme chez Pacho à Bastos. C'est pas bon pour la santé.",
     },
+    "ACH_LE_PAYEUR": {
+        "name": "Le Payeur",
+        "emoji": "🤕",
+        "description": "Payer 200 koras.\n"
+        "Tu as même encore l'argent? Le jambo ce n'est pas pour les enfant."
+    },
+    "ACH_LE_BUVEUR": {
+        "name": "Le Buveur",
+        "emoji": "😵",
+        "description": "Boire 200 trente-trois.\n"
+        "On a compris que ton goût c'est la 33. Ne bois pas seulement ton cerveau aussi."
+    }
 }
 
 
