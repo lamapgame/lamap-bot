@@ -161,19 +161,20 @@ def compute_game_stats(game: Game):
         else:
             stats.wl_streak += 1
 
+
         # Attributing achievement if player's winning streak equals 20
         if stats.wl_streak == 20:
             if AchievementsDB.get(user=player.id, code="ACH_LE_DON_MAN") == None:
                 AchievementsDB(user=player.id, code="ACH_LE_DON_MAN")
-        if game.play_history[-1].move.value == 99:
+        if game.end_reason == 'SPECIAL' and game.play_history[-1].move.value == 99:
             if AchievementsDB.get(user=player.id, code="ACH_LA_FAMILLE") == None:
                 AchievementsDB(user=player.id, code="ACH_LA_FAMILLE")
         if stats.nkap >= 500_000_000:
             if AchievementsDB.get(user=player.id, code="ACH_LE_BOBO") == None:
                 AchievementsDB(user=player.id, code="ACH_LE_BOBO")
         if stats.nkap >= 1_000_000_000:
-            if AchievementsDB.get(user=player.id, code="ACH_LE_DON_MAN") == None:
-                AchievementsDB(user=player.id, code="ACH_LE_DON_MAN")
+            if AchievementsDB.get(user=player.id, code="ACH_LE_TETE") == None:
+                AchievementsDB(user=player.id, code="ACH_LE_TETE")
         if stats.wins_kora >= 1000:
             if AchievementsDB.get(user=player.id, code="ACH_LE_KORATEUR") == None:
                 AchievementsDB(user=player.id, code="ACH_LE_KORATEUR")
