@@ -122,41 +122,107 @@ def get_stats(user: User) -> tuple[UserDB, GameStatisticsDB]:
     userdb = UserDB.get(id=user.id)
     return userdb, GameStatisticsDB.get(user=userdb)
 
+
 # ruff: noqa: E501 # pylint: disable=line-too-long disable=anomalous-backslash-in-string
+
 
 @db_session
 def compute_game_achievements(player: Player, game: Game):
     stats = GameStatisticsDB.get(user=player.user.id)
-    # Attributing achievement if player's winning streak equals 20
-    if stats.wl_streak == 20 and AchievementsDB.get(user=player.id, code="ACH_LE_DON_MAN") is None:
+    if (
+        stats.games_played >= 150
+        and AchievementsDB.get(user=player.id, code="ACH_NOVICE_PLAYER") is None
+    ):
+        AchievementsDB(user=player.id, code="ACH_NOVICE_PLAYER")
+    if (
+        stats.games_played >= 1500
+        and AchievementsDB.get(user=player.id, code="ACH_MID_PLAYER") is None
+    ):
+        AchievementsDB(user=player.id, code="ACH_MID_PLAYER")
+    if (
+        stats.games_played >= 5000
+        and AchievementsDB.get(user=player.id, code="ACH_PRO_PLAYER") is None
+    ):
+        AchievementsDB(user=player.id, code="ACH_PRO_PLAYER")
+    if (
+        stats.games_played >= 50000
+        and AchievementsDB.get(user=player.id, code="ACH_GOD_PLAYER") is None
+    ):
+        AchievementsDB(user=player.id, code="ACH_GOD_PLAYER")
+    if (
+        stats.wl_streak == 20
+        and AchievementsDB.get(user=player.id, code="ACH_LE_DON_MAN") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_DON_MAN")
-    if game.end_reason == 'SPECIAL' and game.play_history[-1].move.value == 99 and AchievementsDB.get(user=player.id, code="ACH_LA_FAMILLE") is None:
+    if (
+        game.end_reason == "SPECIAL"
+        and game.play_history[-1].move.value == 99
+        and AchievementsDB.get(user=player.id, code="ACH_LA_FAMILLE") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LA_FAMILLE")
-    if stats.nkap <= -500_000_000 and AchievementsDB.get(user=player.id, code="ACH_LE_PAUVRE") is None:
+    if (
+        stats.nkap <= -500_000_000
+        and AchievementsDB.get(user=player.id, code="ACH_LE_PAUVRE") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_PAUVRE")
-    if stats.nkap >= 500_000_000 and AchievementsDB.get(user=player.id, code="ACH_LE_BOBO") is None:
+    if (
+        stats.nkap >= 500_000_000
+        and AchievementsDB.get(user=player.id, code="ACH_LE_BOBO") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_BOBO")
-    if stats.nkap >= 1_000_000_000 and AchievementsDB.get(user=player.id, code="ACH_LE_TETE") is None:
+    if (
+        stats.nkap >= 1_000_000_000
+        and AchievementsDB.get(user=player.id, code="ACH_LE_TETE") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_TETE")
-    if stats.wins_kora >= 200 and AchievementsDB.get(user=player.id, code="ACH_LE_KORATEUR") is None:
+    if (
+        stats.wins_kora >= 200
+        and AchievementsDB.get(user=player.id, code="ACH_LE_KORATEUR") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_KORATEUR")
-    if stats.wins_dbl_kora >= 200 and AchievementsDB.get(user=player.id, code="ACH_LE_SNACKBAR") is None:
+    if (
+        stats.wins_dbl_kora >= 200
+        and AchievementsDB.get(user=player.id, code="ACH_LE_SNACKBAR") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_SNACKBAR")
-    if stats.wins_special >= 200 and AchievementsDB.get(user=player.id, code="ACH_LE_NTONG_MAN") is None:
+    if (
+        stats.wins_special >= 200
+        and AchievementsDB.get(user=player.id, code="ACH_LE_NTONG_MAN") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_NTONG_MAN")
-    if stats.wl_streak <= -20 and AchievementsDB.get(user=player.id, code="ACH_LE_NOOB") is None:
+    if (
+        stats.wl_streak <= -20
+        and AchievementsDB.get(user=player.id, code="ACH_LE_NOOB") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_NOOB")
-    if stats.quit >= 500 and AchievementsDB.get(user=player.id, code="ACH_LE_NDEM_MAN") is None:
+    if (
+        stats.quit >= 500
+        and AchievementsDB.get(user=player.id, code="ACH_LE_NDEM_MAN") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_NDEM_MAN")
-    if stats.losses_kora >= 200 and AchievementsDB.get(user=player.id, code="ACH_LE_KORATE") is None:
+    if (
+        stats.losses_kora >= 200
+        and AchievementsDB.get(user=player.id, code="ACH_LE_KORATE") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_KORATE")
-    if stats.losses_dbl_kora >= 200 and AchievementsDB.get(user=player.id, code="ACH_LE_BUVEUR") is None:
+    if (
+        stats.losses_dbl_kora >= 200
+        and AchievementsDB.get(user=player.id, code="ACH_LE_BUVEUR") is None
+    ):
         AchievementsDB(user=player.id, code="ACH_LE_BUVEUR")
-    if stats.nkap < 0 and AchievementsDB.get(user=player.id, code="ACH_LE_BOBO") is not None and AchievementsDB.get(user=player.id, code="ACH_L'ANCIEN_RICHE") is None:
+    if (
+        stats.nkap < 0
+        and AchievementsDB.get(user=player.id, code="ACH_LE_BOBO") is not None
+        and AchievementsDB.get(user=player.id, code="ACH_L'ANCIEN_RICHE") is None
+    ):
         achievement = AchievementsDB.get(user=player.id, code="ACH_LE_BOBO")
         achievement.delete()
-        AchievementsDB(user=player.id, code="ACH_L'ANCIEN_RICHE") 
-    if stats.nkap > 0 and AchievementsDB.get(user=player.id, code="ACH_LE_PAUVRE") is not None and AchievementsDB.get(user=player.id, code="ACH_LA_REMONTADA") is None:
+        AchievementsDB(user=player.id, code="ACH_L'ANCIEN_RICHE")
+    if (
+        stats.nkap > 0
+        and AchievementsDB.get(user=player.id, code="ACH_LE_PAUVRE") is not None
+        and AchievementsDB.get(user=player.id, code="ACH_LA_REMONTADA") is None
+    ):
         achievement = AchievementsDB.get(user=player.id, code="ACH_LE_PAUVRE")
         achievement.delete()
         AchievementsDB(user=player.id, code="ACH_LA_REMONTADA")
@@ -204,7 +270,7 @@ def compute_game_stats(game: Game):
         # Compute achievements
         compute_game_achievements(player, game)
 
-        # if a game finishes by AFK or QUIT at the >3 round, 
+        # if a game finishes by AFK or QUIT at the >3 round,
         # the player wins 3 times the nkap
         # this is because the looser might quit to avoid losing money
         if (game.end_reason == "AFK" or game.end_reason == "QUIT") and game.round >= 3:
@@ -359,3 +425,10 @@ def get_achievements(user_id: int):
     """Get the achievements of a user"""
     achievements = AchievementsDB.select(lambda a: a.user == user_id)
     return achievements
+
+
+@db_session
+def add_achievement(user_id: int, code: str):
+    """Add an achievement to a user"""
+    userdb = UserDB.get(id=user_id)
+    AchievementsDB(user=userdb, code=code)

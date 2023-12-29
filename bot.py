@@ -40,6 +40,7 @@ import common.interactions as interactions
 from common.stats import show_stats, top_kora, top_nkap, top_points
 from common.utils import log_admin, mention
 from common.models import (
+    add_achievement,
     add_user,
     compute_ban_unban,
     compute_ret_rem,
@@ -48,7 +49,14 @@ from common.models import (
 
 from orchestrator import Orchestrator
 
-from config import BOT_ID, SUPER_ADMIN_LIST, THREAD_IDS, TOKEN, DATABASE_URL
+from config import (
+    ACHIEVEMENTS,
+    BOT_ID,
+    SUPER_ADMIN_LIST,
+    THREAD_IDS,
+    TOKEN,
+    DATABASE_URL,
+)
 
 # Enable logging
 logging.basicConfig(format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -609,6 +617,32 @@ async def unblock_user(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
         )
 
 
+async def force_achievement(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.message or not update.message.from_user:
+        return
+
+    user = update.message.from_user
+    if str(user.id) not in SUPER_ADMIN_LIST:
+        await interactions.YOU_ARE_NOT_SUPER_ADMIN(update)
+        return
+
+    if update.message.reply_to_message and update.message.reply_to_message.from_user:
+        reciever = update.message.reply_to_message.from_user
+        if context.args and len(context.args) > 0:
+            achievement = int(context.args[0].replace(" ", ""))
+            # check if this code is a valid achievement
+            if achievement in ACHIEVEMENTS:
+                add_achievement(reciever.id, achievement)
+            else:
+                await update.message.reply_text("Je ne connais pas le badge là")
+        else:
+            await interactions.CANNOT_DO_THIS(update)
+            return
+    else:
+        await interactions.CANNOT_DO_THIS(update)
+        return
+
+
 # launch bot
 try:
     if not TOKEN:
@@ -649,7 +683,7 @@ app.add_handler(CommandHandler("unblock", unblock_user))
 
 # FORCE commands - only for super admins - TO USE WITH EXTRA CAUTION
 # todo: add handlers for these
-app.add_handler(CommandHandler("FORCE_achievement", transfer_nkap))
+app.add_handler(CommandHandler("FORCE_achievement", force_achievement))
 app.add_handler(CommandHandler("FORCE_nkap_reset", transfer_nkap))
 
 # Callback query handler
