@@ -629,7 +629,7 @@ async def force_achievement(update: Update, context: ContextTypes.DEFAULT_TYPE) 
     if update.message.reply_to_message and update.message.reply_to_message.from_user:
         reciever = update.message.reply_to_message.from_user
         if context.args and len(context.args) > 0:
-            achievement = int(context.args[0].replace(" ", ""))
+            achievement = str(context.args[0].replace(" ", ""))
             # check if this code is a valid achievement
             if achievement in ACHIEVEMENTS:
                 add_achievement(reciever.id, achievement)
