@@ -35,6 +35,7 @@ class Orchestrator:
     def new_game(
         self,
         chat_id: int,
+        title: str,
         game_creator: User,
         update: Update,
         context: ContextTypes.DEFAULT_TYPE,
@@ -53,6 +54,7 @@ class Orchestrator:
 
         self.games[chat_id] = Game(
             chat_id,
+            title,
             game_creator,
             max_player_number,
             has_quick_wins,

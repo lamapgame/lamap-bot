@@ -1,10 +1,75 @@
+from pony.orm import db_session
+
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ContextTypes
 from common.exceptions import UserIsBanned
 
-from common.models import get_user
+from common.models import (
+    get_top_double_kora,
+    get_top_kora,
+    get_top_nkap,
+    get_top_points,
+    get_user,
+)
 from common.utils import mention, n_format
 from config import ACHIEVEMENTS
+
+
+@db_session
+async def top_nkap(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Shows the top 15 richest players"""
+    message = update.message
+    if not message:
+        return
+
+    try:
+        top = get_top_nkap()
+        top_txt = ""
+        for i, gs in enumerate(top):
+            top_txt += f"`{i+1:<2}` *{gs.user.name}*  `{n_format(gs.nkap)}`\n"
+        await message.reply_text(top_txt)
+    except ValueError:
+        await message.reply_text("Une erreur est survenue")
+
+
+@db_session
+async def top_points(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Shows the top 15 by points"""
+    message = update.message
+    if not message:
+        return
+
+    try:
+        top = get_top_points()
+        top_txt = ""
+        for i, gs in enumerate(top):
+            top_txt += f"`{i+1:<2}` *{gs.user.name}*  `{gs.points}`\n"
+        await message.reply_text(top_txt)
+    except ValueError:
+        await message.reply_text("Une erreur est survenue")
+
+
+@db_session
+async def top_kora(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
+    """shows the top 15 koras and double koras"""
+    message = update.message
+    if not message:
+        return
+
+    try:
+        top_kora_stats = get_top_kora()
+        top_dbl_kora = get_top_double_kora()
+        top_txt = ""
+        for i, gs in enumerate(top_kora_stats):
+            top_txt += f"`{i+1:<2}` *{gs.user.name}*  `{gs.wins_kora}`\n"
+        await message.reply_text("*TOP KORATEURS*\n\n" + top_txt)
+
+        top_txt = ""
+        for i, gs in enumerate(top_dbl_kora):
+            top_txt += f"`{i+1:<2}` *{gs.user.name}*  `{gs.wins_dbl_kora}`\n"
+        await message.reply_text("*TOP DOUBLE KORATEURS*\n\n" + top_txt)
+    except ValueError:
+        await message.reply_text("Une erreur est survenue")
 
 
 async def show_stats(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:

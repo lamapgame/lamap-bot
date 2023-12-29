@@ -7,6 +7,7 @@ from telegram import (
     CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    ReplyKeyboardMarkup,
     Update,
     User,
 )
@@ -130,11 +131,24 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
         ]
     )
 
+    restart_keyboard = [
+        [f"/play {round(game.nkap/2)}", f"/play {game.nkap}", f"/play {game.nkap*2}"]
+    ]
+    if game.nkap == 0:
+        restart_keyboard = [["/play 500", "/play 1000", "/play 2000"]]
+
+    restart_markup = ReplyKeyboardMarkup(
+        restart_keyboard, one_time_keyboard=True, resize_keyboard=True, selective=True
+    )
+
+    await DM_END_GAME(context, game)
+
     if game.end_reason == "QUIT":
         message = await context.bot.send_photo(
             chat_id,
             IMAGES["NORMAL"],
             caption=f"Il ne reste qu'un joueur, {winners} gagne *{n_format(game.amount_won)}* par forfait. On remet ça ?",
+            reply_markup=restart_markup,
         )
         return message
 
@@ -144,6 +158,7 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
             IMAGES["SPECIAL"],
             has_spoiler=True,
             caption=f"Ekié ! {winners} a gagné *{n_format(game.amount_won)}* avec une carte spéciale. On remet ça ?",
+            reply_markup=restart_markup,
         )
         return message
 
@@ -154,6 +169,7 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
         message = await context.bot.send_message(
             chat_id,
             f"🔨 {game.killer.first_name} a tué la partie. On remet ça ?",
+            reply_markup=restart_markup,
         )
         return message
 
@@ -163,6 +179,7 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
             IMAGES["AFK"],
             has_spoiler=True,
             caption=f"On a pas le temps, {losers} a AFK. La mise  *{n_format(game.nkap)}*. Je calcule ses dettes et On remet ça?",
+            reply_markup=restart_markup,
         )
         return message
 
@@ -172,6 +189,7 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
             IMAGES["KORA"],
             has_spoiler=True,
             caption=f"{winners} nous a KORATER. Le voilà qui fuit avec *{n_format(game.amount_won)}*. On remet ça?",
+            reply_markup=restart_markup,
         )
         return message
 
@@ -181,6 +199,7 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
             IMAGES["DBL_KORA"],
             has_spoiler=True,
             caption=f"{winners} nous servi la 33 la plus glacée d'Essos. Il ramasse *{n_format(game.amount_won)}*. On remet ça?",
+            reply_markup=restart_markup,
         )
         return message
 
@@ -190,8 +209,40 @@ async def END_GAME(context: ContextTypes.DEFAULT_TYPE, chat_id: int, game: Game)
             IMAGES["NORMAL"],
             has_spoiler=True,
             caption=f"{winners} nous a allumé comme il faut et prends {n_format(game.amount_won)}. On remet ça ?",
+            reply_markup=restart_markup,
         )
         return message
+
+
+async def DM_END_GAME(context: ContextTypes.DEFAULT_TYPE, game: Game):
+    for player in game.losers:
+        text = (
+            f"**PERDU 🙊**:\n{game.title}"
+            f"\n\nMise: `{n_format(game.nkap)}`"
+            f"\nPertes: `{n_format(player.nkap)}`"
+            f"\nPoints: `{player.points}`"
+        )
+        try:
+            await context.bot.send_message(
+                player.id,
+                text,
+            )
+        except Exception:
+            pass
+    for player in game.winners:
+        text = (
+            f"**GAGNÉ 🏆**:\n\n{game.title}"
+            f"\n\nMise: `{n_format(game.nkap)}`"
+            f"\nGains: `{n_format(player.nkap)}`"
+            f"\nPoints: `{player.points}`"
+        )
+        try:
+            await context.bot.send_message(
+                player.id,
+                text,
+            )
+        except Exception:
+            pass
 
 
 async def NEXT_PLAYER(

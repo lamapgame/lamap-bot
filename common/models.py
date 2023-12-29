@@ -3,7 +3,7 @@ import logging
 from math import log10
 from typing import TYPE_CHECKING, Any
 from datetime import datetime
-from pony.orm import PrimaryKey, Set, Required, db_session
+from pony.orm import PrimaryKey, Set, Required, db_session, desc
 
 from common.database import db
 from common.exceptions import (
@@ -161,7 +161,8 @@ def compute_game_stats(game: Game):
         else:
             stats.wl_streak += 1
 
-        # if a game finishes by AFK or QUIT at the >3 round, the player wins 3 times the nkap
+        # if a game finishes by AFK or QUIT at the >3 round,
+        # the player wins 3 times the nkap
         # this is because the looser might quit to avoid losing money
         if (game.end_reason == "AFK" or game.end_reason == "QUIT") and game.round >= 3:
             nkap += nkap * 3
@@ -187,10 +188,11 @@ def compute_game_stats(game: Game):
         for p in game.players:
             if p.id == player.id:
                 p.nkap = nkap
+                p.points = points
 
     for player in loosers:
         stats = GameStatisticsDB.get(user=player.user.id)
-        stats.points -= points // 2
+        stats.points = stats.points - (points // 2)
         stats.losses += 0
         stats.games_played += 1
         if stats.wl_streak > 0:
@@ -220,6 +222,7 @@ def compute_game_stats(game: Game):
         for p in game.players:
             if p.id == player.id:
                 p.nkap = nkap
+                p.points = (points // 2) * -1
 
 
 @db_session
@@ -274,6 +277,32 @@ def compute_ban_unban(user_id: int | User, ban: bool = True):
         userdb.verified = False
     else:  # unban
         userdb.verified = True
+
+
+@db_session
+def get_top_nkap():
+    return GameStatisticsDB.select().order_by(lambda gs: desc(gs.nkap)).limit(15)[:]
+
+
+@db_session
+def get_top_points():
+    return GameStatisticsDB.select().order_by(lambda gs: desc(gs.points)).limit(15)[:]
+
+
+@db_session
+def get_top_kora():
+    return (
+        GameStatisticsDB.select().order_by(lambda gs: desc(gs.wins_kora)).limit(15)[:]
+    )
+
+
+@db_session
+def get_top_double_kora():
+    return (
+        GameStatisticsDB.select()
+        .order_by(lambda gs: desc(gs.wins_dbl_kora))
+        .limit(15)[:]
+    )
 
 
 # ----------------------
