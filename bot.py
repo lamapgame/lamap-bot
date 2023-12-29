@@ -37,7 +37,7 @@ from common.exceptions import (
 from common.database import db
 
 import common.interactions as interactions
-from common.stats import show_stats
+from common.stats import show_stats, top_kora, top_nkap, top_points
 from common.utils import log_admin, mention
 from common.models import (
     add_user,
@@ -214,7 +214,12 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         user = update.message.from_user
         try:
             game = orchestrator.new_game(
-                update.message.chat.id, user, update, context, nkap
+                update.message.chat.id,
+                update.effective_chat.title or "Groupe non nommé",
+                user,
+                update,
+                context,
+                nkap,
             )
             msg = await interactions.NEW_GAME(update, game)
             chat_id = update.message.chat.id
@@ -632,6 +637,9 @@ app.add_handler(CommandHandler("kick", force_kick_player))
 # Stats handlers
 app.add_handler(CommandHandler("transfert", transfer_nkap))
 app.add_handler(CommandHandler("stats", show_stats))
+app.add_handler(CommandHandler("top_nkap", top_nkap))
+app.add_handler(CommandHandler("top_points", top_points))
+app.add_handler(CommandHandler("top_kora", top_kora))
 
 # Admin handlers
 app.add_handler(CommandHandler("rem", rem_nkap))
