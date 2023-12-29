@@ -5,6 +5,7 @@
 		"ms-python.vscode-pylance",
 		"charliermarsh.ruff",
 		"ms-python.mypy-type-checker",
-		"ms-python.isort"
+		"ms-python.isort",
+		"cweijan.vscode-postgresql-client2"
 	]
 }

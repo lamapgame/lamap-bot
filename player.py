@@ -19,6 +19,10 @@ class Player:
 
         # money lost or won, (negative if lost)
         self.nkap = 0
+        # points lost or won, (negative if lost)
+        self.points = 0
+        # achievements obtained
+        self.achievements: list[str] = []
 
         self.hand_of_cards: list[Any] = []
         self.turn_started_time = datetime.now()

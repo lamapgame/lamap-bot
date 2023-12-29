@@ -53,6 +53,7 @@ class Game:
     def __init__(
         self,
         chat_id: int,
+        title: str,
         user: User,
         max_player_number: int = MAX_PLAYER_NUMBER,
         has_quick_wins: bool = True,
@@ -62,6 +63,7 @@ class Game:
         nkap: int = 0,
     ):
         self.chat_id = chat_id
+        self.title = title
         self.started_date = None
         self.players: list[Player] = []
         self.deck = Deck()

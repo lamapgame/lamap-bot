@@ -37,7 +37,7 @@ from common.exceptions import (
 from common.database import db
 
 import common.interactions as interactions
-from common.stats import show_stats
+from common.stats import show_stats, top_kora, top_nkap, top_points
 from common.utils import log_admin, mention
 from common.models import (
     add_user,
@@ -77,6 +77,9 @@ async def start(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def kill_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """kills the game in the current chat"""
+    if update.message and update.message.chat.type == "private":
+        await interactions.PRIVATE_CHAT(update)
+        return
 
     is_admin = False
     is_super_admin = False
@@ -107,6 +110,9 @@ async def kill_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def force_kick_player(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """kills the game in the current chat"""
+    if update.message and update.message.chat.type == "private":
+        await interactions.PRIVATE_CHAT(update)
+        return
 
     is_admin = False
     is_super_admin = False
@@ -134,6 +140,10 @@ async def force_kick_player(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 async def quit_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """/fuir command handler"""
+    if update.message and update.message.chat.type == "private":
+        await interactions.PRIVATE_CHAT(update)
+        return
+
     user = update.effective_user
 
     # incase the command was called by force_kick_player
@@ -183,6 +193,9 @@ async def learn(update: Update, _context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     """asks the orchestrator to initialize a new game in the current chat"""
+    if update.message and update.message.chat.type == "private":
+        await interactions.PRIVATE_CHAT(update)
+        return
 
     nkap = 0
     if context.args and len(context.args) > 0:
@@ -201,7 +214,12 @@ async def start_new_game(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         user = update.message.from_user
         try:
             game = orchestrator.new_game(
-                update.message.chat.id, user, update, context, nkap
+                update.message.chat.id,
+                update.effective_chat.title or "Groupe non nommé",
+                user,
+                update,
+                context,
+                nkap,
             )
             msg = await interactions.NEW_GAME(update, game)
             chat_id = update.message.chat.id
@@ -619,6 +637,9 @@ app.add_handler(CommandHandler("kick", force_kick_player))
 # Stats handlers
 app.add_handler(CommandHandler("transfert", transfer_nkap))
 app.add_handler(CommandHandler("stats", show_stats))
+app.add_handler(CommandHandler("top_nkap", top_nkap))
+app.add_handler(CommandHandler("top_points", top_points))
+app.add_handler(CommandHandler("top_kora", top_kora))
 
 # Admin handlers
 app.add_handler(CommandHandler("rem", rem_nkap))
@@ -630,7 +651,6 @@ app.add_handler(CommandHandler("unblock", unblock_user))
 # todo: add handlers for these
 app.add_handler(CommandHandler("FORCE_achievement", transfer_nkap))
 app.add_handler(CommandHandler("FORCE_nkap_reset", transfer_nkap))
-app.add_handler(CommandHandler("FORCE_stats_reset", transfer_nkap))
 
 # Callback query handler
 app.add_handler(CallbackQueryHandler(callback_query))
