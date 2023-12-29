@@ -152,11 +152,11 @@ def compute_game_achievements(player: Player, game: Game):
         AchievementsDB(user=player.id, code="ACH_LE_KORATE")
     if stats.losses_dbl_kora >= 200 and AchievementsDB.get(user=player.id, code="ACH_LE_BUVEUR") is None:
         AchievementsDB(user=player.id, code="ACH_LE_BUVEUR")
-    if stats.nkap < 0 and AchievementsDB.get(user=player.id, code="ACH_LE_BOBO") is not None:
+    if stats.nkap < 0 and AchievementsDB.get(user=player.id, code="ACH_LE_BOBO") is not None and AchievementsDB.get(user=player.id, code="ACH_L'ANCIEN_RICHE") is None:
         achievement = AchievementsDB.get(user=player.id, code="ACH_LE_BOBO")
         achievement.delete()
-        AchievementsDB(user=player.id, code="ACH_L'ANCIEN_RICHE")
-    if stats.nkap > 0 and AchievementsDB.get(user=player.id, code="ACH_LE_PAUVRE") is not None:
+        AchievementsDB(user=player.id, code="ACH_L'ANCIEN_RICHE") 
+    if stats.nkap > 0 and AchievementsDB.get(user=player.id, code="ACH_LE_PAUVRE") is not None and AchievementsDB.get(user=player.id, code="ACH_LA_REMONTADA") is None:
         achievement = AchievementsDB.get(user=player.id, code="ACH_LE_PAUVRE")
         achievement.delete()
         AchievementsDB(user=player.id, code="ACH_LA_REMONTADA")
