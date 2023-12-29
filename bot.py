@@ -635,7 +635,7 @@ async def force_achievement(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             if achievement in ACHIEVEMENTS:
                 add_achievement(reciever.id, achievement)
                 await update.message.reply_text(
-                    f"C'est bon, c'est fait, il a reçu {achievement}"
+                    f"C'est bon, c'est fait, il a reçu `{achievement}`"
                 )
             else:
                 await update.message.reply_text("Je ne connais pas le badge là")
@@ -665,7 +665,7 @@ async def force_achievement_rem(
             # check if this code is a valid achievement
             if achievement in ACHIEVEMENTS:
                 remove_achievement(reciever.id, achievement)
-                await update.message.reply_text(f"On lui a enlevé {achievement}")
+                await update.message.reply_text(f"On lui a enlevé `{achievement}`")
             else:
                 await update.message.reply_text("Je ne connais pas le badge là")
         else:

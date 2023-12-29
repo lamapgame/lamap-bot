@@ -439,4 +439,5 @@ def remove_achievement(user_id: int, code: str):
     """Add an achievement to a user"""
     userdb = UserDB.get(id=user_id)
     achievement = AchievementsDB.get(user=userdb, code=code)
-    achievement.delete()
+    if achievement:
+        achievement.delete()
