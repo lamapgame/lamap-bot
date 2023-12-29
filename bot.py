@@ -651,7 +651,6 @@ app.add_handler(CommandHandler("unblock", unblock_user))
 # todo: add handlers for these
 app.add_handler(CommandHandler("FORCE_achievement", transfer_nkap))
 app.add_handler(CommandHandler("FORCE_nkap_reset", transfer_nkap))
-app.add_handler(CommandHandler("FORCE_stats_reset", transfer_nkap))
 
 # Callback query handler
 app.add_handler(CallbackQueryHandler(callback_query))
