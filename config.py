@@ -85,6 +85,12 @@ ACHIEVEMENTS = {
         "description": "Avoir 500 batons\n"
         "L'argent ne fait pas le bonheur, mais il y contribue fortement.",
     },
+    "ACH_LE_PAUVRE": {
+        "name": "Le Pauvre",
+        "emoji": "⛔",
+        "description": "Avoir -500 batons\n"
+        "Ca fait un bon moment que tu joues les arachides.",
+    },
     "ACH_LE_NTONG_MAN": {
         "name": "Le Ntong Man",
         "emoji": "🎰",
@@ -112,14 +118,25 @@ ACHIEVEMENTS = {
     "ACH_LE_KORATE": {
         "name": "Le Koraté",
         "emoji": "🤕",
-        "description": "Payer 200 koras.\n"
-        "Comment tu peux payer 200 koras ?",
+        "description": "Payer 200 koras.\n" "Comment tu peux payer 200 koras ?",
     },
     "ACH_LE_SAOULARD": {
         "name": "Le Saoulard",
         "emoji": "😵",
         "description": "Boire 200 trente-trois.\n"
         "On a compris que ton goût c'est la 33. Ne bois pas seulement ton cerveau aussi.",
+    },
+    "ACH_L'ANCIEN_RICHE": {
+        "name": "L'ancien Riche",
+        "emoji": "📉",
+        "description": "Un Ancien bobo desormais dans le négatif\n"
+        "Tu es comme les petits de 24ans qui disent qu'ils étaient bon aux ballon avant.",
+    },
+    "ACH_LA_REMONTADA": {
+        "name": "L'ancien Pauvre",
+        "emoji": "🚀",
+        "description": "Un ancien pauvre qui est devenu riche\n"
+        "Chapeau mollah, tu es comme le Barca face a Paris.",
     },
 }
 
