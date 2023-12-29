@@ -45,6 +45,7 @@ from common.models import (
     compute_ban_unban,
     compute_ret_rem,
     compute_transfer_nkap,
+    remove_achievement,
 )
 
 from orchestrator import Orchestrator
@@ -633,6 +634,38 @@ async def force_achievement(update: Update, context: ContextTypes.DEFAULT_TYPE) 
             # check if this code is a valid achievement
             if achievement in ACHIEVEMENTS:
                 add_achievement(reciever.id, achievement)
+                await update.message.reply_text(
+                    f"C'est bon, c'est fait, il a reçu {achievement}"
+                )
+            else:
+                await update.message.reply_text("Je ne connais pas le badge là")
+        else:
+            await interactions.CANNOT_DO_THIS(update)
+            return
+    else:
+        await interactions.CANNOT_DO_THIS(update)
+        return
+
+
+async def force_achievement_rem(
+    update: Update, context: ContextTypes.DEFAULT_TYPE
+) -> None:
+    if not update.message or not update.message.from_user:
+        return
+
+    user = update.message.from_user
+    if str(user.id) not in SUPER_ADMIN_LIST:
+        await interactions.YOU_ARE_NOT_SUPER_ADMIN(update)
+        return
+
+    if update.message.reply_to_message and update.message.reply_to_message.from_user:
+        reciever = update.message.reply_to_message.from_user
+        if context.args and len(context.args) > 0:
+            achievement = str(context.args[0].replace(" ", ""))
+            # check if this code is a valid achievement
+            if achievement in ACHIEVEMENTS:
+                remove_achievement(reciever.id, achievement)
+                await update.message.reply_text(f"On lui a enlevé {achievement}")
             else:
                 await update.message.reply_text("Je ne connais pas le badge là")
         else:
@@ -684,6 +717,7 @@ app.add_handler(CommandHandler("unblock", unblock_user))
 # FORCE commands - only for super admins - TO USE WITH EXTRA CAUTION
 # todo: add handlers for these
 app.add_handler(CommandHandler("FORCE_achievement", force_achievement))
+app.add_handler(CommandHandler("FORCE_REMOVE_achievement", force_achievement_rem))
 app.add_handler(CommandHandler("FORCE_nkap_reset", transfer_nkap))
 
 # Callback query handler

@@ -432,3 +432,11 @@ def add_achievement(user_id: int, code: str):
     """Add an achievement to a user"""
     userdb = UserDB.get(id=user_id)
     AchievementsDB(user=userdb, code=code)
+
+
+@db_session
+def remove_achievement(user_id: int, code: str):
+    """Add an achievement to a user"""
+    userdb = UserDB.get(id=user_id)
+    achievement = AchievementsDB.get(user=userdb, code=code)
+    achievement.delete()
