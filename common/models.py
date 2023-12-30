@@ -302,7 +302,7 @@ def compute_game_stats(game: Game):
     for player in loosers:
         stats = GameStatisticsDB.get(user=player.user.id)
         stats.points = stats.points - (points // 2)
-        stats.losses += 0
+        stats.losses += 1
         stats.games_played += 1
         if stats.wl_streak > 0:
             stats.wl_streak = -1

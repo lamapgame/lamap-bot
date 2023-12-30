@@ -22,9 +22,10 @@ GAME_START_TIMEOUT = int(os.getenv("GAME_START_TIMEOUT") or 40)
 TIME_TO_AFK = int(os.getenv("TIME_TO_AFK") or 50)
 LOGGING_CHAT_ID = int(os.getenv("LOGGING_CHAT_ID") or 0)
 BASE_POINTS = int(os.getenv("BASE_POINTS") or 10)
-SUPER_ADMIN_LIST = str(os.getenv("SUPER_ADMIN_LIST") or "223627873, 1077515995").split(
+SUPER_ADMIN_LIST = str(os.getenv("SUPER_ADMIN_LIST") or "223627873,1077515995").split(
     ","
 )
+CARDS_DESIGN = str(os.getenv("CARDS_DESIGN") or "DEFAULT")
 
 # ruff: noqa: E501
 
