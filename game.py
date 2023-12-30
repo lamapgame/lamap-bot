@@ -15,6 +15,7 @@ from common.exceptions import (
     PlayerAlreadyInGameError,
 )
 from common.models import compute_game_stats, get_stats
+from common.types import DesignType
 
 from deck import Card, Deck
 from player import Player
@@ -95,7 +96,7 @@ class Game:
         self.has_koras = has_koras
         self.has_dbl_koras = has_dbl_koras
         self.time_to_play = time_to_play
-        self.cards_design: Literal["DEFAULT", "GALACTIC", "LUXURY"] = "DEFAULT"
+        self.cards_design: DesignType = "DEFAULT"
 
     @property
     def current_player_index(self) -> int:
