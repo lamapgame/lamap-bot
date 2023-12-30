@@ -3,6 +3,8 @@ import logging
 
 from random import shuffle
 from typing import Literal, cast
+from common.types import DesignType
+from config import CARDS_DESIGN
 
 from player import Player
 
@@ -136,8 +138,8 @@ STICKERS = {
     },
 }
 
-DesignType = Literal["DEFAULT", "GALACTIC", "LUXURY", "OLD"]
-DEFAULT_DESIGN: DesignType = "DEFAULT"
+
+DEFAULT_DESIGN: DesignType = CARDS_DESIGN
 
 
 class Card:

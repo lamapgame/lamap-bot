@@ -1,5 +1,8 @@
 import os
+from typing import cast
 from dotenv import load_dotenv
+
+from common.types import DesignType
 
 # Load the stored environment variables
 load_dotenv()
@@ -25,7 +28,7 @@ BASE_POINTS = int(os.getenv("BASE_POINTS") or 10)
 SUPER_ADMIN_LIST = str(os.getenv("SUPER_ADMIN_LIST") or "223627873,1077515995").split(
     ","
 )
-CARDS_DESIGN = str(os.getenv("CARDS_DESIGN") or "DEFAULT")
+CARDS_DESIGN = cast(DesignType, str(os.getenv("CARDS_DESIGN") or "DEFAULT"))
 
 # ruff: noqa: E501
 
