@@ -315,6 +315,8 @@ def compute_game_stats(game: Game):
         # the player loses 3 times the nkap to all players
         if (game.end_reason == "AFK" or game.end_reason == "QUIT") and game.round >= 3:
             amount_lost += nkap * 3 * len(winners)
+        else:
+            amount_lost = nkap
 
         if game.end_reason == "AFK":
             stats.afk += 1
