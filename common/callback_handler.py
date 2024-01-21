@@ -94,6 +94,7 @@ async def start_game(update, context, query, chat_id, orchestrator, game, user):
     """starts the game properly from the query callback"""
     is_admin = False
     is_super_admin = False
+    is_in_game = False
 
     chat_admins = await update.effective_chat.get_administrators()
     if update.effective_user in (admin.user for admin in chat_admins):
@@ -102,7 +103,11 @@ async def start_game(update, context, query, chat_id, orchestrator, game, user):
     if str(user.id) in SUPER_ADMIN_LIST:
         is_super_admin = True
 
-    if (game.creator.id == user.id) or is_admin or is_super_admin:
+    for p in game.players:
+        if p.id == user.id:
+            is_in_game = True
+
+    if (game.creator.id == user.id) or is_admin or is_super_admin or is_in_game:
         try:
             game.start_game()
             jobs.remove_job_if_exists(str(chat_id), context)
