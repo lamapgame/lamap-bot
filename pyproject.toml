@@ -1,0 +1,41 @@
+[tool.poetry]
+name = "lamap-bot"
+version = "2.0.0"
+description = "Python Telegram bot to play Lamap card game."
+authors = ["Dylan Tientcheu <dylantientcheu@gmail.com>"]
+readme = "README.md"
+packages = []
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pony = ">=0.7.17"
+pydantic = ">=1.8.2"
+python-telegram-bot = {extras = ["job-queue"], version = "^20.5"}
+python-dotenv = "^1.0.0"
+psycopg2-binary = "^2.9.9"
+humanize = "^4.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = ">=5.3.5"
+ruff = "^0.0.287"
+mypy = "^1.5.1"
+black = "^23.7.0"
+pony-stubs = "^0.5.2"
+pytest-cov = "*"
+pytest-xdist = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+python_version = "3.11"
+plugins = "pydantic.mypy"
+follow_imports = "silent"
+ignore_missing_imports = true
+allow_redefinition = true
+# exclude = "test"
+show_error_codes = true
+warn_no_return = true
+warn_unused_configs = true
+warn_unused_ignores = true

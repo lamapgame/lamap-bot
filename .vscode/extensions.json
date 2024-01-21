@@ -1,0 +1,11 @@
+{
+	"recommendations": [
+		"ms-python.python",
+		"ms-python.pylint",
+		"ms-python.vscode-pylance",
+		"charliermarsh.ruff",
+		"ms-python.mypy-type-checker",
+		"ms-python.isort",
+		"cweijan.vscode-postgresql-client2"
+	]
+}

@@ -1,12 +1,19 @@
-FROM python:3.10.6
+FROM python:3.11-slim
 
-RUN apt-get install libpq-dev
-
+# Set the working directory in the container to /app
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+# Copy the current directory contents into the container at /app
+COPY . /app
 
-COPY . .
+# Install Poetry
+RUN pip install poetry
 
-CMD ["python", "bot.py", "prod"]
+# Install dependencies using Poetry
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-root --only main
+
+# Railway will define environment variables for you
+
+# Run bot.py when the container launches
+CMD ["python", "bot.py"]

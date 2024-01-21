@@ -1,81 +1,33 @@
-import logging
+from __future__ import annotations
+
 from datetime import datetime
+from typing import Any
 
-import card as c
-from errors import DeckEmptyError
-from config import WAITING_TIME
+from telegram import User
 
 
-class Player(object):
-    """
-    This class represents a player.
-    It is basically a simple list. On initialization, it will connect itself to a game and its
-    other players by placing itself behind the current player.
-    """
+class Player:
+    """A player already in a game"""
 
-    def __init__(self, game, user):
-        self.cards = list()
-        self.game = game
-        self.user = user
+    def __init__(self, user: User):
         self.id = user.id
-        self.controls = False
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(logging.INFO)
+        self.user = user
+        self.is_ai = False
+        # the player will pay kora if is_koratable is True
+        self.is_koratable = True
+        self.is_controller = False
 
-        self.turn_started = datetime.now()
-        self.waiting_time = WAITING_TIME
+        # money lost or won, (negative if lost)
+        self.nkap = 0
+        # points lost or won, (negative if lost)
+        self.points = 0
+        # achievements obtained
+        self.achievements: list[str] = []
 
-    def __repr__(self):
-        return repr(self.user)
+        self.hand_of_cards: list[Any] = []
+        self.turn_started_time = datetime.now()
 
-    def __str__(self):
-        return str(self.user)
-
-    def play(self, card):
-        # if it's a special card do not try to remove it
-        if card in c.SPECIALS:
-            pass
-        else:
-            self.cards.remove(card)
-        self.game.play_card(card)
-
-    def draw_hand(self):
-        """Draws a card from this deck"""
-        game_deck = self.game.deck
-        try:
-            # share the 5 randomized cards to players
-            for _ in range(5):
-                self.cards.append(game_deck.cards.pop())
-            game_deck.cards_dealt += 5
-
-        except IndexError:
-            raise DeckEmptyError()
-
-    def playable_cards(self):
-        """Returns a list of the cards this player can play right now"""
-        playable = list()
-        c_card = self.game.control_card
-        cards = self.cards
-
-        for card in cards:
-            if self._card_playable(c.from_str(card), c_card):
-                playable.append(card)
-
-        # if there's no single card matching the last card,
-        # then make all of them playable
-        if not playable:
-            for card in cards:
-                playable.append(card)
-
-        return playable
-
-    def _card_playable(self, card, c_card):
-        ''' Check if a card can be played '''
-        is_playable = True
-        # if there's a control card, then if he should play that
-        if c_card is not None:
-            # if they do not have the same suit, it cannot be playable
-            if card.suit is not c_card.suit:
-                is_playable = False
-
-        return is_playable
+    def __eq__(self, p: object) -> bool:
+        if not isinstance(p, Player):
+            return NotImplemented
+        return str(object=self.id) == str(p.id)
