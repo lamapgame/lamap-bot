@@ -259,6 +259,7 @@ def compute_game_stats(game: Game):
     for player in winners:
         # add points to the db
         stats = GameStatisticsDB.get(user=player.user.id)
+        amount_won = 0
         stats.points += points
         stats.wins += 1
         stats.games_played += 1
@@ -274,7 +275,7 @@ def compute_game_stats(game: Game):
         # the player wins 3 times the nkap
         # this is because the looser might quit to avoid losing money
         if (game.end_reason == "AFK" or game.end_reason == "QUIT") and game.round >= 3:
-            nkap += nkap * 3
+            amount_won += nkap * 3
 
         if game.end_reason == "KORA":
             stats.wins_kora += 1
@@ -296,11 +297,12 @@ def compute_game_stats(game: Game):
         # find this player in the game and update the amount
         for p in game.players:
             if p.id == player.id:
-                p.nkap = nkap
+                p.nkap = amount_won
                 p.points = points
 
     for player in loosers:
         stats = GameStatisticsDB.get(user=player.user.id)
+        amount_lost = 0
         stats.points = stats.points - (points // 2)
         stats.losses += 1
         stats.games_played += 1
@@ -312,7 +314,7 @@ def compute_game_stats(game: Game):
         # if a game finishes by AFK or QUIT >3 round,
         # the player loses 3 times the nkap to all players
         if (game.end_reason == "AFK" or game.end_reason == "QUIT") and game.round >= 3:
-            nkap += nkap * 3 * len(winners)
+            amount_lost += nkap * 3 * len(winners)
 
         if game.end_reason == "AFK":
             stats.afk += 1
@@ -325,7 +327,7 @@ def compute_game_stats(game: Game):
         if game.end_reason == "SPECIAL":
             stats.losses_special += 1
 
-        stats.nkap -= nkap
+        stats.nkap -= amount_lost
 
         # Computing achievements
         compute_game_achievements(player, game)
@@ -333,7 +335,7 @@ def compute_game_stats(game: Game):
         # find this player in the game and update the amount
         for p in game.players:
             if p.id == player.id:
-                p.nkap = nkap
+                p.nkap = amount_lost
                 p.points = (points // 2) * -1
 
 
