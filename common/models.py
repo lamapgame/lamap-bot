@@ -445,3 +445,12 @@ def remove_achievement(user_id: int, code: str):
     achievement = AchievementsDB.get(user=userdb, code=code)
     if achievement:
         achievement.delete()
+
+
+@db_session
+def refresh_all_nkap(amount: int):
+    """Refresh all nkap"""
+    db.execute(
+        """UPDATE stats SET nkap=$amount""",
+        {"amount": amount},
+    )
