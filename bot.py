@@ -38,7 +38,7 @@ from common.database import db
 
 import common.interactions as interactions
 from common.stats import show_stats, top_kora, top_nkap, top_points
-from common.utils import log_admin, mention
+from common.utils import log_admin, mention, n_format
 from common.models import (
     add_achievement,
     add_user,
@@ -676,6 +676,44 @@ async def force_achievement_rem(
         return
 
 
+async def refresh_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    if not update.message or not update.message.from_user:
+        return
+
+    user = update.message.from_user
+    if str(user.id) not in SUPER_ADMIN_LIST:
+        await interactions.YOU_ARE_NOT_SUPER_ADMIN(update)
+        return
+
+    if not context.args or len(context.args) == 0:
+        await interactions.CANNOT_DO_THIS(update)
+        return
+
+    try:
+        user = update.message.from_user
+        amount = int(context.args[0].replace(" ", ""))
+        db.execute(
+            """UPDATE userdb
+                    SET nkap=$amount
+                    WHERE verified=true
+                    """,
+            {"amount": amount},
+        )
+        await update.message.reply_text(
+            f"C'est bon, on a refresh tout le monde à {n_format(amount)}"
+        )
+        logger.info("REFRESH from %i OF %i", user.id, amount)
+        await log_admin(
+            f"🔨 \#REFRESH de à {mention(user.first_name, f'tg://user?id={user.id}', True)}"
+            f"  \(`{user.id}`\)\n"
+            f"a {n_format(amount)}",
+            context,
+            THREAD_IDS["BLOCKS"],
+        )
+    except (ValueError, IndexError):
+        await interactions.CANNOT_DO_THIS(update)
+
+
 # launch bot
 try:
     if not TOKEN:
@@ -713,6 +751,7 @@ app.add_handler(CommandHandler("rem", rem_nkap))
 app.add_handler(CommandHandler("ret", ret_nkap))
 app.add_handler(CommandHandler("block", block_user))
 app.add_handler(CommandHandler("unblock", unblock_user))
+app.add_handler(CommandHandler("refresh", refresh_nkap))
 
 # FORCE commands - only for super admins - TO USE WITH EXTRA CAUTION
 # todo: add handlers for these
