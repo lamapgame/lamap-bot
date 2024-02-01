@@ -45,6 +45,7 @@ from common.models import (
     compute_ban_unban,
     compute_ret_rem,
     compute_transfer_nkap,
+    refresh_all_nkap,
     remove_achievement,
 )
 
@@ -692,23 +693,17 @@ async def refresh_nkap(update: Update, context: ContextTypes.DEFAULT_TYPE) -> No
     try:
         user = update.message.from_user
         amount = int(context.args[0].replace(" ", ""))
-        db.execute(
-            """UPDATE userdb
-                    SET nkap=$amount
-                    WHERE verified=true
-                    """,
-            {"amount": amount},
-        )
+        refresh_all_nkap(amount)
         await update.message.reply_text(
             f"C'est bon, on a refresh tout le monde à {n_format(amount)}"
         )
-        logger.info("REFRESH from %i OF %i", user.id, amount)
+        logger.info("REFRESH from %i to %i", user.id, amount)
         await log_admin(
             f"🔨 \#REFRESH de à {mention(user.first_name, f'tg://user?id={user.id}', True)}"
             f"  \(`{user.id}`\)\n"
             f"a {n_format(amount)}",
             context,
-            THREAD_IDS["BLOCKS"],
+            THREAD_IDS["RETREM"],
         )
     except (ValueError, IndexError):
         await interactions.CANNOT_DO_THIS(update)
