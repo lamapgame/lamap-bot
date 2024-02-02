@@ -96,6 +96,11 @@ async def start_game(update, context, query, chat_id, orchestrator, game, user):
     is_super_admin = False
     is_in_game = False
 
+    # suppress race conditions,
+    # if the game is already started, don't start it again
+    if game.started:
+        return
+
     chat_admins = await update.effective_chat.get_administrators()
     if update.effective_user in (admin.user for admin in chat_admins):
         is_admin = True
