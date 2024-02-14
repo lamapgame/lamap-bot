@@ -275,7 +275,9 @@ def compute_game_stats(game: Game):
         # the player wins 3 times the nkap
         # this is because the looser might quit to avoid losing money
         if (game.end_reason == "AFK" or game.end_reason == "QUIT") and game.round >= 3:
-            amount_won += nkap * 3
+            amount_won = nkap * 3
+        else:
+            amount_won = nkap * len(loosers)
 
         if game.end_reason == "KORA":
             stats.wins_kora += 1
@@ -283,13 +285,6 @@ def compute_game_stats(game: Game):
             stats.wins_dbl_kora += 1
         if game.end_reason == "SPECIAL":
             stats.wins_special += 1
-
-        # if the game ends by afk, pay the nkap to all players
-        # else, the winner takes from the loosers
-        if game.end_reason == "AFK":
-            amount_won = nkap
-        else:
-            amount_won = nkap * len(loosers)
 
         stats.nkap += amount_won
         game.amount_won = amount_won
