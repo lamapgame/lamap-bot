@@ -381,7 +381,7 @@ class Game:
             return True
         else:
             # if card is of special type (x) it is always playable
-            if card.suit == "x":
+            if card.suit == "x" and self.round == 1:
                 return True
             # if the player has the controlling suit it should not be playable
             if card.suit in [c.suit for c in rest_of_cards]:
