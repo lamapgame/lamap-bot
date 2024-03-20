@@ -60,7 +60,7 @@ class GameStatisticsDB(db.Entity):
     wins_kora = Required(int, default=0)
     wins_dbl_kora = Required(int, default=0)
     wl_streak = Required(int, default=0)
-    nkap = Required(int, default=30000)
+    nkap = Required(int, size=64, default=30000)
 
 
 class AchievementsDB(db.Entity):
