@@ -71,7 +71,7 @@ async def handle_query(
 
 async def join_game(update, query, game, user):
     """makes a player join the game from the query callback"""
-    if game.round > 1:
+    if game.round > 1 or game.current_player is not None or game.lock_entry:
         await query.answer(
             "La partie est déjà en cours, tu ne peux pas rejoindre maintenant",
             show_alert=True,
