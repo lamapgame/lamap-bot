@@ -47,6 +47,12 @@ ACHIEVEMENTS = {
         "description": "La patronne du bot, elle gère toute vos parties\n"
         "Même si elle est pas la, elle est la.",
     },
+    "CHAMP_LAMAP_2024": {
+        "name": "Champion Lamap Printemps 2024",
+        "emoji": "⚡",
+        "description": "Au tournoi de juillet 2024, Wilfried nous a montré une masterclass.\n"
+        "C'est un pro. Il connaît la carte.",
+    },
     "ACH_SUPER_CHOUCHOU": {
         "name": "Katika Chouchou",
         "emoji": "🧑🏽‍⚖️",
