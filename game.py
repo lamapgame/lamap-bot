@@ -71,6 +71,7 @@ class Game:
         self.started = False
         self.creator = user
         self.current_player = None
+        self.lock_entry = False
         self.nkap = nkap
         self.round = 1
         self.play_history: list[Play] = []
@@ -252,6 +253,7 @@ class Game:
             raise NotEnoughPlayersError()
 
         self.started = True
+        self.lock_entry = True
         # a deck is shuffled by default
         shuffle(self.players)  # randomize list of players
         self.current_player = self.players[0]  # set the first player
